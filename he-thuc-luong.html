@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRẠM THỰC ĐỊA TOÁN HỌC ẢO — Toán 9 &amp; Toán 10</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f1f5f9;
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #fff;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.25);
+      z-index: 20;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand h1 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #f8fafc;
+    }
+
+    .brand p {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px;
+      border-radius: 11px;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-toggle {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      padding: 7px 12px;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .pill-toggle.teaching {
+      background: #16a34a;
+      border-color: #22c55e;
+    }
+
+    .pill-toggle.challenge {
+      background: #d97706;
+      border-color: #f59e0b;
+    }
+
+    /* Main Split Workspace */
+    .workspace {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 34%;
+      min-width: 340px;
+      max-width: 470px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .canvas-stage {
+      flex: 1;
+      position: relative;
+      background: #0f172a;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    /* Cards in Left Panel */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #475569;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: var(--primary);
+    }
+
+    .mission-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    /* Telemetry Grid */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .tele-box {
+      background: var(--panel-soft);
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 8px 10px;
+    }
+
+    .tele-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .tele-val {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .tele-val.accent { color: var(--primary); }
+    .tele-val.secret { color: var(--warning); }
+
+    /* Form Controls & Sliders */
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .num-input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: "Consolas", monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .num-input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 9px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    /* Feedback Banner */
+    .feedback-box {
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .feedback-box.show { display: block; }
+    .feedback-box.ok {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
+    }
+    .feedback-box.err {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+    }
+    .feedback-box.info {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+    }
+
+    /* Formula & Solution Card */
+    .formula-card {
+      background: #fafcff;
+      border: 1px dashed #93c5fd;
+      border-radius: 11px;
+      padding: 12px;
+    }
+
+    .formula-hidden-msg {
+      font-size: 12.5px;
+      color: #92400e;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 9px 11px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .math-block {
+      margin: 6px 0;
+      overflow-x: auto;
+      font-size: 13.5px;
+    }
+
+    /* Canvas Floating HUD */
+    .canvas-hud {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      gap: 10px;
+    }
+
+    .hud-chip {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(8px);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 7px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: auto;
+    }
+
+    .segmented {
+      display: flex;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 3px;
+    }
+
+    .seg-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .seg-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (max-width: 960px) {
+      body { height: auto; overflow: auto; }
+      .workspace { flex-direction: column-reverse; }
+      .left-panel { width: 100%; max-width: none; min-width: 0; }
+      .canvas-stage { height: 56vh; min-height: 390px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-badge">🧭</div>
+      <div>
+        <h1>TRẠM THỰC ĐỊA TOÁN HỌC ẢO</h1>
+        <p>Mô phỏng Hệ thức lượng (Toán 9) &amp; Định lí Cosin/Sin (Toán 10)</p>
+      </div>
+    </div>
+
+    <nav class="scenario-tabs" role="tablist">
+      <button class="tab-btn active" id="tab-1" onclick="switchScenario(1)">
+        <span>🗼</span> 1. Đo chiều cao Tháp (Toán 9)
+      </button>
+      <button class="tab-btn" id="tab-2" onclick="switchScenario(2)">
+        <span>⛵</span> 2. Thuyền vượt sông (Toán 9)
+      </button>
+      <button class="tab-btn" id="tab-3" onclick="switchScenario(3)">
+        <span>📡</span> 3. Radar Cứu hộ (Toán 10)
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <button class="pill-toggle teaching" id="btn-teach-mode" onclick="toggleTeachingMode()">
+        <span>🎓</span> <span id="teach-label">Chế độ giảng dạy</span>
+      </button>
+      <button class="pill-toggle" id="btn-sound" onclick="toggleSound()" title="Bật/tắt âm thanh">
+        <span id="sound-icon">🔊</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- Left Control & Telemetry Panel -->
+    <aside class="left-panel" id="left-panel"></aside>
+
+    <!-- Right Interactive Canvas -->
+    <section class="canvas-stage">
+      <canvas id="sceneCanvas"></canvas>
+      <div class="canvas-hud">
+        <div class="hud-chip" id="hud-hint"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. WEB AUDIO API SYNTHESIZER (Zero external audio files)
+    // =========================================================================
+    const SoundFX = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) this.ctx = new AC();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playTone(freq, dur, type = 'sine', vol = 0.08, slideTo = null) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + dur);
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + dur);
+      },
+      click() { this.playTone(620, 0.06, 'sine', 0.05); },
+      laser() { this.playTone(280, 0.55, 'sawtooth', 0.04, 880); },
+      radarPing() { this.playTone(1150, 0.25, 'sine', 0.035, 920); },
+      launch() { this.playTone(220, 0.35, 'triangle', 0.06, 440); },
+      success() {
+        if (!this.enabled) return;
+        this.playTone(523.25, 0.14, 'triangle', 0.08);
+        setTimeout(() => this.playTone(659.25, 0.14, 'triangle', 0.08), 110);
+        setTimeout(() => this.playTone(783.99, 0.28, 'triangle', 0.09), 220);
+      },
+      error() {
+        if (!this.enabled) return;
+        this.playTone(220, 0.18, 'sawtooth', 0.05, 160);
+        setTimeout(() => this.playTone(170, 0.24, 'sawtooth', 0.05, 120), 160);
+      }
+    };
+
+    // =========================================================================
+    // 2. GLOBAL APPLICATION STATE
+    // =========================================================================
+    const canvas = document.getElementById('sceneCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const app = {
+      scenario: 1, // 1: Tower, 2: River Boat, 3: Marine Radar
+      teachingMode: true,
+      time: 0,
+      lastFrame: performance.now(),
+      dragging: null,
+
+      // Scenario 1: Tower Measurement
+      s1: {
+        towerH: 42.0,      // Secret true height in meters
+        distB: 32.0,       // Distance from tower base O to station B (m)
+        distA: 58.0,       // Distance from tower base O to station A (m)
+        guessH: '',
+        laserAnim: { active: false, progress: 0, targetH: 0, done: false, correct: false }
+      },
+
+      // Scenario 2: River Crossing
+      s2: {
+        width: 120,        // River width W (m)
+        vBoat: 5.0,        // Boat speed relative to water (m/s)
+        vWater: 3.0,       // Water current speed (m/s)
+        thetaDeg: 90,      // Steering angle relative to upstream bank (90 = straight across)
+        sim: { running: false, x: 0, y: 0, trail: [], finished: false, driftX: 0 }
+      },
+
+      // Scenario 3: Marine Radar (Law of Sines / Cosines)
+      s3: {
+        missionType: 'sin', // 'sin' (knows c, A, B) | 'cos' (knows c, b=AC, A)
+        c: 18.0,            // Distance AB (km)
+        shipPos: { x: 0, y: 0 }, // Relative to midpoint of AB in km (x right, y up into sea)
+        targetStation: 'B', // Closer station or assigned station
+        trueDist: 0,
+        trueAngle: 0,       // Interior angle at dispatching station relative to AB
+        guessDist: '',
+        guessAngle: '',
+        radarAngle: 0,
+        sim: { running: false, progress: 0, done: false, guessX: 0, guessY: 0, isHit: false }
+      }
+    };
+
+    // =========================================================================
+    // 3. UTILITIES & KATEX RENDERING
+    // =========================================================================
+    function renderMath(el, tex) {
+      if (!el) return;
+      if (window.katex) {
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+      } else {
+        el.textContent = tex;
+      }
+    }
+
+    function renderAllMathBlocks() {
+      document.querySelectorAll('[data-tex]').forEach(el => {
+        renderMath(el, el.getAttribute('data-tex'));
+      });
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // =========================================================================
+    // 4. SCENARIO 1: TOWER HEIGHT MEASUREMENT (GRADE 9)
+    // =========================================================================
+    function newTowerMission() {
+      SoundFX.click();
+      app.s1.towerH = +(26 + Math.random() * 38).toFixed(1);
+      app.s1.distB = +(24 + Math.random() * 14).toFixed(1);
+      app.s1.distA = +(app.s1.distB + 16 + Math.random() * 18).toFixed(1);
+      app.s1.guessH = '';
+      app.s1.laserAnim = { active: false, progress: 0, targetH: 0, done: false, correct: false };
+      buildLeftPanel();
+    }
+
+    function getS1Angles() {
+      const alpha = Math.atan(app.s1.towerH / app.s1.distA) * 180 / Math.PI;
+      const beta = Math.atan(app.s1.towerH / app.s1.distB) * 180 / Math.PI;
+      const d = app.s1.distA - app.s1.distB;
+      return { alpha, beta, d };
+    }
+
+    function launchLaserCheck() {
+      const inp = document.getElementById('s1-guess');
+      const val = parseFloat(inp.value);
+      if (isNaN(val) || val <= 0) {
+        SoundFX.error();
+        showFeedback('err', 'Vui lòng nhập một số dương hợp lệ cho chiều cao H (mét).');
+        return;
+      }
+      app.s1.guessH = val;
+      app.s1.laserAnim = {
+        active: true,
+        progress: 0,
+        targetH: val,
+        done: false,
+        correct: Math.abs(val - app.s1.towerH) <= 0.1
+      };
+      SoundFX.laser();
+      showFeedback('info', '📡 Đang phóng tia laser đo đạc từ chân tháp...');
+    }
+
+    function getS1Layout(w, h) {
+      const groundY = h * 0.78;
+      const towerX = w * 0.80;
+      const maxSpanM = 95;
+      const scale = Math.min((w * 0.68) / maxSpanM, (h * 0.58) / 68);
+      const ax = towerX - app.s1.distA * scale;
+      const bx = towerX - app.s1.distB * scale;
+      const topY = groundY - app.s1.towerH * scale;
+      return { groundY, towerX, scale, ax, bx, topY };
+    }
+
+    function drawScenario1(w, h, dt) {
+      const { groundY, towerX, scale, ax, bx, topY } = getS1Layout(w, h);
+      const { alpha, beta, d } = getS1Angles();
+
+      // Sky gradient
+      const sky = ctx.createLinearGradient(0, 0, 0, groundY);
+      sky.addColorStop(0, '#0ea5e9');
+      sky.addColorStop(0.55, '#bae6fd');
+      sky.addColorStop(1, '#f0f9ff');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, groundY);
+
+      // Sun & drifting clouds
+      ctx.save();
+      const sunGrad = ctx.createRadialGradient(w * 0.14, h * 0.16, 8, w * 0.14, h * 0.16, 55);
+      sunGrad.addColorStop(0, 'rgba(254, 240, 138, 1)');
+      sunGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(w * 0.14, h * 0.16, 55, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      for (let i = 0; i < 3; i++) {
+        const cx = ((w * (0.25 + i * 0.28) + app.time * (8 + i * 3)) % (w + 160)) - 80;
+        const cy = h * (0.14 + (i % 2) * 0.08);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+        ctx.arc(cx + 22, cy - 6, 26, 0, Math.PI * 2);
+        ctx.arc(cx + 46, cy, 20, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Distant mountains
+      ctx.save();
+      ctx.fillStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.moveTo(0, groundY);
+      ctx.lineTo(w * 0.18, groundY - 95);
+      ctx.lineTo(w * 0.36, groundY - 35);
+      ctx.lineTo(w * 0.58, groundY - 120);
+      ctx.lineTo(w * 0.82, groundY - 45);
+      ctx.lineTo(w, groundY - 85);
+      ctx.lineTo(w, groundY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Ground & River/Moat separating stations from tower
+      const riverLeft = towerX - 18 * scale;
+      const riverRight = towerX - 4 * scale;
+
+      ctx.fillStyle = '#4d7c0f';
+      ctx.fillRect(0, groundY, w, h - groundY);
+      ctx.fillStyle = '#65a30d';
+      ctx.fillRect(0, groundY, w, 10);
+
+      // Moat / River
+      const waterGrad = ctx.createLinearGradient(riverLeft, groundY, riverRight, h);
+      waterGrad.addColorStop(0, '#0284c7');
+      waterGrad.addColorStop(1, '#0369a1');
+      ctx.fillStyle = waterGrad;
+      ctx.beginPath();
+      ctx.moveTo(riverLeft, groundY);
+      ctx.lineTo(riverRight, groundY);
+      ctx.lineTo(riverRight - 10, h);
+      ctx.lineTo(riverLeft + 10, h);
+      ctx.closePath();
+      ctx.fill();
+
+      // Animated water ripples in moat
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 1.5;
+      for (let r = 0; r < 4; r++) {
+        const ry = groundY + 18 + r * 22;
+        const rx = riverLeft + 14 + Math.sin(app.time * 2 + r) * 6;
+        ctx.beginPath();
+        ctx.moveTo(rx, ry);
+        ctx.lineTo(rx + (riverRight - riverLeft) * 0.55, ry);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#e0f2fe';
+      ctx.font = '700 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('SÔNG SÂU', (riverLeft + riverRight) / 2, groundY + 34);
+      ctx.fillText('(Không qua được)', (riverLeft + riverRight) / 2, groundY + 48);
+
+      // Ancient Tower at towerX
+      const tw = 34;
+      const towerGrad = ctx.createLinearGradient(towerX - tw / 2, topY, towerX + tw / 2, groundY);
+      towerGrad.addColorStop(0, '#e2e8f0');
+      towerGrad.addColorStop(0.5, '#cbd5e1');
+      towerGrad.addColorStop(1, '#94a3b8');
+
+      ctx.fillStyle = towerGrad;
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(towerX - tw * 0.65, groundY);
+      ctx.lineTo(towerX - tw * 0.42, topY + 28);
+      ctx.lineTo(towerX + tw * 0.42, topY + 28);
+      ctx.lineTo(towerX + tw * 0.65, groundY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Tower roof & spire up to topY
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.moveTo(towerX - tw * 0.52, topY + 28);
+      ctx.lineTo(towerX, topY);
+      ctx.lineTo(towerX + tw * 0.52, topY + 28);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Glowing beacon at top T
+      const pulse = 0.6 + 0.4 * Math.sin(app.time * 4);
+      ctx.fillStyle = `rgba(239, 68, 68, ${pulse})`;
+      ctx.beginPath();
+      ctx.arc(towerX, topY, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Right angle symbol at O
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(towerX - 12, groundY - 12, 12, 12);
+
+      // Sighting Laser Beams from A and B to T
+      ctx.save();
+      ctx.setLineDash([7, 5]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ef4444';
+      ctx.beginPath(); ctx.moveTo(ax, groundY); ctx.lineTo(towerX, topY); ctx.stroke();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.beginPath(); ctx.moveTo(bx, groundY); ctx.lineTo(towerX, topY); ctx.stroke();
+
+      // Baseline AO
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ax, groundY); ctx.lineTo(towerX, groundY); ctx.stroke();
+      ctx.restore();
+
+      // Angle arcs at A and B
+      drawSmallAngle(ax, groundY, -alpha * Math.PI / 180, 42, '#dc2626', `α = ${alpha.toFixed(2)}°`);
+      drawSmallAngle(bx, groundY, -beta * Math.PI / 180, 34, '#d97706', `β = ${beta.toFixed(2)}°`);
+
+      // Distance d bracket between A and B
+      ctx.save();
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 2;
+      const brY = groundY + 24;
+      ctx.beginPath();
+      ctx.moveTo(ax, brY - 6); ctx.lineTo(ax, brY + 6);
+      ctx.moveTo(bx, brY - 6); ctx.lineTo(bx, brY + 6);
+      ctx.moveTo(ax, brY); ctx.lineTo(bx, brY);
+      ctx.stroke();
+      drawHudPill(`d = ${d.toFixed(2)} m`, (ax + bx) / 2, brY + 18, '#0f172a', '#fde047');
+      ctx.restore();
+
+      // Theodolite stations A and B
+      drawTheodolite(ax, groundY, 'A', app.dragging === 'A');
+      drawTheodolite(bx, groundY, 'B', app.dragging === 'B');
+
+      // Tower height label H (hidden if not solved in challenge or before check)
+      const showTrueH = app.teachingMode || (app.s1.laserAnim.done && app.s1.laserAnim.correct);
+      drawHudPill(showTrueH ? `H = ${app.s1.towerH.toFixed(1)} m` : 'H = ??? m', towerX + 46, (groundY + topY) / 2, '#1e293b', showTrueH ? '#4ade80' : '#fbbf24');
+
+      // Laser check animation
+      if (app.s1.laserAnim.active) {
+        if (!app.s1.laserAnim.done) {
+          app.s1.laserAnim.progress = Math.min(1, app.s1.laserAnim.progress + dt * 1.35);
+          if (app.s1.laserAnim.progress >= 1) {
+            app.s1.laserAnim.done = true;
+            const diff = app.s1.laserAnim.targetH - app.s1.towerH;
+            if (app.s1.laserAnim.correct) {
+              SoundFX.success();
+              showFeedback('ok', `🎉 Chính xác! Chiều cao tháp là ${app.s1.towerH.toFixed(1)} m (sai số ${Math.abs(diff).toFixed(2)} m).`);
+              buildLeftPanel(true);
+            } else {
+              SoundFX.error();
+              const msg = diff < 0
+                ? `❌ Tia laser đang bị HỤT ${Math.abs(diff).toFixed(2)} m so với đỉnh tháp!`
+                : `❌ Tia laser đang VƯỢT đỉnh tháp ${diff.toFixed(2)} m!`;
+              showFeedback('err', msg);
+            }
+          }
+        }
+        const curH = app.s1.laserAnim.targetH * app.s1.laserAnim.progress;
+        const curY = groundY - curH * scale;
+        ctx.save();
+        ctx.strokeStyle = app.s1.laserAnim.done ? (app.s1.laserAnim.correct ? '#22c55e' : '#ef4444') : '#38bdf8';
+        ctx.lineWidth = 4;
+        ctx.shadowColor = ctx.strokeStyle;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.moveTo(towerX - 24, groundY);
+        ctx.lineTo(towerX - 24, curY);
+        ctx.stroke();
+
+        // Horizontal laser marker
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(towerX - 42, curY);
+        ctx.lineTo(towerX + 18, curY);
+        ctx.stroke();
+        ctx.restore();
+
+        drawHudPill(`Đo: ${curH.toFixed(1)} m`, towerX - 72, curY, '#0f172a', '#38bdf8');
+      }
+    }
+
+    function drawTheodolite(x, y, label, active) {
+      ctx.save();
+      // Tripod legs
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 16); ctx.lineTo(x - 10, y);
+      ctx.moveTo(x, y - 16); ctx.lineTo(x + 10, y);
+      ctx.stroke();
+
+      // Instrument head
+      ctx.fillStyle = active ? '#38bdf8' : '#f59e0b';
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(x, y - 18, active ? 9 : 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      drawHudPill(`Giác kế ${label}`, x, y - 38, '#0f172a', '#fff');
+      ctx.restore();
+    }
+
+    function drawSmallAngle(cx, cy, endRad, radius, color, text) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, endRad, 0);
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.font = '700 12px sans-serif';
+      ctx.fillText(text, cx + radius + 8, cy - 10);
+      ctx.restore();
+    }
+
+    function drawHudPill(text, x, y, bg, color) {
+      ctx.save();
+      ctx.font = '700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      const w = ctx.measureText(text).width + 14;
+      const h = 22;
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.roundRect(x - w / 2, y - h / 2, w, h, 6);
+      ctx.fill();
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y + 0.5);
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 5. SCENARIO 2: RIVER CROSSING BOAT (GRADE 9)
+    // =========================================================================
+    function startBoatSim() {
+      SoundFX.launch();
+      const s = app.s2;
+      s.sim = { running: true, x: 0, y: 0, trail: [{ x: 0, y: 0 }], finished: false, driftX: 0 };
+      showFeedback('info', '⛵ Thuyền đang rời bến A vượt sông...');
+    }
+
+    function resetBoatSim() {
+      app.s2.sim = { running: false, x: 0, y: 0, trail: [], finished: false, driftX: 0 };
+    }
+
+    function drawScenario2(w, h, dt) {
+      const s = app.s2;
+      const bankTop = h * 0.16;
+      const bankBot = h * 0.84;
+      const riverPx = bankBot - bankTop;
+      const scale = riverPx / s.width; // px per meter
+      const startX = w * 0.34;
+      const startY = bankBot;
+      const pierBX = startX;
+      const pierBY = bankTop;
+
+      // Top & Bottom Grass Banks
+      ctx.fillStyle = '#4d7c0f';
+      ctx.fillRect(0, 0, w, bankTop);
+      ctx.fillRect(0, bankBot, w, h - bankBot);
+
+      // River water
+      const wg = ctx.createLinearGradient(0, bankTop, 0, bankBot);
+      wg.addColorStop(0, '#0369a1');
+      wg.addColorStop(0.5, '#0284c7');
+      wg.addColorStop(1, '#0369a1');
+      ctx.fillStyle = wg;
+      ctx.fillRect(0, bankTop, w, riverPx);
+
+      // Animated flowing water waves
+      ctx.save();
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.32)';
+      ctx.lineWidth = 2;
+      for (let row = 0; row < 8; row++) {
+        const y = bankTop + (row + 0.5) * (riverPx / 8);
+        const offset = (app.time * s.vWater * 18 + row * 70) % 140;
+        for (let x = -140 + offset; x < w; x += 140) {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.quadraticCurveTo(x + 25, y - 5, x + 50, y);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      // Current direction arrows
+      drawHudPill(`Dòng chảy → v_nước = ${s.vWater.toFixed(1)} m/s`, w * 0.78, bankTop + 26, 'rgba(15,23,42,0.7)', '#7dd3fc');
+
+      // Piers A and B
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(startX - 18, bankBot - 8, 36, 18);
+      ctx.fillRect(pierBX - 18, bankTop - 10, 36, 18);
+      drawHudPill('Bến A (Xuất phát)', startX, bankBot + 24, '#0f172a', '#fde047');
+      drawHudPill('Bến B (Đích)', pierBX, bankTop - 24, '#0f172a', '#4ade80');
+
+      // Ideal perpendicular line AB
+      ctx.save();
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(pierBX, pierBY); ctx.stroke();
+      ctx.restore();
+
+      // Velocity components
+      const rad = s.thetaDeg * Math.PI / 180;
+      const vxBoat = -s.vBoat * Math.cos(rad); // upstream is negative x
+      const vyBoat = s.vBoat * Math.sin(rad);  // across river is positive y (upward on screen)
+      const vxNet = vxBoat + s.vWater;
+      const vyNet = vyBoat;
+
+      // Update simulation
+      if (s.sim.running && !s.sim.finished) {
+        const speedMult = 3.5; // time acceleration for smooth viewing
+        s.sim.x += vxNet * dt * speedMult;
+        s.sim.y += vyNet * dt * speedMult;
+        s.sim.trail.push({ x: s.sim.x, y: s.sim.y });
+
+        if (s.sim.y >= s.width) {
+          const ratio = (s.width - (s.sim.y - vyNet * dt * speedMult)) / Math.max(0.01, vyNet * dt * speedMult);
+          s.sim.y = s.width;
+          s.sim.finished = true;
+          s.sim.running = false;
+          s.sim.driftX = s.sim.x;
+
+          if (Math.abs(s.sim.driftX) <= 3.0) {
+            SoundFX.success();
+            showFeedback('ok', `🎉 Tuyệt vời! Thuyền cập bến B chính xác (độ lệch chỉ ${Math.abs(s.sim.driftX).toFixed(1)} m).`);
+          } else {
+            SoundFX.error();
+            const dir = s.sim.driftX > 0 ? 'hạ lưu (phải)' : 'thượng lưu (trái)';
+            showFeedback('err', `⛵ Thuyền bị trôi dạt về phía ${dir} cách bến B một khoảng ${Math.abs(s.sim.driftX).toFixed(1)} m!`);
+          }
+        }
+      }
+
+      // Draw predicted trajectory line from A
+      const timeCross = s.width / Math.max(0.05, vyNet);
+      const predDriftX = vxNet * timeCross;
+      const landX = startX + predDriftX * scale;
+
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(250, 204, 21, 0.65)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(landX, bankTop);
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw boat wake trail
+      if (s.sim.trail.length > 1) {
+        ctx.save();
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        s.sim.trail.forEach((pt, idx) => {
+          const px = startX + pt.x * scale;
+          const py = startY - pt.y * scale;
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Current boat position
+      const bx = startX + (s.sim.running || s.sim.finished ? s.sim.x : 0) * scale;
+      const by = startY - (s.sim.running || s.sim.finished ? s.sim.y : 0) * scale;
+
+      // Draw Velocity Vectors from boat
+      const vecScale = 16;
+      // v_boat vector (heading)
+      drawArrow(bx, by, bx + vxBoat * vecScale, by - vyBoat * vecScale, '#4ade80', `v_thuyền`);
+      // v_water vector from tip of v_boat (triangle rule!)
+      drawArrow(bx + vxBoat * vecScale, by - vyBoat * vecScale, bx + vxNet * vecScale, by - vyNet * vecScale, '#38bdf8', `v_nước`);
+      // v_net vector
+      drawArrow(bx, by, bx + vxNet * vecScale, by - vyNet * vecScale, '#facc15', `v_thực`);
+
+      // Draw Boat sprite rotated to heading
+      ctx.save();
+      ctx.translate(bx, by);
+      const headingAngle = Math.atan2(-vyBoat, vxBoat);
+      ctx.rotate(headingAngle);
+      ctx.fillStyle = '#f97316';
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(16, 0);
+      ctx.quadraticCurveTo(4, -9, -14, -7);
+      ctx.lineTo(-14, 7);
+      ctx.quadraticCurveTo(4, 9, 16, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Drift marker if finished
+      if (s.sim.finished && Math.abs(s.sim.driftX) > 0.5) {
+        const lx = startX + s.sim.driftX * scale;
+        ctx.save();
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(pierBX, bankTop - 4); ctx.lineTo(lx, bankTop - 4); ctx.stroke();
+        ctx.restore();
+        drawHudPill(`Lệch: ${Math.abs(s.sim.driftX).toFixed(1)} m`, (pierBX + lx) / 2, bankTop - 24, '#991b1b', '#fff');
+      }
+    }
+
+    function drawArrow(x1, y1, x2, y2, color, label) {
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      const len = Math.hypot(x2 - x1, y2 - y1);
+      if (len < 4) return;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - 9 * Math.cos(angle - 0.4), y2 - 9 * Math.sin(angle - 0.4));
+      ctx.lineTo(x2 - 9 * Math.cos(angle + 0.4), y2 - 9 * Math.sin(angle + 0.4));
+      ctx.closePath();
+      ctx.fill();
+
+      if (label) {
+        ctx.font = '700 11px sans-serif';
+        ctx.fillText(label, (x1 + x2) / 2 + 6, (y1 + y2) / 2 - 6);
+      }
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 6. SCENARIO 3: MARINE RADAR RESCUE (GRADE 10)
+    // =========================================================================
+    function newRadarMission() {
+      SoundFX.radarPing();
+      const s = app.s3;
+      s.c = +(14 + Math.random() * 12).toFixed(1);
+      // Place SOS ship C at a clear position out at sea
+      const sx = (Math.random() - 0.5) * s.c * 1.1;
+      const sy = 8 + Math.random() * 10;
+      s.shipPos = { x: +sx.toFixed(2), y: +sy.toFixed(2) };
+
+      const Ax = -s.c / 2, Bx = s.c / 2;
+      const dAC = Math.hypot(s.shipPos.x - Ax, s.shipPos.y);
+      const dBC = Math.hypot(s.shipPos.x - Bx, s.shipPos.y);
+
+      s.targetStation = dAC <= dBC ? 'A' : 'B';
+      s.trueDist = s.targetStation === 'A' ? dAC : dBC;
+
+      const angA = Math.atan2(s.shipPos.y, s.shipPos.x - Ax) * 180 / Math.PI;
+      const angB = Math.atan2(s.shipPos.y, Bx - s.shipPos.x) * 180 / Math.PI;
+      s.trueAngle = s.targetStation === 'A' ? angA : angB;
+
+      s.guessDist = '';
+      s.guessAngle = '';
+      s.sim = { running: false, progress: 0, done: false, guessX: 0, guessY: 0, isHit: false };
+      buildLeftPanel();
+    }
+
+    function launchRescue() {
+      const dVal = parseFloat(document.getElementById('s3-dist').value);
+      const aVal = parseFloat(document.getElementById('s3-angle').value);
+      if (isNaN(dVal) || isNaN(aVal) || dVal <= 0 || aVal <= 0 || aVal >= 180) {
+        SoundFX.error();
+        showFeedback('err', 'Vui lòng nhập khoảng cách (> 0) và góc hướng lái (0° - 180°) hợp lệ.');
+        return;
+      }
+      const s = app.s3;
+      s.guessDist = dVal;
+      s.guessAngle = aVal;
+
+      const rad = aVal * Math.PI / 180;
+      const startX = s.targetStation === 'A' ? -s.c / 2 : s.c / 2;
+      const dirX = s.targetStation === 'A' ? Math.cos(rad) : -Math.cos(rad);
+      const gx = startX + dVal * dirX;
+      const gy = dVal * Math.sin(rad);
+
+      const errDist = Math.hypot(gx - s.shipPos.x, gy - s.shipPos.y);
+      s.sim = {
+        running: true,
+        progress: 0,
+        done: false,
+        guessX: gx,
+        guessY: gy,
+        isHit: errDist <= 0.45
+      };
+      SoundFX.launch();
+      showFeedback('info', `🚤 Tàu cứu hộ xuất kích từ Trạm ${s.targetStation}...`);
+    }
+
+    function drawScenario3(w, h, dt) {
+      const s = app.s3;
+      // Radar dark background
+      ctx.fillStyle = '#04131c';
+      ctx.fillRect(0, 0, w, h);
+
+      const cx = w * 0.5;
+      const cy = h * 0.78;
+      const kmScale = Math.min(w * 0.75 / 32, h * 0.65 / 22);
+
+      // Concentric radar rings
+      ctx.save();
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+      ctx.lineWidth = 1;
+      for (let r = 5; r <= 25; r += 5) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * kmScale, Math.PI, 0);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.55)';
+        ctx.font = '600 10px monospace';
+        ctx.fillText(`${r}km`, cx + r * kmScale + 4, cy - 4);
+      }
+
+      // Crosshairs
+      ctx.beginPath();
+      ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+      ctx.moveTo(cx, 0); ctx.lineTo(cx, cy);
+      ctx.stroke();
+
+      // Rotating radar sweep
+      s.radarAngle = (s.radarAngle + dt * 1.1) % (Math.PI * 2);
+      const sweepAng = -Math.abs(Math.sin(s.radarAngle)) * Math.PI;
+      const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 24 * kmScale);
+      grad.addColorStop(0, 'rgba(16, 185, 129, 0.28)');
+      grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 24 * kmScale, sweepAng - 0.25, sweepAng);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(sweepAng) * 24 * kmScale, cy + Math.sin(sweepAng) * 24 * kmScale);
+      ctx.stroke();
+      ctx.restore();
+
+      // Coastline at bottom
+      ctx.fillStyle = '#0f291e';
+      ctx.fillRect(0, cy, w, h - cy);
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+
+      // Stations A, B and SOS ship C
+      const Ax = cx - (s.c / 2) * kmScale;
+      const Bx = cx + (s.c / 2) * kmScale;
+      const Cx = cx + s.shipPos.x * kmScale;
+      const Cy = cy - s.shipPos.y * kmScale;
+
+      // Dashed triangle ABC
+      ctx.save();
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(Ax, cy); ctx.lineTo(Cx, Cy); ctx.lineTo(Bx, cy);
+      ctx.stroke();
+      ctx.restore();
+
+      // Telemetry labels on triangle
+      const dAC = Math.hypot(s.shipPos.x + s.c / 2, s.shipPos.y);
+      const angA = Math.atan2(s.shipPos.y, s.shipPos.x + s.c / 2) * 180 / Math.PI;
+      const angB = Math.atan2(s.shipPos.y, s.c / 2 - s.shipPos.x) * 180 / Math.PI;
+
+      drawHudPill(`c = ${s.c.toFixed(1)} km`, cx, cy + 20, '#064e3b', '#6ee7b7');
+      if (s.missionType === 'sin') {
+        drawHudPill(`∠A = ${angA.toFixed(1)}°`, Ax + 44, cy - 18, '#0f172a', '#38bdf8');
+        drawHudPill(`∠B = ${angB.toFixed(1)}°`, Bx - 44, cy - 18, '#0f172a', '#38bdf8');
+      } else {
+        drawHudPill(`b = AC = ${dAC.toFixed(1)} km`, (Ax + Cx) / 2 - 20, (cy + Cy) / 2, '#0f172a', '#fde047');
+        drawHudPill(`∠A = ${angA.toFixed(1)}°`, Ax + 44, cy - 18, '#0f172a', '#38bdf8');
+      }
+
+      // Stations markers
+      drawRadarPoint(Ax, cy, 'Trạm A', '#38bdf8', s.targetStation === 'A');
+      drawRadarPoint(Bx, cy, 'Trạm B', '#38bdf8', s.targetStation === 'B');
+
+      // Blinking SOS Ship C
+      const sosPulse = 8 + 6 * Math.sin(app.time * 6);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(Cx, Cy, sosPulse, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath(); ctx.arc(Cx, Cy, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      drawHudPill('SOS Tàu C', Cx, Cy - 22, '#7f1d1d', '#fecaca');
+
+      // Rescue Boat Animation
+      if (s.sim.running || s.sim.done) {
+        if (s.sim.running && !s.sim.done) {
+          s.sim.progress = Math.min(1, s.sim.progress + dt * 0.75);
+          if (s.sim.progress >= 1) {
+            s.sim.done = true;
+            s.sim.running = false;
+            const errDist = Math.hypot(s.sim.guessX - s.shipPos.x, s.sim.guessY - s.shipPos.y);
+            if (s.sim.isHit) {
+              SoundFX.success();
+              showFeedback('ok', `🎉 CỨU HỘ THÀNH CÔNG! Tàu đã cập mạn tàu gặp nạn C (sai số vị trí ${errDist.toFixed(2)} km).`);
+              buildLeftPanel(true);
+            } else {
+              SoundFX.error();
+              showFeedback('err', `❌ Tàu cứu hộ bị LỆCH tọa độ! Khoảng cách lệch tới tàu C là ${errDist.toFixed(2)} km (đáp án đúng: d = ${s.trueDist.toFixed(2)} km, góc = ${s.trueAngle.toFixed(1)}°).`);
+            }
+          }
+        }
+        const sx = s.targetStation === 'A' ? Ax : Bx;
+        const tx = cx + s.sim.guessX * kmScale;
+        const ty = cy - s.sim.guessY * kmScale;
+        const curX = sx + (tx - sx) * s.sim.progress;
+        const curY = cy + (ty - cy) * s.sim.progress;
+
+        ctx.save();
+        ctx.strokeStyle = s.sim.done && !s.sim.isHit ? '#f97316' : '#4ade80';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(sx, cy); ctx.lineTo(curX, curY); ctx.stroke();
+
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath(); ctx.arc(curX, curY, 6, 0, Math.PI * 2); ctx.fill();
+
+        if (s.sim.done && !s.sim.isHit) {
+          ctx.setLineDash([4, 4]);
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(Cx, Cy); ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
+    function drawRadarPoint(x, y, label, color, isDispatch) {
+      ctx.save();
+      ctx.fillStyle = isDispatch ? '#4ade80' : color;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      drawHudPill(isDispatch ? `${label} (Xuất kích)` : label, x, y + 40, '#0f172a', isDispatch ? '#4ade80' : '#cbd5e1');
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 7. LEFT PANEL BUILDER & INTERACTION HANDLERS
+    // =========================================================================
+    function showFeedback(type, html) {
+      const el = document.getElementById('feedback-box');
+      if (!el) return;
+      el.className = `feedback-box show ${type}`;
+      el.innerHTML = html;
+    }
+
+    function buildLeftPanel(forceShowSolution = false) {
+      const panel = document.getElementById('left-panel');
+      const hint = document.getElementById('hud-hint');
+
+      if (app.scenario === 1) {
+        const { alpha, beta, d } = getS1Angles();
+        const showFormula = app.teachingMode || forceShowSolution;
+        hint.innerHTML = '💡 Kéo thả <strong>Giác kế A</strong> và <strong>Giác kế B</strong> trên mặt đất để thay đổi khoảng cách <em>d</em> và góc ngắm.';
+
+        panel.innerHTML = `
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Nhiệm vụ thực địa #1</span>
+              <span class="badge">Toán 9 • Hệ thức lượng</span>
+            </div>
+            <p class="mission-desc">
+              Một dòng sông sâu ngăn cách không thể tới chân tháp. Hãy đọc số đo hai giác kế <strong>A, B</strong> và khoảng cách <em>d = AB</em>, sau đó tính chiều cao <strong>H</strong> của tòa tháp.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Màn hình thiết bị đo</span>
+              <button class="btn btn-secondary" style="padding:4px 9px; font-size:11px;" onclick="newTowerMission()">Đổi tháp mới</button>
+            </div>
+            <div class="telemetry-grid">
+              <div class="tele-box"><div class="tele-label">Góc nâng α (tại A)</div><div class="tele-val accent" id="t1-alpha">${alpha.toFixed(2)}°</div></div>
+              <div class="tele-box"><div class="tele-label">Góc nâng β (tại B)</div><div class="tele-val accent" id="t1-beta">${beta.toFixed(2)}°</div></div>
+              <div class="tele-box"><div class="tele-label">Khoảng cách d = AB</div><div class="tele-val" id="t1-d">${d.toFixed(2)} m</div></div>
+              <div class="tele-box"><div class="tele-label">Chiều cao thật H</div><div class="tele-val secret" id="t1-h">${showFormula ? app.s1.towerH.toFixed(1) + ' m' : '??? m'}</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Kiểm tra kết quả đo đạc</span></div>
+            <div class="control-group">
+              <div class="input-row">
+                <input type="number" step="0.1" class="num-input" id="s1-guess" placeholder="Nhập chiều cao H (m)..." value="${app.s1.guessH}" />
+                <button class="btn btn-primary" onclick="launchLaserCheck()">⚡ Phóng tia kiểm tra</button>
+              </div>
+              <div class="feedback-box" id="feedback-box"></div>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <div class="card-header"><span class="card-title">Công thức &amp; Hướng dẫn giải</span></div>
+            ${showFormula ? `
+              <div class="math-block" data-tex="AO = H \\cot\\alpha, \\quad BO = H \\cot\\beta"></div>
+              <div class="math-block" data-tex="d = AO - BO \\implies H = \\frac{d}{\\cot\\alpha - \\cot\\beta}"></div>
+              <div class="math-block" id="s1-live-sub" data-tex="H = \\frac{${d.toFixed(2)}}{\\cot(${alpha.toFixed(2)}^\\circ) - \\cot(${beta.toFixed(2)}^\\circ)} = ${app.s1.towerH.toFixed(1)}\\text{ m}"></div>
+            ` : `
+              <div class="formula-hidden-msg">🔒 Đang bật <strong>Chế độ thử thách</strong>. Công thức đã được ẩn để bạn tự lập luận!</div>
+            `}
+          </div>
+        `;
+      } else if (app.scenario === 2) {
+        const s = app.s2;
+        const canDock = s.vBoat > s.vWater;
+        const optTheta = canDock ? (Math.acos(s.vWater / s.vBoat) * 180 / Math.PI) : null;
+        const showFormula = app.teachingMode;
+        hint.innerHTML = '💡 Điều chỉnh <strong>v_thuyền, v_nước, góc lái θ</strong> bên trái rồi bấm <strong>Chạy thuyền</strong> để xem quỹ đạo thực tế!';
+
+        panel.innerHTML = `
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Nhiệm vụ thực địa #2</span>
+              <span class="badge">Toán 9 • Tỉ số lượng giác</span>
+            </div>
+            <p class="mission-desc">
+              Đưa thuyền từ bến <strong>A</strong> sang thẳng bến <strong>B</strong> đối diện bờ sông rộng <strong>${s.width} m</strong>. Nếu giữ mũi vuông góc bờ (<strong>θ = 90°</strong>), dòng chảy sẽ cuốn thuyền trôi về hạ lưu!
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Bảng điều khiển lái thuyền</span></div>
+            <div class="control-group">
+              <div class="slider-row">
+                <div class="slider-top"><span>Chiều rộng sông W</span><span id="lbl-w">${s.width} m</span></div>
+                <input type="range" min="60" max="200" step="10" value="${s.width}" oninput="updateS2('width', +this.value)">
+              </div>
+              <div class="slider-row">
+                <div class="slider-top"><span>Vận tốc thuyền (v_thuyền)</span><span id="lbl-vb">${s.vBoat.toFixed(1)} m/s</span></div>
+                <input type="range" min="2" max="10" step="0.5" value="${s.vBoat}" oninput="updateS2('vBoat', +this.value)">
+              </div>
+              <div class="slider-row">
+                <div class="slider-top"><span>Vận tốc dòng nước (v_nước)</span><span id="lbl-vw">${s.vWater.toFixed(1)} m/s</span></div>
+                <input type="range" min="0.5" max="6" step="0.5" value="${s.vWater}" oninput="updateS2('vWater', +this.value)">
+              </div>
+              <div class="slider-row">
+                <div class="slider-top"><span>Góc lái θ (so với bờ ngược dòng)</span><span id="lbl-th">${s.thetaDeg.toFixed(1)}°</span></div>
+                <input type="range" min="20" max="120" step="0.5" value="${s.thetaDeg}" oninput="updateS2('thetaDeg', +this.value)">
+              </div>
+              <div class="input-row">
+                <button class="btn btn-primary" style="flex:1" onclick="startBoatSim()">⛵ Chạy thuyền</button>
+                <button class="btn btn-secondary" onclick="resetBoatSim()">↺ Đặt lại</button>
+              </div>
+              <div class="feedback-box" id="feedback-box"></div>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <div class="card-header"><span class="card-title">Phân tích vectơ vận tốc</span></div>
+            ${showFormula ? `
+              <div class="math-block" data-tex="\\cos\\theta = \\frac{v_{\\text{nước}}}{v_{\\text{thuyền}}} = \\frac{${s.vWater.toFixed(1)}}{${s.vBoat.toFixed(1)}}"></div>
+              <div class="math-block" data-tex="${canDock ? `\\theta_{\\text{chuẩn}} = \\arccos\\left(\\frac{${s.vWater.toFixed(1)}}{${s.vBoat.toFixed(1)}}\\right) \\approx ${optTheta.toFixed(1)}^\\circ` : '\\text{Cần } v_{\\text{thuyền}} > v_{\\text{nước}} \\text{ để cập bến B!}'}"></div>
+            ` : `
+              <div class="formula-hidden-msg">🔒 Đang bật <strong>Chế độ thử thách</strong>. Tự tính góc lái <strong>θ</strong> để thuyền cập đúng bến B!</div>
+            `}
+          </div>
+        `;
+      } else {
+        const s = app.s3;
+        const showFormula = app.teachingMode || forceShowSolution;
+        const Ax = -s.c / 2;
+        const dAC = Math.hypot(s.shipPos.x - Ax, s.shipPos.y);
+        const angA = Math.atan2(s.shipPos.y, s.shipPos.x - Ax) * 180 / Math.PI;
+        const angB = Math.atan2(s.shipPos.y, s.c / 2 - s.shipPos.x) * 180 / Math.PI;
+        const angC = 180 - angA - angB;
+
+        hint.innerHTML = '💡 Tính khoảng cách và góc lái từ <strong>Trạm gần nhất</strong> tới tàu SOS C, nhập thông số rồi bấm <strong>Xuất kích cứu hộ</strong>!';
+
+        panel.innerHTML = `
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Nhiệm vụ thực địa #3</span>
+              <span class="badge">Toán 10 • Cosin &amp; Sin</span>
+            </div>
+            <div class="segmented" style="margin-bottom:8px;">
+              <button class="seg-btn ${s.missionType === 'sin' ? 'active' : ''}" onclick="setS3Type('sin')">Định lí Sin (biết c, ∠A, ∠B)</button>
+              <button class="seg-btn ${s.missionType === 'cos' ? 'active' : ''}" onclick="setS3Type('cos')">Định lí Cosin (biết c, b, ∠A)</button>
+            </div>
+            <p class="mission-desc">
+              Xuất kích tàu cứu hộ từ <strong>Trạm ${s.targetStation}</strong> (trạm gần tàu gặp nạn C nhất). Hãy tính khoảng cách <em>d</em> và góc hướng lái <em>φ</em> (tạo với bờ AB).
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Thông số Radar quét được</span>
+              <button class="btn btn-secondary" style="padding:4px 9px; font-size:11px;" onclick="newRadarMission()">Tạo ca SOS mới</button>
+            </div>
+            <div class="telemetry-grid">
+              <div class="tele-box"><div class="tele-label">Khoảng cách AB (c)</div><div class="tele-val">${s.c.toFixed(1)} km</div></div>
+              <div class="tele-box"><div class="tele-label">Góc phương vị ∠A</div><div class="tele-val accent">${angA.toFixed(1)}°</div></div>
+              ${s.missionType === 'sin'
+                ? `<div class="tele-box"><div class="tele-label">Góc phương vị ∠B</div><div class="tele-val accent">${angB.toFixed(1)}°</div></div>`
+                : `<div class="tele-box"><div class="tele-label">Cạnh b = AC</div><div class="tele-val accent">${dAC.toFixed(1)} km</div></div>`
+              }
+              <div class="tele-box"><div class="tele-label">Trạm xuất kích</div><div class="tele-val" style="color:#16a34a;">Trạm ${s.targetStation}</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Lệnh điều khiển tàu cứu hộ</span></div>
+            <div class="control-group">
+              <div class="input-row">
+                <input type="number" step="0.01" class="num-input" id="s3-dist" placeholder="Quãng đường d (km)" value="${s.guessDist}" />
+                <input type="number" step="0.1" class="num-input" id="s3-angle" placeholder="Góc lái φ (°)" value="${s.guessAngle}" />
+              </div>
+              <button class="btn btn-primary" onclick="launchRescue()">🚤 Xuất kích cứu hộ</button>
+              <div class="feedback-box" id="feedback-box"></div>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <div class="card-header"><span class="card-title">Định lí Toán 10 áp dụng</span></div>
+            ${showFormula ? (s.missionType === 'sin' ? `
+              <div class="math-block" data-tex="\\widehat{C} = 180^\\circ - (\\widehat{A} + \\widehat{B}) = ${angC.toFixed(1)}^\\circ"></div>
+              <div class="math-block" data-tex="\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C}"></div>
+              <div class="math-block" data-tex="d = ${s.trueDist.toFixed(2)}\\text{ km}, \\quad \\varphi = ${s.trueAngle.toFixed(1)}^\\circ"></div>
+            ` : `
+              <div class="math-block" data-tex="a^2 = b^2 + c^2 - 2bc\\cos A"></div>
+              <div class="math-block" data-tex="\\cos B = \\frac{a^2 + c^2 - b^2}{2ac}"></div>
+              <div class="math-block" data-tex="d = ${s.trueDist.toFixed(2)}\\text{ km}, \\quad \\varphi = ${s.trueAngle.toFixed(1)}^\\circ"></div>
+            `) : `
+              <div class="formula-hidden-msg">🔒 Đang bật <strong>Chế độ thử thách</strong>. Vận dụng Định lí Sin / Cosin để tìm tọa độ cứu hộ!</div>
+            `}
+          </div>
+        `;
+      }
+      renderAllMathBlocks();
+    }
+
+    function updateS2(key, val) {
+      app.s2[key] = val;
+      resetBoatSim();
+      if (key === 'width') document.getElementById('lbl-w').textContent = `${val} m`;
+      if (key === 'vBoat') document.getElementById('lbl-vb').textContent = `${val.toFixed(1)} m/s`;
+      if (key === 'vWater') document.getElementById('lbl-vw').textContent = `${val.toFixed(1)} m/s`;
+      if (key === 'thetaDeg') document.getElementById('lbl-th').textContent = `${val.toFixed(1)}°`;
+      if (app.teachingMode) buildLeftPanel();
+    }
+
+    function setS3Type(type) {
+      SoundFX.click();
+      app.s3.missionType = type;
+      newRadarMission();
+    }
+
+    function switchScenario(num) {
+      SoundFX.click();
+      app.scenario = num;
+      [1, 2, 3].forEach(i => document.getElementById(`tab-${i}`).classList.toggle('active', i === num));
+      buildLeftPanel();
+    }
+
+    function toggleTeachingMode() {
+      SoundFX.click();
+      app.teachingMode = !app.teachingMode;
+      const btn = document.getElementById('btn-teach-mode');
+      btn.className = `pill-toggle ${app.teachingMode ? 'teaching' : 'challenge'}`;
+      document.getElementById('teach-label').textContent = app.teachingMode ? 'Chế độ giảng dạy' : 'Chế độ thử thách';
+      buildLeftPanel();
+    }
+
+    function toggleSound() {
+      SoundFX.enabled = !SoundFX.enabled;
+      document.getElementById('sound-icon').textContent = SoundFX.enabled ? '🔊' : '🔇';
+      if (SoundFX.enabled) SoundFX.click();
+    }
+
+    // =========================================================================
+    // 8. CANVAS DRAG INTERACTION (Scenario 1 Theodolites)
+    // =========================================================================
+    canvas.addEventListener('pointerdown', e => {
+      if (app.scenario !== 1) return;
+      const rect = canvas.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const { groundY, ax, bx } = getS1Layout(rect.width, rect.height);
+
+      if (Math.hypot(px - ax, py - (groundY - 14)) < 26) {
+        app.dragging = 'A';
+      } else if (Math.hypot(px - bx, py - (groundY - 14)) < 26) {
+        app.dragging = 'B';
+      }
+      if (app.dragging) {
+        canvas.setPointerCapture(e.pointerId);
+        SoundFX.click();
+      }
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (app.scenario !== 1) { canvas.style.cursor = 'default'; return; }
+      const rect = canvas.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const { groundY, towerX, scale, ax, bx } = getS1Layout(rect.width, rect.height);
+
+      if (!app.dragging) {
+        const hover = Math.hypot(px - ax, py - (groundY - 14)) < 26 || Math.hypot(px - bx, py - (groundY - 14)) < 26;
+        canvas.style.cursor = hover ? 'ew-resize' : 'default';
+        return;
+      }
+
+      const distM = (towerX - px) / scale;
+      if (app.dragging === 'A') {
+        app.s1.distA = +Math.max(app.s1.distB + 8, Math.min(88, distM)).toFixed(1);
+      } else if (app.dragging === 'B') {
+        app.s1.distB = +Math.max(20, Math.min(app.s1.distA - 8, distM)).toFixed(1);
+      }
+      app.s1.laserAnim.active = false;
+      app.s1.laserAnim.done = false;
+
+      // Update live telemetry without rebuilding input element focus
+      const { alpha, beta, d } = getS1Angles();
+      const ea = document.getElementById('t1-alpha');
+      const eb = document.getElementById('t1-beta');
+      const ed = document.getElementById('t1-d');
+      if (ea) ea.textContent = `${alpha.toFixed(2)}°`;
+      if (eb) eb.textContent = `${beta.toFixed(2)}°`;
+      if (ed) ed.textContent = `${d.toFixed(2)} m`;
+      const sub = document.getElementById('s1-live-sub');
+      if (sub) {
+        renderMath(sub, `H = \\frac{${d.toFixed(2)}}{\\cot(${alpha.toFixed(2)}^\\circ) - \\cot(${beta.toFixed(2)}^\\circ)} = ${app.s1.towerH.toFixed(1)}\\text{ m}`);
+      }
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (app.dragging) {
+        app.dragging = null;
+        canvas.releasePointerCapture(e.pointerId);
+      }
+    });
+
+    // =========================================================================
+    // 9. MAIN 60FPS ANIMATION LOOP
+    // =========================================================================
+    function loop(now) {
+      const dt = Math.min(0.05, (now - app.lastFrame) / 1000);
+      app.lastFrame = now;
+      app.time += dt;
+
+      const rect = canvas.parentElement.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      if (app.scenario === 1) drawScenario1(rect.width, rect.height, dt);
+      else if (app.scenario === 2) drawScenario2(rect.width, rect.height, dt);
+      else drawScenario3(rect.width, rect.height, dt);
+
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      newRadarMission();
+      switchScenario(1);
+      requestAnimationFrame(loop);
+    });
+  </script>
+</body>
+</html>

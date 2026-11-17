@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KHO MÔ HÌNH HÌNH HỌC KHÔNG GIAN 3D - TOÁN 11</title>
+  <!-- KaTeX CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <!-- Three.js & OrbitControls UMD CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --panel-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #1d4ed8;
+      --accent: #ea580c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-app);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #fff;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 20;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.2);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.02em; }
+    .brand p { font-size: 11px; color: #cbd5e1; }
+
+    .header-badges {
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+
+    /* 2-Column Layout: 30% Left / 70% Right */
+    .workspace {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .left-panel {
+      width: 30%;
+      min-width: 330px;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .right-stage {
+      width: 70%;
+      flex: 1;
+      position: relative;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    #canvas3d {
+      width: 100%;
+      height: 100%;
+      display: block;
+      outline: none;
+    }
+
+    /* Left Panel Cards */
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .card-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .group-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      margin: 8px 0 5px;
+      padding-left: 6px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .model-list { display: flex; flex-direction: column; gap: 5px; }
+
+    .model-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #1e293b;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .model-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+
+    .model-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
+    }
+
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-btn {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      padding: 7px 9px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .toggle-btn.on { background: #fff7ed; border-color: #f97316; color: #c2410c; }
+    .toggle-btn.on-blue { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+
+    .slider-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+    .step-controls { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+
+    .step-btn {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .step-btn:hover { background: #f1f5f9; }
+
+    .solution-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .sol-step {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 12.5px;
+      line-height: 1.5;
+      transition: all 0.2s;
+    }
+
+    .sol-step.current {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      box-shadow: 0 1px 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .sol-step.dimmed { opacity: 0.42; }
+
+    .sol-badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #334155;
+      margin-right: 5px;
+    }
+    .sol-step.current .sol-badge { background: var(--primary); color: #fff; }
+
+    /* Floating Stage Toolbars */
+    .stage-toolbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group { display: flex; gap: 7px; pointer-events: auto; flex-wrap: wrap; }
+
+    .hud-btn {
+      border: 1px solid #cbd5e1;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      color: #0f172a;
+      padding: 7px 12px;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      transition: all 0.15s;
+    }
+
+    .hud-btn:hover { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+
+    .right-stage.dark-theme .hud-btn {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(15, 23, 42, 0.8);
+      color: #f8fafc;
+    }
+
+    .stage-bottom-hud {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      gap: 10px;
+    }
+
+    .hud-info {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 8px 13px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      max-width: 600px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    .right-stage.dark-theme .hud-info {
+      background: rgba(15, 23, 42, 0.8);
+      color: #f8fafc;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .sub-tabs { display: flex; gap: 5px; margin-bottom: 8px; }
+    .sub-tab {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      padding: 6px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .sub-tab.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+    @media (max-width: 960px) {
+      body { height: auto; overflow: auto; }
+      .workspace { flex-direction: column-reverse; }
+      .left-panel, .right-stage { width: 100%; min-width: 0; }
+      .right-stage { height: 56vh; min-height: 380px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🧊</div>
+      <div>
+        <h1>KHO MÔ HÌNH HÌNH HỌC KHÔNG GIAN 3D — TOÁN 11</h1>
+        <p>Phong cách GeoGebra chuẩn SGK • Tự động chuyển nét liền / nét đứt theo góc nhìn</p>
+      </div>
+    </div>
+    <div class="header-badges">
+      <span>🖱️ Kéo để xoay 360° • Cuộn để Zoom • Giữ chuột phải để di chuyển</span>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- Left 30%: Catalog, Controls, KaTeX Solutions -->
+    <aside class="left-panel">
+      <section class="card">
+        <div class="card-title">
+          <span>📚 Danh mục mô hình</span>
+          <span style="font-size:11px; color:var(--primary);">27 mô hình</span>
+        </div>
+
+        <div class="group-label" style="border-left-color:#ea580c; color:#c2410c;">CHUYÊN ĐỀ: GIAO TUYẾN - GIAO ĐIỂM - THIẾT DIỆN (3 VÍ DỤ MẪU)</div>
+        <div class="model-list">
+          <button class="model-btn active" id="btn-m-vd1" onclick="selectModel('vd1')">
+            <span>VD 1: Giao tuyến 2 mặt phẳng (S.ABCD)</span><span>▸</span>
+          </button>
+          <button class="model-btn" id="btn-m-vd2" onclick="selectModel('vd2')">
+            <span>VD 2: Giao điểm đt &amp; mp (Menelaus)</span><span>▸</span>
+          </button>
+          <button class="model-btn" id="btn-m-vd3" onclick="selectModel('vd3')">
+            <span>VD 3: Thiết diện &amp; Chu vi, Diện tích</span><span>▸</span>
+          </button>
+        </div>
+
+        <div class="group-label" style="border-left-color:#16a34a; color:#15803d;">DẠNG 1: BÀI TẬP RÈN LUYỆN (8 MÔ HÌNH 3D)</div>
+        <div style="font-size:10.5px; font-weight:700; color:#64748b; margin:4px 0 4px 2px;">PHẦN I. TRẮC NGHIỆM 4 LỰA CHỌN</div>
+        <div class="model-list">
+          <button class="model-btn" id="btn-m-d1_c1" onclick="selectModel('d1_c1')"><span>D1 - Câu 1: (SAC) ∩ (SBD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d1_c2" onclick="selectModel('d1_c2')"><span>D1 - Câu 2: (BMN) ∩ (BCD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d1_c3" onclick="selectModel('d1_c3')"><span>D1 - Câu 3: (MBC) ∩ (SAD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d1_c4" onclick="selectModel('d1_c4')"><span>D1 - Câu 4: (SAB) ∩ (SCD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d1_c5" onclick="selectModel('d1_c5')"><span>D1 - Câu 5: (SMN) ∩ (SAC)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d1_c6" onclick="selectModel('d1_c6')"><span>D1 - Câu 6: (MNP) ∩ (BCD)</span><span>▸</span></button>
+        </div>
+        <div style="font-size:10.5px; font-weight:700; color:#64748b; margin:7px 0 4px 2px;">PHẦN II. TRẮC NGHIỆM ĐÚNG / SAI</div>
+        <div class="model-list">
+          <button class="model-btn" id="btn-m-d1_ds1" onclick="selectModel('d1_ds1')"><span>D1 - Đúng/Sai Câu 1 (S.ABCD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d1_ds2" onclick="selectModel('d1_ds2')"><span>D1 - Đúng/Sai Câu 2 (Tứ diện)</span><span>▸</span></button>
+        </div>
+
+        <div class="group-label" style="border-left-color:#7c3aed; color:#6d28d9;">DẠNG 2: BÀI TẬP RÈN LUYỆN (8 MÔ HÌNH 3D)</div>
+        <div style="font-size:10.5px; font-weight:700; color:#64748b; margin:4px 0 4px 2px;">PHẦN I. TRẮC NGHIỆM 4 LỰA CHỌN</div>
+        <div class="model-list">
+          <button class="model-btn" id="btn-m-d2_c1" onclick="selectModel('d2_c1')"><span>D2 - Câu 1: I = AM ∩ (SBD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d2_c2" onclick="selectModel('d2_c2')"><span>D2 - Câu 2: Q = CD ∩ (MNP)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d2_c3" onclick="selectModel('d2_c3')"><span>D2 - Câu 3: I = MN ∩ SO (SI/SO)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d2_c4" onclick="selectModel('d2_c4')"><span>D2 - Câu 4: I = MG ∩ (ACD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d2_c5" onclick="selectModel('d2_c5')"><span>D2 - Câu 5: N = SC ∩ (MAB)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d2_c6" onclick="selectModel('d2_c6')"><span>D2 - Câu 6: N = SD ∩ (ABM)</span><span>▸</span></button>
+        </div>
+        <div style="font-size:10.5px; font-weight:700; color:#64748b; margin:7px 0 4px 2px;">PHẦN II. TRẮC NGHIỆM ĐÚNG / SAI</div>
+        <div class="model-list">
+          <button class="model-btn" id="btn-m-d2_ds1" onclick="selectModel('d2_ds1')"><span>D2 - Đúng/Sai Câu 1 (S.ABCD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d2_ds2" onclick="selectModel('d2_ds2')"><span>D2 - Đúng/Sai Câu 2 (Tứ diện)</span><span>▸</span></button>
+        </div>
+
+        <div class="group-label" style="border-left-color:#db2777; color:#be185d;">DẠNG 3: BÀI TẬP RÈN LUYỆN (8 MÔ HÌNH 3D)</div>
+        <div style="font-size:10.5px; font-weight:700; color:#64748b; margin:4px 0 4px 2px;">PHẦN I. TRẮC NGHIỆM 4 LỰA CHỌN</div>
+        <div class="model-list">
+          <button class="model-btn" id="btn-m-d3_c1" onclick="selectModel('d3_c1')"><span>D3 - Câu 1: Tứ diện đều (MNP)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d3_c2" onclick="selectModel('d3_c2')"><span>D3 - Câu 2: Thiết diện (MCD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d3_c3" onclick="selectModel('d3_c3')"><span>D3 - Câu 3: Chóp đều (MNPQ)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d3_c4" onclick="selectModel('d3_c4')"><span>D3 - Câu 4: Hình thang cân (α)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d3_c5" onclick="selectModel('d3_c5')"><span>D3 - Câu 5: Trọng tâm G // (BCD)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d3_c6" onclick="selectModel('d3_c6')"><span>D3 - Câu 6: Chóp vuông cạnh 4</span><span>▸</span></button>
+        </div>
+        <div style="font-size:10.5px; font-weight:700; color:#64748b; margin:7px 0 4px 2px;">PHẦN II. TRẮC NGHIỆM ĐÚNG / SAI</div>
+        <div class="model-list">
+          <button class="model-btn" id="btn-m-d3_ds1" onclick="selectModel('d3_ds1')"><span>D3 - Đúng/Sai Câu 1 (Thang cân)</span><span>▸</span></button>
+          <button class="model-btn" id="btn-m-d3_ds2" onclick="selectModel('d3_ds2')"><span>D3 - Đúng/Sai Câu 2 (H.bình hành)</span><span>▸</span></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-title"><span>🎛️ Công cụ tư duy không gian</span></div>
+        <div class="toggle-grid">
+          <button class="toggle-btn on-blue" id="btn-xray" onclick="toggleXRay()">
+            <span>👁️</span> Xuyên thấu (X-Ray)
+          </button>
+          <button class="toggle-btn on" id="btn-section" onclick="toggleSection()">
+            <span>🔶</span> Tô màu Thiết diện
+          </button>
+        </div>
+
+        <!-- Step-by-step construction slider -->
+        <div class="slider-box">
+          <div class="slider-head">
+            <span>🎬 Diễn hoạt từng bước dựng hình</span>
+            <span id="step-label" style="color:var(--primary);">Bước 4 / 4</span>
+          </div>
+          <input type="range" id="step-slider" min="1" max="4" step="1" value="4" oninput="setStep(+this.value)" />
+          <div class="step-controls">
+            <button class="step-btn" onclick="setStep(Math.max(1, state.step - 1))">◀ Lùi</button>
+            <button class="step-btn" onclick="setStep(Math.min(4, state.step + 1))">Tiến ▶</button>
+            <button class="step-btn" id="btn-play" onclick="toggleAutoPlay()" style="margin-left:auto;">▶ Tự chạy</button>
+          </div>
+        </div>
+
+        <div id="dynamic-controls"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">
+          <span>📝 Lời giải &amp; Chứng minh tóm tắt</span>
+        </div>
+        <div class="solution-list" id="solution-list"></div>
+      </section>
+    </aside>
+
+    <!-- Right 70%: Three.js 3D Stage -->
+    <section class="right-stage" id="right-stage">
+      <div id="canvas3d"></div>
+
+      <div class="stage-toolbar">
+        <div class="toolbar-group">
+          <button class="hud-btn" onclick="resetCamera()">🔄 Góc nhìn chuẩn</button>
+          <button class="hud-btn" onclick="topViewCamera()">⬇️ Nhìn từ trên xuống (Top)</button>
+          <button class="hud-btn" id="btn-grid" onclick="toggleGrid()">🌐 Hiện lưới</button>
+        </div>
+        <div class="toolbar-group">
+          <button class="hud-btn" id="btn-theme" onclick="toggleTheme()">🌙 Nền tối hiện đại</button>
+        </div>
+      </div>
+
+      <div class="stage-bottom-hud">
+        <div class="hud-info" id="hud-step-desc"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. THREE.JS SCENE SETUP (Default: Clean White GeoGebra-style Canvas)
+    // =========================================================================
+    const container = document.getElementById('canvas3d');
+    const stageEl = document.getElementById('right-stage');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(5.2, 3.8, 6.4);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.target.set(0, 1.15, 0);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.35);
+    dirLight.position.set(5, 10, 7);
+    scene.add(dirLight);
+
+    // Optional Reference Grid (hidden by default for clean GeoGebra look)
+    let gridHelper = new THREE.GridHelper(12, 12, 0xcbd5e1, 0xe2e8f0);
+    gridHelper.position.y = -0.01;
+    gridHelper.visible = false;
+    scene.add(gridHelper);
+
+    const modelGroup = new THREE.Group();
+    scene.add(modelGroup);
+
+    // Dynamic Hidden-Line Removal Registry
+    // Each entry: { face1: { p, n }, face2: { p, n } | null, solidObj, dashedObj }
+    let dynamicEdges = [];
+
+    // =========================================================================
+    // 2. APPLICATION STATE
+    // =========================================================================
+    const state = {
+      modelId: 'vd1',
+      xray: true,
+      showSection: true,
+      step: 4,
+      lightTheme: true, // Default clean white GeoGebra style
+      showGrid: false,
+      autoPlayTimer: null,
+
+      vd1: { subQ: 'a' },
+      d1_ds1: { sub: 'a' },
+      d1_ds2: { sub: 'a' },
+      d2_ds1: { sub: 'a' },
+      d2_ds2: { sub: 'a' },
+      d3_ds1: { sub: 'a' },
+      d3_ds2: { sub: 'a' },
+      showAnswer: false,
+      m11: { tM: 0.45, tN: 0.42, tP: 0.45 },
+      m12: { tM: 0.45 },
+      m31: { pair: 'ACp_BD' }
+    };
+
+    // =========================================================================
+    // 3. GEOGEBRA-STYLE 3D DRAWING HELPERS (Crisp Thick Solid & Dashed Lines)
+    // =========================================================================
+    function clearModelGroup() {
+      dynamicEdges = [];
+      while (modelGroup.children.length > 0) {
+        const obj = modelGroup.children[0];
+        modelGroup.remove(obj);
+        obj.traverse(child => {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+            else {
+              if (child.material.map) child.material.map.dispose();
+              child.material.dispose();
+            }
+          }
+        });
+      }
+    }
+
+    function createSolidCylinder(p1, p2, color, radius = 0.022) {
+      const dir = new THREE.Vector3().subVectors(p2, p1);
+      const len = dir.length();
+      if (len < 1e-5) return new THREE.Group();
+      const geo = new THREE.CylinderGeometry(radius, radius, len, 10);
+      const mat = new THREE.MeshBasicMaterial({ color });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(p1).addScaledVector(dir, 0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+      return mesh;
+    }
+
+    function createDashedCylinders(p1, p2, color, radius = 0.019, dashLen = 0.14, gapLen = 0.10) {
+      const group = new THREE.Group();
+      const dir = new THREE.Vector3().subVectors(p2, p1);
+      const totalLen = dir.length();
+      if (totalLen < 1e-5) return group;
+      const unit = dir.clone().normalize();
+      const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), unit);
+      const mat = new THREE.MeshBasicMaterial({ color });
+
+      let dist = 0;
+      while (dist < totalLen) {
+        const segLen = Math.min(dashLen, totalLen - dist);
+        if (segLen > 0.02) {
+          const geo = new THREE.CylinderGeometry(radius, radius, segLen, 8);
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.copy(p1).addScaledVector(unit, dist + segLen * 0.5);
+          mesh.quaternion.copy(quat);
+          group.add(mesh);
+        }
+        dist += dashLen + gapLen;
+      }
+      return group;
+    }
+
+    function addLine(p1, p2, color = 0x104e8b, dashed = false, radius = 0.022) {
+      const obj = dashed
+        ? createDashedCylinders(p1, p2, color, radius * 0.85)
+        : createSolidCylinder(p1, p2, color, radius);
+      modelGroup.add(obj);
+      return obj;
+    }
+
+    // Compute outward normal of a face relative to polyhedron centroid
+    function makeFaceData(pts, centroid) {
+      const v0 = pts[0];
+      const e1 = new THREE.Vector3().subVectors(pts[1], v0);
+      const e2 = new THREE.Vector3().subVectors(pts[2], v0);
+      const n = new THREE.Vector3().crossVectors(e1, e2).normalize();
+      if (n.dot(new THREE.Vector3().subVectors(v0, centroid)) < 0) {
+        n.negate();
+      }
+      return { p: v0.clone(), n };
+    }
+
+    // Add an outer polyhedron edge that automatically switches between solid & dashed!
+    function addDynamicEdge(p1, p2, face1, face2, color = 0x104e8b, radius = 0.023) {
+      const solidObj = createSolidCylinder(p1, p2, color, radius);
+      const dashedObj = createDashedCylinders(p1, p2, color, radius * 0.88, 0.14, 0.10);
+      modelGroup.add(solidObj);
+      modelGroup.add(dashedObj);
+      dynamicEdges.push({ face1, face2, solidObj, dashedObj });
+    }
+
+    function updateDynamicEdges() {
+      const camPos = camera.position;
+      for (let i = 0; i < dynamicEdges.length; i++) {
+        const e = dynamicEdges[i];
+        const v1 = new THREE.Vector3().subVectors(camPos, e.face1.p).dot(e.face1.n) > 0;
+        const v2 = e.face2 ? (new THREE.Vector3().subVectors(camPos, e.face2.p).dot(e.face2.n) > 0) : false;
+        const isVisible = v1 || v2;
+        e.solidObj.visible = isVisible;
+        e.dashedObj.visible = !isVisible;
+      }
+    }
+
+    function addPoint(pos, color = 0x0f4c81, size = 0.062) {
+      const geo = new THREE.SphereGeometry(size, 18, 18);
+      const mat = new THREE.MeshBasicMaterial({ color });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(pos);
+      modelGroup.add(mesh);
+      return mesh;
+    }
+
+    function addLabel(text, pos, centroid = null, colorHex = null) {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 64;
+      const lctx = c.getContext('2d');
+      lctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      lctx.textAlign = 'center';
+      lctx.textBaseline = 'middle';
+
+      const fill = colorHex || (state.lightTheme ? '#0f4c81' : '#f8fafc');
+      const stroke = state.lightTheme ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.9)';
+      lctx.lineWidth = 6;
+      lctx.strokeStyle = stroke;
+      lctx.strokeText(text, 64, 32);
+      lctx.fillStyle = fill;
+      lctx.fillText(text, 64, 32);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
+      const sprite = new THREE.Sprite(mat);
+
+      // Offset label neatly outward from centroid
+      const offset = centroid
+        ? new THREE.Vector3().subVectors(pos, centroid).normalize().multiplyScalar(0.32)
+        : new THREE.Vector3(0, 0.26, 0);
+      if (offset.y > 0.15) offset.y += 0.06;
+
+      sprite.position.copy(pos).add(offset);
+      sprite.scale.set(0.75, 0.375, 1);
+      sprite.renderOrder = 10;
+      modelGroup.add(sprite);
+      return sprite;
+    }
+
+    function addFace(points, color = 0x5b9bd5, opacity = 0.19) {
+      if (points.length < 3) return null;
+      const positions = [];
+      for (let i = 1; i < points.length - 1; i++) {
+        positions.push(
+          points[0].x, points[0].y, points[0].z,
+          points[i].x, points[i].y, points[i].z,
+          points[i + 1].x, points[i + 1].y, points[i + 1].z
+        );
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.computeVertexNormals();
+      const mat = new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      modelGroup.add(mesh);
+      return mesh;
+    }
+
+    function addRightAngleMarker(V, P1, P2, size = 0.25, color = 0x15803d) {
+      const u1 = new THREE.Vector3().subVectors(P1, V).normalize().multiplyScalar(size);
+      const u2 = new THREE.Vector3().subVectors(P2, V).normalize().multiplyScalar(size);
+      const a = V.clone().add(u1);
+      const b = a.clone().add(u2);
+      const c = V.clone().add(u2);
+      addLine(a, b, color, false, 0.013);
+      addLine(b, c, color, false, 0.013);
+    }
+
+    function addAngleArc(V, P1, P2, radius = 0.55, color = 0xd97706) {
+      const u1 = new THREE.Vector3().subVectors(P1, V).normalize();
+      const u2 = new THREE.Vector3().subVectors(P2, V).normalize();
+      const pts = [];
+      const steps = 18;
+      for (let i = 0; i <= steps; i++) {
+        const dir = new THREE.Vector3().lerpVectors(u1, u2, i / steps).normalize();
+        pts.push(V.clone().addScaledVector(dir, radius));
+      }
+      for (let i = 0; i < pts.length - 1; i++) {
+        addLine(pts[i], pts[i + 1], color, false, 0.016);
+      }
+    }
+
+    function getThemeColors() {
+      return state.lightTheme
+        ? { edge: 0x0f4c81, face: 0x5b9bd5, aux: 0x475569, alt: 0xb91c1c, green: 0x15803d }
+        : { edge: 0x60a5fa, face: 0x38bdf8, aux: 0x94a3b8, alt: 0xef4444, green: 0x22c55e };
+    }
+
+    // =========================================================================
+    // 4. MATHEMATICAL MODEL BUILDERS (3 VÍ DỤ MẪU + 6 BÀI KINH ĐIỂN)
+    // =========================================================================
+    function buildModelVD1() {
+      // Hình chóp S.ABCD đáy hình thang (AB // CD, AB > CD)
+      const A = new THREE.Vector3(-2.4, 0, 1.8);
+      const B = new THREE.Vector3(2.4, 0, 1.8);
+      const C = new THREE.Vector3(1.3, 0, -0.4);
+      const D = new THREE.Vector3(-1.1, 0, -0.4);
+      const E = new THREE.Vector3(0.2, 0, -2.6); // AD ∩ BC = E
+      const S = new THREE.Vector3(-0.2, 3.2, 0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+
+      const M = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, D, 0.5);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.14 : 0.62;
+
+      const fSAB = makeFaceData([S, A, B], centroid);
+      const fSBC = makeFaceData([S, B, C], centroid);
+      const fSCD = makeFaceData([S, C, D], centroid);
+      const fSDA = makeFaceData([S, D, A], centroid);
+      const fABCD = makeFaceData([A, B, C, D], centroid);
+
+      [[S,A,B],[S,B,C],[S,C,D],[S,D,A],[A,B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge);
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge);
+      addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABCD, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABCD, tc.edge);
+      addDynamicEdge(C, D, fSCD, fABCD, tc.edge);
+      addDynamicEdge(D, A, fSDA, fABCD, tc.edge);
+
+      // Extended lines AD & BC -> E
+      addLine(D, E, tc.aux, true, 0.016);
+      addLine(C, E, tc.aux, true, 0.016);
+
+      [['S',S],['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+      addPoint(E, 0xef4444, 0.065);
+      addLabel('E', E, centroid, '#dc2626');
+      addPoint(M, 0xf97316, 0.065);
+      addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.065);
+      addLabel('N', N, centroid, '#c2410c');
+
+      const q = state.vd1.subQ;
+      if (q === 'a') {
+        if (state.showSection) {
+          addFace([S, A, E], 0x3b82f6, 0.22);
+          addFace([S, B, E], 0x22c55e, 0.22);
+        }
+        addLine(S, E, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Câu a) (SAD) ∩ (SBC) = SE: Kéo dài AD và BC cắt nhau tại E, giao tuyến SE nổi bật màu đỏ.'],
+          solutions: [
+            `\\text{Trong } (ABCD): \\; AD \\cap BC = E`,
+            `\\begin{cases} S \\in (SAD) \\cap (SBC) \\\\ E \\in AD \\subset (SAD), \\; E \\in BC \\subset (SBC) \\end{cases}`,
+            `\\Rightarrow (SAD) \\cap (SBC) = SE`
+          ]
+        };
+      } else if (q === 'b') {
+        if (state.showSection) {
+          addFace([S, A, B], 0x3b82f6, 0.24);
+          addFace([S, C, D], 0x22c55e, 0.24);
+        }
+        const xLeft = S.clone().add(new THREE.Vector3(-2.6, 0, 0));
+        const xRight = S.clone().add(new THREE.Vector3(2.6, 0, 0));
+        addLine(xLeft, xRight, 0x2563eb, false, 0.036);
+        addLabel('x', xRight, centroid, '#2563eb');
+        return {
+          stepDesc: ['Câu b) (SAB) ∩ (SCD) = Sx // AB // CD: Đường thẳng Sx qua S song song với hai đáy (màu xanh dương).'],
+          solutions: [
+            `\\begin{cases} S \\in (SAB) \\cap (SCD) \\\\ AB \\subset (SAB), \\; CD \\subset (SCD), \\; AB \\parallel CD \\end{cases}`,
+            `\\Rightarrow (SAB) \\cap (SCD) = Sx \\parallel AB \\parallel CD`
+          ]
+        };
+      } else {
+        if (state.showSection) {
+          addFace([A, B, M, N], 0xa855f7, 0.28);
+          addFace([S, C, D], 0x22c55e, 0.16);
+        }
+        addLine(A, N, 0xa855f7, false, 0.022);
+        addLine(B, M, 0xa855f7, false, 0.022);
+        addLine(M, N, 0xf97316, false, 0.038);
+        return {
+          stepDesc: ['Câu c) (ABM) ∩ (SCD) = MN: Vì M, N là trung điểm SC, SD nên MN // CD // AB (giao tuyến MN màu cam).'],
+          solutions: [
+            `M, N \\text{ là trung điểm } SC, SD \\Rightarrow MN \\parallel CD \\parallel AB`,
+            `\\Rightarrow N \\in (ABM) \\text{ và } MN \\subset (SCD)`,
+            `\\Rightarrow (ABM) \\cap (SCD) = MN`
+          ]
+        };
+      }
+    }
+
+    function buildModelVD2() {
+      // Hình chóp S.ABCD đáy hình thang đáy lớn AD (AD = 2BC), O = AC ∩ BD, M = trung điểm SB
+      const A = new THREE.Vector3(-2.6, 0, 1.6);
+      const D = new THREE.Vector3(2.6, 0, 1.6);
+      const B = new THREE.Vector3(-1.1, 0, -1.4);
+      const C = new THREE.Vector3(1.5, 0, -1.4);
+      const S = new THREE.Vector3(-0.3, 3.4, 0.1);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+
+      const O = new THREE.Vector3().lerpVectors(B, D, 1 / 3); // OB/OD = 1/2
+      const M = new THREE.Vector3().lerpVectors(S, B, 0.5);
+      const I = new THREE.Vector3().lerpVectors(O, S, 2 / 5); // OI/IS = 2/3
+      const K = new THREE.Vector3().lerpVectors(S, C, 0.5); // SK/SC = 1/2
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.14 : 0.62;
+
+      const fSAB = makeFaceData([S, A, B], centroid);
+      const fSBC = makeFaceData([S, B, C], centroid);
+      const fSCD = makeFaceData([S, C, D], centroid);
+      const fSDA = makeFaceData([S, D, A], centroid);
+      const fABCD = makeFaceData([A, B, C, D], centroid);
+
+      [[S,A,B],[S,B,C],[S,C,D],[S,D,A],[A,B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge);
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge);
+      addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABCD, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABCD, tc.edge);
+      addDynamicEdge(C, D, fSCD, fABCD, tc.edge);
+      addDynamicEdge(D, A, fSDA, fABCD, tc.edge);
+
+      // Diagonals & SO
+      addLine(A, C, tc.aux, true, 0.015);
+      addLine(B, D, tc.aux, true, 0.015);
+      addLine(S, O, 0xef4444, true, 0.024);
+
+      [['S',S],['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+      addPoint(O, tc.aux, 0.055); addLabel('O', O, centroid, '#475569');
+      addPoint(M, 0xf97316, 0.075); addLabel('M', M, centroid, '#c2410c');
+
+      // Step 1: (SBD) & MD ∩ SO = I
+      addFace([S, B, D], 0x22c55e, 0.16);
+      addLine(M, D, 0x16a34a, false, 0.025);
+      addLine(A, M, 0xf97316, false, 0.024);
+      addPoint(I, 0xef4444, 0.085); addLabel('I', I, centroid, '#dc2626');
+
+      // Step 2: (SAC) & AI ∩ SC = K, highlight (AMKD)
+      if (state.step >= 2) {
+        addFace([S, A, C], 0x0ea5e9, 0.16);
+        addLine(A, K, 0x0284c7, false, 0.026);
+        addPoint(K, 0xef4444, 0.085); addLabel('K', K, centroid, '#dc2626');
+        addLine(M, K, 0xf97316, false, 0.03);
+        addLine(K, D, 0xf97316, false, 0.03);
+        if (state.showSection) addFace([A, M, K, D], 0xf97316, 0.36);
+      }
+
+      return {
+        stepDesc: [
+          'Bước 1: Trong mặt phẳng phụ (SBD) chứa SO, nối MD cắt SO tại giao điểm I (OI/IS = 2/3).',
+          'Bước 2: Trong mặt phẳng phụ (SAC) chứa SC, kéo dài AI cắt SC tại K (SK/SC = 1/2). Mặt cắt là tứ giác AMKD.'
+        ],
+        solutions: [
+          `\\text{Trong } (SBD): \\; MD \\cap SO = I \\Rightarrow I = SO \\cap (AMD)`,
+          `\\text{Menelaus } \\Delta SBO: \\; \\frac{OI}{IS} = \\frac{2}{3}`,
+          `\\text{Trong } (SAC): \\; AI \\cap SC = K \\Rightarrow K = SC \\cap (AMD), \\; \\frac{SK}{SC} = \\frac{1}{2}`
+        ]
+      };
+    }
+
+    function buildModelVD3() {
+      // S.ABCD đáy hình thang (AD // BC, AD = 3a, BC = a), SA = SD = 2a, M trên AB với MB = 2MA
+      const a = 1.6;
+      const A = new THREE.Vector3(-1.5 * a, 0, 1.4);
+      const D = new THREE.Vector3(1.5 * a, 0, 1.4);
+      const B = new THREE.Vector3(-0.5 * a, 0, -1.2);
+      const C = new THREE.Vector3(0.5 * a, 0, -1.2);
+      const S = new THREE.Vector3(0, Math.sqrt(3.84) * (a / 1.6), 0.6);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+
+      const M = new THREE.Vector3().lerpVectors(A, B, 1 / 3); // MB = 2MA
+      const N = new THREE.Vector3().lerpVectors(D, C, 1 / 3); // MN // BC // AD
+      const Q = new THREE.Vector3().lerpVectors(B, S, 2 / 3); // MQ // SA
+      const P = new THREE.Vector3().lerpVectors(C, S, 2 / 3); // QP // BC, PN // SD
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.14 : 0.62;
+
+      const fSAB = makeFaceData([S, A, B], centroid);
+      const fSBC = makeFaceData([S, B, C], centroid);
+      const fSCD = makeFaceData([S, C, D], centroid);
+      const fSDA = makeFaceData([S, D, A], centroid);
+      const fABCD = makeFaceData([A, B, C, D], centroid);
+
+      [[S,A,B],[S,B,C],[S,C,D],[S,D,A],[A,B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge);
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge);
+      addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABCD, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABCD, tc.edge);
+      addDynamicEdge(C, D, fSCD, fABCD, tc.edge);
+      addDynamicEdge(D, A, fSDA, fABCD, tc.edge);
+
+      [['S',S],['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+
+      addPoint(M, 0xea580c, 0.08); addLabel('M', M, centroid, '#c2410c');
+
+      if (state.step >= 2) {
+        addLine(M, N, 0xf97316, true, 0.024);
+        addPoint(N, 0xea580c, 0.08); addLabel('N', N, centroid, '#c2410c');
+        addLine(M, Q, 0x0284c7, false, 0.025);
+        addPoint(Q, 0xea580c, 0.08); addLabel('Q', Q, centroid, '#c2410c');
+      }
+      if (state.step >= 3) {
+        addLine(Q, P, 0xf97316, false, 0.026);
+        addPoint(P, 0xea580c, 0.08); addLabel('P', P, centroid, '#c2410c');
+        addLine(P, N, 0x0284c7, false, 0.025);
+      }
+      if (state.step >= 4) {
+        [M, N, P, Q].forEach((pt, i) => addLine(pt, [M, N, P, Q][(i + 1) % 4], 0xea580c, false, 0.032));
+        if (state.showSection) addFace([M, N, P, Q], 0xf97316, 0.42);
+      }
+
+      return {
+        stepDesc: [
+          'Bước 1: Lấy M ∈ AB sao cho MB = 2MA. Mặt phẳng (α) qua M song song với SA và BC.',
+          'Bước 2: Trong (ABCD) kẻ MN // BC (N ∈ CD); trong (SAB) kẻ MQ // SA (Q ∈ SB).',
+          'Bước 3: Trong (SBC) kẻ QP // BC (P ∈ SC), rồi khép kín đoạn PN (PN // SD).',
+          'Bước 4: Thiết diện là hình thang cân MNPQ (MQ = NP = 4a/3, QP = a/3, MN = 7a/3).'
+        ],
+        solutions: [
+          `\\text{Định lí Thales: } QP = \\frac{1}{3}BC = \\frac{a}{3}, \\quad MQ = NP = \\frac{2}{3}SA = \\frac{4a}{3}`,
+          `MN = \\frac{2}{3}AD + \\frac{1}{3}BC = \\frac{7a}{3}`,
+          `h = \\sqrt{MQ^2 - \\left(\\frac{MN - QP}{2}\\right)^2} = \\frac{a\\sqrt{7}}{3}, \\quad S = \\frac{4a^2\\sqrt{7}}{9}`
+        ]
+      };
+    }
+
+    // =========================================================================
+    // 4B. DẠNG 1: BÀI TẬP RÈN LUYỆN (8 MÔ HÌNH 3D)
+    // =========================================================================
+    function makeParallelogramPyramid() {
+      const A = new THREE.Vector3(-2.3, 0, 1.5);
+      const B = new THREE.Vector3(1.5, 0, 1.5);
+      const C = new THREE.Vector3(2.3, 0, -1.5);
+      const D = new THREE.Vector3(-1.5, 0, -1.5);
+      const O = new THREE.Vector3(0, 0, 0);
+      const S = new THREE.Vector3(-0.3, 3.2, -0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      return { S, A, B, C, D, O, centroid };
+    }
+
+    function drawPyramidBase(S, A, B, C, D, centroid) {
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.13 : 0.60;
+      const fSAB = makeFaceData([S, A, B], centroid);
+      const fSBC = makeFaceData([S, B, C], centroid);
+      const fSCD = makeFaceData([S, C, D], centroid);
+      const fSDA = makeFaceData([S, D, A], centroid);
+      const fABCD = makeFaceData([A, B, C, D], centroid);
+      [[S,A,B],[S,B,C],[S,C,D],[S,D,A],[A,B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge);
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge);
+      addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABCD, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABCD, tc.edge);
+      addDynamicEdge(C, D, fSCD, fABCD, tc.edge);
+      addDynamicEdge(D, A, fSDA, fABCD, tc.edge);
+      [['S',S],['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.058);
+        addLabel(lbl, pt, centroid);
+      });
+      return tc;
+    }
+
+    function drawTetraBase(A, B, C, D, centroid) {
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.13 : 0.60;
+      const fABC = makeFaceData([A, B, C], centroid);
+      const fABD = makeFaceData([A, B, D], centroid);
+      const fACD = makeFaceData([A, C, D], centroid);
+      const fBCD = makeFaceData([B, C, D], centroid);
+      [[A,B,C],[A,B,D],[A,C,D],[B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(A, B, fABC, fABD, tc.edge);
+      addDynamicEdge(A, C, fABC, fACD, tc.edge);
+      addDynamicEdge(A, D, fABD, fACD, tc.edge);
+      addDynamicEdge(B, C, fABC, fBCD, tc.edge);
+      addDynamicEdge(B, D, fABD, fBCD, tc.edge);
+      addDynamicEdge(C, D, fACD, fBCD, tc.edge);
+      [['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.058);
+        addLabel(lbl, pt, centroid);
+      });
+      return tc;
+    }
+
+    function buildModelD1C1() {
+      const { S, A, B, C, D, O, centroid } = makeParallelogramPyramid();
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+      addLine(A, C, tc.aux, true, 0.015);
+      addLine(B, D, tc.aux, true, 0.015);
+      addPoint(O, 0xef4444, 0.07); addLabel('O', O, centroid, '#dc2626');
+      if (state.showSection) {
+        addFace([S, A, C], 0x3b82f6, 0.22);
+        addFace([S, B, D], 0x22c55e, 0.22);
+      }
+      addLine(S, O, 0xef4444, false, 0.036);
+      return {
+        stepDesc: ['D1 - Câu 1: Hình chóp S.ABCD đáy hình bình hành tâm O ⇒ (SAC) ∩ (SBD) = SO.'],
+        solutions: [
+          `\\begin{cases} S \\in (SAC) \\cap (SBD) \\\\ O = AC \\cap BD \\Rightarrow O \\in (SAC) \\cap (SBD) \\end{cases}`,
+          `\\Rightarrow (SAC) \\cap (SBD) = SO \\text{ (Đáp án A)}`
+        ]
+      };
+    }
+
+    function buildModelD1C2() {
+      const A = new THREE.Vector3(0, 3.2, 0.2);
+      const B = new THREE.Vector3(-2.2, 0, 1.6);
+      const C = new THREE.Vector3(1.6, 0, 1.3);
+      const D = new THREE.Vector3(0.1, 0, -1.8);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      const tc = drawTetraBase(A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(A, C, 0.35);
+      const N = new THREE.Vector3().lerpVectors(A, D, 0.72);
+      // Intersection E = MN ∩ CD
+      const d1 = new THREE.Vector3().subVectors(N, M);
+      const d2 = new THREE.Vector3().subVectors(D, C);
+      const r = new THREE.Vector3().subVectors(C, M);
+      const nACD = new THREE.Vector3().crossVectors(d1, d2);
+      const t = new THREE.Vector3().crossVectors(r, d2).dot(nACD) / nACD.lengthSq();
+      const E = M.clone().addScaledVector(d1, t);
+
+      addLine(D, E, tc.aux, true, 0.017);
+      addLine(N, E, 0xf97316, true, 0.019);
+      addLine(M, N, 0xf97316, false, 0.025);
+      addPoint(M, 0xf97316, 0.07); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.07); addLabel('N', N, centroid, '#c2410c');
+      addPoint(E, 0xef4444, 0.075); addLabel('E', E, centroid, '#dc2626');
+
+      if (state.showSection) {
+        addFace([B, M, E], 0x3b82f6, 0.22);
+        addFace([B, C, E], 0x22c55e, 0.20);
+      }
+      addLine(B, E, 0xef4444, false, 0.036);
+      return {
+        stepDesc: ['D1 - Câu 2: Kéo dài MN cắt CD tại E ⇒ (BMN) ∩ (BCD) = BE (màu đỏ).'],
+        solutions: [
+          `\\text{Trong } (ACD): \\; MN \\cap CD = E`,
+          `\\begin{cases} B \\in (BMN) \\cap (BCD) \\\\ E \\in MN \\subset (BMN), \\; E \\in CD \\subset (BCD) \\end{cases} \\Rightarrow (BMN) \\cap (BCD) = BE \\text{ (Đáp án A)}`
+        ]
+      };
+    }
+
+    function buildModelD1C3() {
+      const A = new THREE.Vector3(-2.5, 0, 1.6);
+      const D = new THREE.Vector3(2.5, 0, 1.6);
+      const B = new THREE.Vector3(-1.1, 0, -1.4);
+      const C = new THREE.Vector3(1.1, 0, -1.4);
+      const S = new THREE.Vector3(-0.2, 3.2, 0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      drawPyramidBase(S, A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(S, A, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, D, 0.5);
+      addPoint(M, 0x2563eb, 0.075); addLabel('M', M, centroid, '#1d4ed8');
+      addPoint(N, 0x2563eb, 0.075); addLabel('N', N, centroid, '#1d4ed8');
+
+      if (state.showSection) {
+        addFace([M, B, C, N], 0xf97316, 0.26);
+        addFace([S, A, D], 0x22c55e, 0.16);
+      }
+      addLine(M, B, 0xf97316, false, 0.024);
+      addLine(N, C, 0xf97316, false, 0.024);
+      addLine(M, N, 0x2563eb, false, 0.036);
+      return {
+        stepDesc: ['D1 - Câu 3: M là trung điểm SA, AD // BC ⇒ (MBC) ∩ (SAD) = MN // AD (màu xanh dương).'],
+        solutions: [
+          `\\begin{cases} M \\in (MBC) \\cap (SAD) \\\\ BC \\subset (MBC), \\; AD \\subset (SAD), \\; BC \\parallel AD \\end{cases}`,
+          `\\Rightarrow (MBC) \\cap (SAD) = MN \\parallel AD \\text{ (Đáp án B)}`
+        ]
+      };
+    }
+
+    function buildModelD1C4() {
+      const { S, A, B, C, D, centroid } = makeParallelogramPyramid();
+      drawPyramidBase(S, A, B, C, D, centroid);
+      if (state.showSection) {
+        addFace([S, A, B], 0x3b82f6, 0.24);
+        addFace([S, C, D], 0x22c55e, 0.24);
+      }
+      const xL = S.clone().add(new THREE.Vector3(-2.5, 0, 0));
+      const xR = S.clone().add(new THREE.Vector3(2.5, 0, 0));
+      addLine(xL, xR, 0x2563eb, false, 0.036);
+      addLabel('x', xR, centroid, '#2563eb');
+      return {
+        stepDesc: ['D1 - Câu 4: ABCD là hình bình hành (AB // CD) ⇒ (SAB) ∩ (SCD) = Sx // AB // CD.'],
+        solutions: [
+          `\\begin{cases} S \\in (SAB) \\cap (SCD) \\\\ AB \\parallel CD \\end{cases} \\Rightarrow (SAB) \\cap (SCD) = Sx \\parallel AB \\text{ (Đáp án C)}`
+        ]
+      };
+    }
+
+    function buildModelD1C5() {
+      const { S, A, B, C, D, O, centroid } = makeParallelogramPyramid();
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(A, D, 0.5);
+      const N = new THREE.Vector3().lerpVectors(B, C, 0.5);
+      addLine(A, C, tc.aux, true, 0.015);
+      addLine(B, D, tc.aux, true, 0.015);
+      addLine(M, N, 0xf97316, true, 0.02);
+      addPoint(M, 0xf97316, 0.07); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.07); addLabel('N', N, centroid, '#c2410c');
+      addPoint(O, 0xef4444, 0.075); addLabel('O', O, centroid, '#dc2626');
+      if (state.showSection) {
+        addFace([S, M, N], 0x22c55e, 0.24);
+        addFace([S, A, C], 0x3b82f6, 0.20);
+      }
+      addLine(S, O, 0xef4444, false, 0.036);
+      return {
+        stepDesc: ['D1 - Câu 5: M, N là trung điểm AD, BC ⇒ MN đi qua tâm O ⇒ (SMN) ∩ (SAC) = SO (màu đỏ).'],
+        solutions: [
+          `MN \\text{ là đường trung bình hình bình hành } ABCD \\Rightarrow O \\in MN \\subset (SMN)`,
+          `\\Rightarrow (SMN) \\cap (SAC) = SO \\text{ (Đáp án C)}`
+        ]
+      };
+    }
+
+    function buildModelD1C6() {
+      const A = new THREE.Vector3(0, 3.2, 0.2);
+      const B = new THREE.Vector3(-2.3, 0, 1.7);
+      const C = new THREE.Vector3(2.3, 0, 1.4);
+      const D = new THREE.Vector3(0.2, 0, -2.2);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      drawTetraBase(A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const N = new THREE.Vector3().lerpVectors(A, C, 0.5);
+      const P = new THREE.Vector3().lerpVectors(C, D, 0.45);
+      const Q = new THREE.Vector3().lerpVectors(B, D, 0.45);
+
+      addLine(M, N, 0xf97316, false, 0.025);
+      addLine(M, Q, 0xf97316, false, 0.024);
+      addLine(N, P, 0xf97316, false, 0.024);
+      addLine(P, Q, 0x2563eb, false, 0.036);
+
+      addPoint(M, 0xf97316, 0.07); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.07); addLabel('N', N, centroid, '#c2410c');
+      addPoint(P, 0x2563eb, 0.075); addLabel('P', P, centroid, '#1d4ed8');
+      addPoint(Q, 0x2563eb, 0.075); addLabel('Q', Q, centroid, '#1d4ed8');
+
+      if (state.showSection) {
+        addFace([M, N, P, Q], 0xf97316, 0.28);
+        addFace([B, C, D], 0x22c55e, 0.16);
+      }
+      return {
+        stepDesc: ['D1 - Câu 6: M, N là trung điểm AB, AC ⇒ MN // BC ⇒ (MNP) ∩ (BCD) = PQ // BC.'],
+        solutions: [
+          `\\begin{cases} P \\in (MNP) \\cap (BCD) \\\\ MN \\parallel BC \\end{cases} \\Rightarrow (MNP) \\cap (BCD) = PQ \\parallel BC \\text{ (Đáp án C)}`
+        ]
+      };
+    }
+
+    function buildModelD1DS1() {
+      const A = new THREE.Vector3(-2.4, 0, 1.8);
+      const B = new THREE.Vector3(2.4, 0, 1.8);
+      const C = new THREE.Vector3(1.3, 0, -0.4);
+      const D = new THREE.Vector3(-1.1, 0, -0.4);
+      const E = new THREE.Vector3(0.2, 0, -2.6);
+      const S = new THREE.Vector3(-0.2, 3.2, 0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+
+      const O = new THREE.Vector3().lerpVectors(A, C, 2 / 3);
+      const M = new THREE.Vector3().lerpVectors(S, A, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, B, 0.5);
+
+      addLine(A, C, tc.aux, true, 0.014);
+      addLine(B, D, tc.aux, true, 0.014);
+      addLine(D, E, tc.aux, true, 0.015);
+      addLine(C, E, tc.aux, true, 0.015);
+      addPoint(O, tc.aux, 0.06); addLabel('O', O, centroid, '#475569');
+      addPoint(E, 0xef4444, 0.065); addLabel('E', E, centroid, '#dc2626');
+      addPoint(M, 0x2563eb, 0.068); addLabel('M', M, centroid, '#1d4ed8');
+
+      const sub = state.d1_ds1.sub;
+      if (sub === 'a') {
+        if (state.showSection) { addFace([S,A,C], 0x3b82f6, 0.22); addFace([S,B,D], 0x22c55e, 0.22); }
+        addLine(S, O, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Ý a (ĐÚNG): (SAC) ∩ (SBD) = SO với O = AC ∩ BD.'],
+          solutions: [`O = AC \\cap BD \\Rightarrow (SAC) \\cap (SBD) = SO \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'b') {
+        if (state.showSection) { addFace([S,A,E], 0x3b82f6, 0.22); addFace([S,B,E], 0x22c55e, 0.22); }
+        addLine(S, E, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Ý b (ĐÚNG): (SAD) ∩ (SBC) = SE với E = AD ∩ BC.'],
+          solutions: [`E = AD \\cap BC \\Rightarrow (SAD) \\cap (SBC) = SE \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'c') {
+        if (state.showSection) { addFace([S,A,B], 0x3b82f6, 0.24); addFace([S,C,D], 0x22c55e, 0.24); }
+        const xL = S.clone().add(new THREE.Vector3(-2.5, 0, 0));
+        const xR = S.clone().add(new THREE.Vector3(2.5, 0, 0));
+        addLine(xL, xR, 0x2563eb, false, 0.036);
+        addLabel('x', xR, centroid, '#2563eb');
+        return {
+          stepDesc: ['Ý c (SAI): (SAB) ∩ (SCD) = Sx // AB // CD (KHÔNG phải song song AD).'],
+          solutions: [`(SAB) \\cap (SCD) = Sx \\parallel AB \\parallel CD \\; (\\textbf{Mệnh đề nói // AD là SAI})`]
+        };
+      } else {
+        addPoint(N, 0x2563eb, 0.068); addLabel('N', N, centroid, '#1d4ed8');
+        if (state.showSection) { addFace([M, N, C, D], 0xf97316, 0.28); addFace([S, A, B], 0x3b82f6, 0.16); }
+        addLine(M, D, 0xf97316, false, 0.022);
+        addLine(N, C, 0xf97316, false, 0.022);
+        addLine(M, N, 0x2563eb, false, 0.036);
+        return {
+          stepDesc: ['Ý d (ĐÚNG): (MCD) ∩ (SAB) = MN // AB (N là trung điểm SB).'],
+          solutions: [`M \\in (MCD) \\cap (SAB), \\; CD \\parallel AB \\Rightarrow (MCD) \\cap (SAB) = MN \\parallel AB \\; (\\textbf{ĐÚNG})`]
+        };
+      }
+    }
+
+    function buildModelD1DS2() {
+      const A = new THREE.Vector3(0, 3.2, 0.2);
+      const B = new THREE.Vector3(-2.3, 0, 1.7);
+      const C = new THREE.Vector3(2.3, 0, 1.4);
+      const D = new THREE.Vector3(0.2, 0, -2.2);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      drawTetraBase(A, B, C, D, centroid);
+
+      const I = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const J = new THREE.Vector3().lerpVectors(A, C, 0.5);
+      const K = new THREE.Vector3().lerpVectors(D, C, 1 / 3); // KC = 2KD
+      const E = new THREE.Vector3().lerpVectors(D, B, 1 / 3); // KE // BC => BE = 2/3 BD
+
+      addPoint(I, 0xf97316, 0.072); addLabel('I', I, centroid, '#c2410c');
+      addPoint(J, 0xf97316, 0.072); addLabel('J', J, centroid, '#c2410c');
+      addPoint(K, 0xf97316, 0.072); addLabel('K', K, centroid, '#c2410c');
+      addPoint(E, 0x2563eb, 0.072); addLabel('E', E, centroid, '#1d4ed8');
+
+      const sub = state.d1_ds2.sub;
+      if (state.showSection) addFace([I, J, K, E], 0xf97316, 0.26);
+
+      if (sub === 'a') {
+        addLine(I, J, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Ý a (ĐÚNG): (IJK) ∩ (ABC) = IJ (màu đỏ).'],
+          solutions: [`I \\in AB, \\; J \\in AC \\Rightarrow (IJK) \\cap (ABC) = IJ \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'b') {
+        addLine(I, J, 0xf97316, false, 0.022);
+        addLine(K, E, 0x2563eb, false, 0.036);
+        return {
+          stepDesc: ['Ý b (ĐÚNG): IJ // BC ⇒ (IJK) ∩ (BCD) = KE // BC (E ∈ BD).'],
+          solutions: [`IJ \\parallel BC, \\; K \\in (IJK) \\cap (BCD) \\Rightarrow (IJK) \\cap (BCD) = KE \\parallel BC \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'c') {
+        addLine(I, J, 0xf97316, false, 0.022);
+        addLine(K, E, 0x2563eb, false, 0.024);
+        addLine(I, E, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Ý c (ĐÚNG): (IJK) ∩ (ABD) = IE (màu đỏ).'],
+          solutions: [`I \\in AB, \\; E \\in BD \\Rightarrow (IJK) \\cap (ABD) = IE \\; (\\textbf{ĐÚNG})`]
+        };
+      } else {
+        addLine(K, E, 0x2563eb, false, 0.028);
+        addLine(B, E, 0x16a34a, false, 0.042);
+        addLine(E, D, 0xef4444, false, 0.034);
+        return {
+          stepDesc: ['Ý d: Tỉ số trên BD: KE // BC và KC = 2KD ⇒ DE/EB = 1/2 ⇒ BE = 2/3 BD (đoạn xanh lá).'],
+          solutions: [
+            `KE \\parallel BC \\Rightarrow \\frac{DE}{EB} = \\frac{DK}{KC} = \\frac{1}{2}`,
+            `\\Rightarrow BE = \\frac{2}{3} BD \\; (\\text{Nếu đề nói } BE = \\frac{1}{3}BD \\text{ là SAI; } BE = \\frac{2}{3}BD \\text{ là ĐÚNG})`
+          ]
+        };
+      }
+    }
+
+    // =========================================================================
+    // 4C. DẠNG 2: BÀI TẬP RÈN LUYỆN (8 MÔ HÌNH 3D - GIAO ĐIỂM ĐƯỜNG & MẶT)
+    // =========================================================================
+    function drawAuxPlaneOutline(pts, color = 0x64748b) {
+      for (let i = 0; i < pts.length; i++) {
+        addLine(pts[i], pts[(i + 1) % pts.length], color, true, 0.014);
+      }
+      addFace(pts, color, 0.10);
+    }
+
+    function buildModelD2C1() {
+      const { S, A, B, C, D, O, centroid } = makeParallelogramPyramid();
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const I = new THREE.Vector3().lerpVectors(A, M, 2 / 3); // Trọng tâm ΔSAC
+
+      addLine(A, C, tc.aux, true, 0.014);
+      addLine(B, D, tc.aux, true, 0.014);
+      drawAuxPlaneOutline([S, A, C], 0x0ea5e9); // Mặt phụ (β) = (SAC)
+      if (state.showSection) addFace([S, B, D], 0x22c55e, 0.22); // Mặt (α) = (SBD)
+
+      addLine(S, O, 0x16a34a, false, 0.026);
+      addLine(A, M, 0x2563eb, false, 0.032); // Đường thẳng d = AM (xanh dương)
+      addPoint(O, tc.aux, 0.058); addLabel('O', O, centroid, '#475569');
+      addPoint(M, 0x2563eb, 0.07); addLabel('M', M, centroid, '#1d4ed8');
+      addPoint(I, 0xef4444, 0.088); addLabel('I', I, centroid, '#dc2626');
+
+      return {
+        stepDesc: ['D2 - Câu 1: Trong mp phụ (SAC), hai trung tuyến AM và SO cắt nhau tại trọng tâm I của ΔSAC.'],
+        solutions: [
+          `\\text{Trong } (SAC): \\; AM \\cap SO = I`,
+          `AM, SO \\text{ là 2 trung tuyến } \\Delta SAC \\Rightarrow I \\text{ là trọng tâm } \\Delta SAC \\; (\\textbf{Đáp án A})`
+        ]
+      };
+    }
+
+    function buildModelD2C2() {
+      const A = new THREE.Vector3(0, 3.2, 0.2);
+      const B = new THREE.Vector3(-2.3, 0, 1.7);
+      const C = new THREE.Vector3(2.3, 0, 1.4);
+      const D = new THREE.Vector3(0.2, 0, -2.2);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      drawTetraBase(A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const N = new THREE.Vector3().lerpVectors(A, C, 0.5);
+      const P = new THREE.Vector3().lerpVectors(B, D, 0.5);
+      const Q = new THREE.Vector3().lerpVectors(C, D, 0.5);
+
+      drawAuxPlaneOutline([B, C, D], 0x0ea5e9); // Mặt phụ (β) = (BCD)
+      if (state.showSection) addFace([M, N, Q, P], 0xf97316, 0.28); // Mặt (α) = (MNP)
+
+      addLine(M, N, 0xf97316, false, 0.026);
+      addLine(P, Q, 0xf97316, false, 0.028);
+      addLine(C, D, 0x2563eb, false, 0.030); // Đường thẳng d = CD (xanh dương)
+      addPoint(M, 0xf97316, 0.068); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.068); addLabel('N', N, centroid, '#c2410c');
+      addPoint(P, 0xf97316, 0.068); addLabel('P', P, centroid, '#c2410c');
+      addPoint(Q, 0xef4444, 0.088); addLabel('Q', Q, centroid, '#dc2626');
+
+      return {
+        stepDesc: ['D2 - Câu 2: MN // BC ⇒ (MNP) ∩ (BCD) = PQ // BC (P trung điểm BD ⇒ Q trung điểm CD).'],
+        solutions: [
+          `MN \\parallel BC \\Rightarrow (MNP) \\cap (BCD) = PQ \\parallel BC \\; (P \\in BD)`,
+          `P \\text{ là trung điểm } BD \\Rightarrow Q \\text{ là trung điểm } CD \\; (\\textbf{Đáp án A})`
+        ]
+      };
+    }
+
+    function buildModelD2C3() {
+      const { S, A, B, C, D, O, centroid } = makeParallelogramPyramid();
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(S, B, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, D, 0.5);
+      const I = new THREE.Vector3().lerpVectors(S, O, 0.5);
+
+      addLine(A, C, tc.aux, true, 0.014);
+      addLine(B, D, tc.aux, true, 0.014);
+      drawAuxPlaneOutline([S, B, D], 0x0ea5e9); // Mặt phụ (β) = (SBD)
+      if (state.showSection) addFace([S, A, C], 0x22c55e, 0.16);
+
+      addLine(M, N, 0x2563eb, false, 0.032); // Đường thẳng d = MN (xanh dương)
+      addLine(S, O, 0x16a34a, false, 0.025);
+      addPoint(O, tc.aux, 0.058); addLabel('O', O, centroid, '#475569');
+      addPoint(M, 0x2563eb, 0.068); addLabel('M', M, centroid, '#1d4ed8');
+      addPoint(N, 0x2563eb, 0.068); addLabel('N', N, centroid, '#1d4ed8');
+      addPoint(I, 0xef4444, 0.088); addLabel('I', I, centroid, '#dc2626');
+
+      return {
+        stepDesc: ['D2 - Câu 3: MN là đường trung bình ΔSBD nên MN cắt SO tại trung điểm I của SO (SI/SO = 1/2).'],
+        solutions: [
+          `MN \\text{ là đường trung bình } \\Delta SBD \\Rightarrow I = MN \\cap SO \\text{ là trung điểm } SO`,
+          `\\Rightarrow \\frac{SI}{SO} = \\frac{1}{2} \\; (\\textbf{Đáp án A})`
+        ]
+      };
+    }
+
+    function buildModelD2C4() {
+      const A = new THREE.Vector3(0, 3.1, 0.3);
+      const B = new THREE.Vector3(-2.3, 0, 1.6);
+      const C = new THREE.Vector3(2.2, 0, 1.3);
+      const D = new THREE.Vector3(0.2, 0, -2.0);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      drawTetraBase(A, B, C, D, centroid);
+
+      const E = new THREE.Vector3().lerpVectors(C, D, 0.5);
+      const G = new THREE.Vector3().lerpVectors(B, E, 2 / 3);
+      const M = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const I = E.clone().multiplyScalar(2).sub(A); // E là trung điểm AI => MG ∩ AE = I
+
+      drawAuxPlaneOutline([A, B, E], 0x0ea5e9); // Mặt phụ (β) = (ABE)
+      if (state.showSection) addFace([A, C, D], 0x22c55e, 0.22); // Mặt (α) = (ACD)
+
+      addLine(B, E, 0x64748b, true, 0.016);
+      addLine(A, E, 0x16a34a, false, 0.025);
+      addLine(E, I, 0x16a34a, true, 0.020);
+      addLine(M, G, 0x2563eb, false, 0.032); // Đường thẳng d = MG (xanh dương)
+      addLine(G, I, 0x2563eb, true, 0.024);
+
+      addPoint(E, 0x16a34a, 0.068); addLabel('E', E, centroid, '#15803d');
+      addPoint(G, 0xf97316, 0.068); addLabel('G', G, centroid, '#c2410c');
+      addPoint(M, 0x2563eb, 0.068); addLabel('M', M, centroid, '#1d4ed8');
+      addPoint(I, 0xef4444, 0.088); addLabel('I', I, centroid, '#dc2626');
+
+      return {
+        stepDesc: ['D2 - Câu 4: Trong mp phụ (ABE), kéo dài MG cắt AE tại giao điểm I = MG ∩ (ACD).'],
+        solutions: [
+          `\\text{Trong } (ABE): \\; (ABE) \\cap (ACD) = AE`,
+          `I = MG \\cap AE \\Rightarrow I = MG \\cap (ACD) \\; (\\textbf{Đáp án A})`
+        ]
+      };
+    }
+
+    function buildModelD2C5() {
+      const A = new THREE.Vector3(-2.4, 0, 1.8);
+      const B = new THREE.Vector3(2.4, 0, 1.8);
+      const C = new THREE.Vector3(1.3, 0, -0.5);
+      const D = new THREE.Vector3(-1.1, 0, -0.5);
+      const S = new THREE.Vector3(-0.2, 3.2, 0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      drawPyramidBase(S, A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(S, D, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, C, 0.5);
+
+      drawAuxPlaneOutline([S, C, D], 0x0ea5e9); // Mặt phụ (β) = (SCD)
+      if (state.showSection) addFace([M, A, B, N], 0xf97316, 0.28); // Mặt (α) = (MAB)
+
+      addLine(M, A, 0xf97316, false, 0.024);
+      addLine(N, B, 0xf97316, false, 0.024);
+      addLine(M, N, 0xf97316, false, 0.028);
+      addLine(S, C, 0x2563eb, false, 0.032); // Đường thẳng d = SC (xanh dương)
+
+      addPoint(M, 0xf97316, 0.07); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xef4444, 0.088); addLabel('N', N, centroid, '#dc2626');
+
+      return {
+        stepDesc: ['D2 - Câu 5: (MAB) ∩ (SCD) = MN // CD // AB ⇒ N là trung điểm SC (SN/SC = 1/2).'],
+        solutions: [
+          `AB \\parallel CD \\Rightarrow (MAB) \\cap (SCD) = MN \\parallel CD`,
+          `M \\text{ trung điểm } SD \\Rightarrow N \\text{ trung điểm } SC \\Rightarrow \\frac{SN}{SC} = \\frac{1}{2} \\; (\\textbf{Đáp án C})`
+        ]
+      };
+    }
+
+    function buildModelD2C6() {
+      const { S, A, B, C, D, centroid } = makeParallelogramPyramid();
+      drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, D, 0.5);
+
+      drawAuxPlaneOutline([S, C, D], 0x0ea5e9); // Mặt phụ (β) = (SCD)
+      if (state.showSection) addFace([A, B, M, N], 0xf97316, 0.28); // Mặt (α) = (ABM)
+
+      addLine(B, M, 0xf97316, false, 0.024);
+      addLine(A, N, 0xf97316, false, 0.024);
+      addLine(M, N, 0xf97316, false, 0.028);
+      addLine(S, D, 0x2563eb, false, 0.032); // Đường thẳng d = SD (xanh dương)
+
+      addPoint(M, 0xf97316, 0.07); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xef4444, 0.088); addLabel('N', N, centroid, '#dc2626');
+
+      return {
+        stepDesc: ['D2 - Câu 6: (ABM) ∩ (SCD) = MN // CD // AB ⇒ N = SD ∩ (ABM) là trung điểm SD.'],
+        solutions: [
+          `AB \\parallel CD \\Rightarrow (ABM) \\cap (SCD) = MN \\parallel CD`,
+          `M \\text{ trung điểm } SC \\Rightarrow N \\text{ là trung điểm } SD \\; (\\textbf{Đáp án B})`
+        ]
+      };
+    }
+
+    function buildModelD2DS1() {
+      const { S, A, B, C, D, O, centroid } = makeParallelogramPyramid();
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const N = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const I = new THREE.Vector3().lerpVectors(A, M, 2 / 3);
+      const E = new THREE.Vector3().lerpVectors(S, D, 0.5);
+      const K = new THREE.Vector3().lerpVectors(M, N, 0.5); // MN ∩ (SBD)
+
+      addLine(A, C, tc.aux, true, 0.014);
+      addLine(B, D, tc.aux, true, 0.014);
+      addPoint(O, tc.aux, 0.058); addLabel('O', O, centroid, '#475569');
+      addPoint(M, 0xf97316, 0.068); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.068); addLabel('N', N, centroid, '#c2410c');
+
+      const sub = state.d2_ds1.sub;
+      if (sub === 'a') {
+        drawAuxPlaneOutline([S, A, C], 0x0ea5e9);
+        if (state.showSection) addFace([S, B, D], 0x22c55e, 0.22);
+        addLine(S, O, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Ý a (ĐÚNG): (SAC) ∩ (SBD) = SO (O là giao điểm hai đường chéo AC và BD).'],
+          solutions: [`(SAC) \\cap (SBD) = SO \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'b') {
+        drawAuxPlaneOutline([S, A, C], 0x0ea5e9);
+        if (state.showSection) addFace([S, B, D], 0x22c55e, 0.22);
+        addLine(S, O, 0x16a34a, false, 0.025);
+        addLine(A, M, 0x2563eb, false, 0.032);
+        addPoint(I, 0xef4444, 0.088); addLabel('I', I, centroid, '#dc2626');
+        return {
+          stepDesc: ['Ý b (ĐÚNG): I = AM ∩ SO là giao điểm 2 trung tuyến nên I là trọng tâm ΔSAC.'],
+          solutions: [`I = AM \\cap SO = AM \\cap (SBD) \\text{ là trọng tâm } \\Delta SAC \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'c') {
+        drawAuxPlaneOutline([S, C, D], 0x0ea5e9);
+        if (state.showSection) addFace([A, B, M, E], 0xf97316, 0.26);
+        addLine(M, E, 0xf97316, false, 0.028);
+        addLine(S, D, 0x2563eb, false, 0.032);
+        addPoint(E, 0xef4444, 0.088); addLabel('E', E, centroid, '#dc2626');
+        return {
+          stepDesc: ['Ý c (ĐÚNG): E = SD ∩ (ABM) là trung điểm SD (vì ME // AB // CD).'],
+          solutions: [`ME \\parallel AB \\parallel CD \\Rightarrow E = SD \\cap (ABM) \\text{ là trung điểm } SD \\; (\\textbf{ĐÚNG})`]
+        };
+      } else {
+        drawAuxPlaneOutline([S, N, C], 0x0ea5e9);
+        if (state.showSection) addFace([S, B, D], 0x22c55e, 0.22);
+        addLine(S, O, 0x16a34a, false, 0.025);
+        addLine(M, N, 0x2563eb, false, 0.032);
+        addPoint(K, 0xef4444, 0.088); addLabel('K', K, centroid, '#dc2626');
+        return {
+          stepDesc: ['Ý d: K = MN ∩ (SBD) là trung điểm MN (lưu ý: trong không gian, MN và SO chéo nhau trừ khi đồng phẳng).'],
+          solutions: [`K = MN \\cap (SBD) \\text{ (nằm trong } (SBD) \\text{ và } K \\text{ là trung điểm } MN)`]
+        };
+      }
+    }
+
+    function buildModelD2DS2() {
+      const A = new THREE.Vector3(0, 3.2, 0.2);
+      const B = new THREE.Vector3(-2.3, 0, 1.5);
+      const C = new THREE.Vector3(1.1, 0, 1.0);
+      const D = new THREE.Vector3(0.2, 0, -2.2);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      const tc = drawTetraBase(A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const N = new THREE.Vector3().lerpVectors(A, C, 2 / 3); // AN = 2NC
+      // Menelaus: EB/EC = 2 => C là trung điểm BE => E = 2C - B
+      const E = C.clone().multiplyScalar(2).sub(B);
+      const O = new THREE.Vector3().add(B).add(C).add(D).divideScalar(3);
+      // F = BD ∩ OE
+      const d1 = new THREE.Vector3().subVectors(E, O);
+      const d2 = new THREE.Vector3().subVectors(D, B);
+      const r = new THREE.Vector3().subVectors(B, O);
+      const nBCD = new THREE.Vector3().crossVectors(d1, d2);
+      const tF = new THREE.Vector3().crossVectors(r, d2).dot(nBCD) / nBCD.lengthSq();
+      const F = O.clone().addScaledVector(d1, tF);
+
+      addPoint(M, 0xf97316, 0.068); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xf97316, 0.068); addLabel('N', N, centroid, '#c2410c');
+      addPoint(O, 0x16a34a, 0.068); addLabel('O', O, centroid, '#15803d');
+
+      const sub = state.d2_ds2.sub;
+      if (sub === 'a') {
+        drawAuxPlaneOutline([A, B, C], 0x0ea5e9);
+        addLine(C, E, tc.aux, true, 0.018);
+        addLine(M, N, 0x2563eb, false, 0.028);
+        addLine(N, E, 0x2563eb, true, 0.022);
+        addPoint(E, 0xef4444, 0.088); addLabel('E', E, centroid, '#dc2626');
+        return {
+          stepDesc: ['Ý a (ĐÚNG): AM/AB = 1/2 ≠ AN/AC = 2/3 ⇒ MN cắt tia BC tại E (ngoài đoạn BC).'],
+          solutions: [`\\frac{AM}{AB} = \\frac{1}{2} \\ne \\frac{AN}{AC} = \\frac{2}{3} \\Rightarrow MN \\cap BC = E \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'b') {
+        drawAuxPlaneOutline([B, C, D], 0x0ea5e9);
+        if (state.showSection) addFace([O, M, N, E], 0xf97316, 0.24);
+        addLine(C, E, tc.aux, true, 0.016);
+        addLine(M, E, 0x2563eb, true, 0.018);
+        addPoint(E, 0xef4444, 0.075); addLabel('E', E, centroid, '#dc2626');
+        addLine(O, E, 0xef4444, false, 0.036);
+        return {
+          stepDesc: ['Ý b (ĐÚNG): E ∈ MN ⊂ (OMN) và E ∈ BC ⊂ (BCD) ⇒ (OMN) ∩ (BCD) = OE.'],
+          solutions: [`O, E \\in (OMN) \\cap (BCD) \\Rightarrow (OMN) \\cap (BCD) = OE \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'c') {
+        drawAuxPlaneOutline([B, C, D], 0x0ea5e9);
+        if (state.showSection) addFace([O, M, N, E], 0xf97316, 0.22);
+        addLine(C, E, tc.aux, true, 0.016);
+        addLine(O, E, 0xf97316, false, 0.026);
+        addLine(O, N, 0x64748b, true, 0.018); // ON chéo BD
+        addLine(B, D, 0x2563eb, false, 0.032); // BD (xanh dương)
+        addPoint(E, tc.aux, 0.06); addLabel('E', E, centroid, '#475569');
+        addPoint(F, 0xef4444, 0.088); addLabel('F', F, centroid, '#dc2626');
+        return {
+          stepDesc: ['Ý c (SAI): BD và ON chéo nhau! Giao điểm thật của BD và (OMN) là F = BD ∩ OE (chấm đỏ).'],
+          solutions: [`BD, ON \\text{ chéo nhau}; \\; BD \\cap (OMN) = BD \\cap OE = F \\; (\\textbf{Mệnh đề nói cắt ON là SAI})`]
+        };
+      } else {
+        drawAuxPlaneOutline([A, B, C], 0x0ea5e9);
+        addLine(B, C, 0x16a34a, false, 0.028);
+        addLine(C, E, 0xef4444, false, 0.028);
+        addLine(M, E, 0x2563eb, true, 0.020);
+        addPoint(E, 0xef4444, 0.082); addLabel('E', E, centroid, '#dc2626');
+        return {
+          stepDesc: ['Ý d (ĐÚNG): Menelaus ΔABC với cát tuyến M-N-E: (MA/MB)·(EB/EC)·(NC/NA) = 1 ⇒ EB/EC = 2.'],
+          solutions: [`\\frac{MA}{MB} \\cdot \\frac{EB}{EC} \\cdot \\frac{NC}{NA} = 1 \\Leftrightarrow 1 \\cdot \\frac{EB}{EC} \\cdot \\frac{1}{2} = 1 \\Rightarrow \\frac{EB}{EC} = 2 \\; (\\textbf{ĐÚNG})`]
+        };
+      }
+    }
+
+    // =========================================================================
+    // 4D. DẠNG 3: BÀI TẬP RÈN LUYỆN (8 MÔ HÌNH 3D - THIẾT DIỆN & TÍNH TOÁN)
+    // =========================================================================
+    function highlightSectionPolygon(pts, centroid, labels, fillCol = 0xf97316, edgeCol = 0xea580c) {
+      for (let i = 0; i < pts.length; i++) {
+        addLine(pts[i], pts[(i + 1) % pts.length], edgeCol, false, 0.032);
+        addPoint(pts[i], edgeCol, 0.075);
+        if (labels && labels[i]) addLabel(labels[i], pts[i], centroid, '#be185d');
+      }
+      if (state.showSection) addFace(pts, fillCol, 0.40);
+    }
+
+    function makeRegularTetra() {
+      const s = 3.6;
+      const hTri = s * Math.sqrt(3) / 2;
+      const B = new THREE.Vector3(-s / 2, 0, hTri / 3);
+      const C = new THREE.Vector3(s / 2, 0, hTri / 3);
+      const D = new THREE.Vector3(0, 0, -2 * hTri / 3);
+      const A = new THREE.Vector3(0, s * Math.sqrt(2 / 3), 0);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      return { A, B, C, D, centroid };
+    }
+
+    function makeRegularSquarePyramid(side = 3.2, height = 3.2) {
+      const h = side / 2;
+      const A = new THREE.Vector3(-h, 0, h);
+      const B = new THREE.Vector3(h, 0, h);
+      const C = new THREE.Vector3(h, 0, -h);
+      const D = new THREE.Vector3(-h, 0, -h);
+      const S = new THREE.Vector3(0, height, 0);
+      const centroid = new THREE.Vector3(0, height * 0.25, 0);
+      return { S, A, B, C, D, centroid };
+    }
+
+    function buildModelD3C1() {
+      const { A, B, C, D, centroid } = makeRegularTetra();
+      drawTetraBase(A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(A, B, 0.5);
+      const N = new THREE.Vector3().lerpVectors(A, C, 0.5);
+      const P = new THREE.Vector3().lerpVectors(A, D, 0.5);
+      highlightSectionPolygon([M, N, P], centroid, ['M', 'N', 'P'], 0xec4899, 0xdb2777);
+      return {
+        stepDesc: ['D3 - Câu 1: Thiết diện ΔMNP đều cạnh a/2 ⇒ Diện tích S = (a²√3)/16.'],
+        solutions: [
+          `MN = NP = PM = \\frac{a}{2} \\Rightarrow \\Delta MNP \\text{ đều cạnh } \\frac{a}{2}`,
+          `S_{\\Delta MNP} = \\left(\\frac{a}{2}\\right)^2 \\frac{\\sqrt{3}}{4} = \\frac{a^2\\sqrt{3}}{16} \\; (\\textbf{Đáp án C})`
+        ]
+      };
+    }
+
+    function buildModelD3C2() {
+      const A = new THREE.Vector3(-2.4, 0, 1.7);
+      const B = new THREE.Vector3(2.4, 0, 1.7);
+      const C = new THREE.Vector3(1.2, 0, -1.2);
+      const D = new THREE.Vector3(-1.2, 0, -1.2);
+      const S = new THREE.Vector3(-0.2, 3.2, 0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      drawPyramidBase(S, A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(S, A, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, B, 0.5);
+      highlightSectionPolygon([M, N, C, D], centroid, ['M', 'N', '', ''], 0xf97316, 0xea580c);
+      return {
+        stepDesc: ['D3 - Câu 2: (MCD) ∩ (SAB) = MN // AB // CD ⇒ Thiết diện MNCD là hình thang.'],
+        solutions: [
+          `AB \\parallel CD \\Rightarrow (MCD) \\cap (SAB) = MN \\parallel CD`,
+          `MN = \\frac{1}{2}AB = CD \\text{ (nếu } AB = 2CD\\text{)} \\Rightarrow MNCD \\text{ là Hình thang (hoặc HBH nếu } MN=CD\\text{, tổng quát là Hình thang - } \\textbf{Đáp án B})`
+        ]
+      };
+    }
+
+    function buildModelD3C3() {
+      const { S, A, B, C, D, centroid } = makeRegularSquarePyramid(3.4, 3.3);
+      drawPyramidBase(S, A, B, C, D, centroid);
+      const k = 2 / 3;
+      const M = new THREE.Vector3().lerpVectors(S, A, k);
+      const N = new THREE.Vector3().lerpVectors(S, B, k);
+      const P = new THREE.Vector3().lerpVectors(S, C, k);
+      const Q = new THREE.Vector3().lerpVectors(S, D, k);
+      highlightSectionPolygon([M, N, P, Q], centroid, ['M', 'N', 'P', 'Q'], 0xf97316, 0xea580c);
+      return {
+        stepDesc: ['D3 - Câu 3: (α) // (ABCD) với SM/SA = 2/3 ⇒ Thiết diện hình vuông MNPQ cạnh (2/3)·6 = 4, S = 16.'],
+        solutions: [
+          `k = \\frac{SM}{SA} = \\frac{2}{3} \\Rightarrow MN = NP = PQ = QM = \\frac{2}{3} \\cdot 6 = 4`,
+          `S_{MNPQ} = 4^2 = 16 \\; (\\textbf{Đáp án B})`
+        ]
+      };
+    }
+
+    function buildModelD3C4() {
+      const side = 3.0;
+      const height = side * Math.sqrt(2) / 2;
+      const { S, A, B, C, D, centroid } = makeRegularSquarePyramid(side, height);
+      drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(A, D, 0.5);
+      const N = new THREE.Vector3().lerpVectors(B, C, 0.5);
+      const P = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const Q = new THREE.Vector3().lerpVectors(S, D, 0.5);
+      highlightSectionPolygon([M, N, P, Q], centroid, ['M', 'N', 'P', 'Q'], 0xec4899, 0xdb2777);
+      return {
+        stepDesc: ['D3 - Câu 4: Thiết diện hình thang cân MNPQ có MN = a, MQ = NP = QP = a/2 ⇒ Chu vi P = 5a/2.'],
+        solutions: [
+          `MN = a, \\quad MQ = NP = QP = \\frac{a}{2}`,
+          `P_{MNPQ} = a + \\frac{a}{2} + \\frac{a}{2} + \\frac{a}{2} = \\frac{5a}{2} \\; (\\textbf{Đáp án A})`
+        ]
+      };
+    }
+
+    function buildModelD3C5() {
+      const { A, B, C, D, centroid } = makeRegularTetra();
+      const tc = drawTetraBase(A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(B, C, 0.5);
+      const G = new THREE.Vector3().lerpVectors(A, M, 2 / 3);
+      const Bp = new THREE.Vector3().lerpVectors(A, B, 2 / 3);
+      const Cp = new THREE.Vector3().lerpVectors(A, C, 2 / 3);
+      const Dp = new THREE.Vector3().lerpVectors(A, D, 2 / 3);
+
+      addLine(A, M, tc.aux, true, 0.015);
+      addPoint(M, tc.aux, 0.055); addLabel('M', M, centroid, '#475569');
+      addPoint(G, 0xef4444, 0.072); addLabel('G', G, centroid, '#dc2626');
+      highlightSectionPolygon([Bp, Cp, Dp], centroid, ["B'", "C'", "D'"], 0xf97316, 0xea580c);
+      return {
+        stepDesc: ["D3 - Câu 5: (P) qua trọng tâm G song song (BCD) ⇒ k = AG/AM = 2/3 ⇒ S_ΔB'C'D' = (a²√3)/9."],
+        solutions: [
+          `k = \\frac{AG}{AM} = \\frac{2}{3} \\Rightarrow S_{\\Delta B'C'D'} = \\left(\\frac{2}{3}\\right)^2 \\cdot \\frac{a^2\\sqrt{3}}{4} = \\frac{a^2\\sqrt{3}}{9} \\; (\\textbf{Đáp án C})`
+        ]
+      };
+    }
+
+    function buildModelD3C6() {
+      const side = 3.0;
+      const height = side * Math.sqrt(2) / 2;
+      const { S, A, B, C, D, centroid } = makeRegularSquarePyramid(side, height);
+      drawPyramidBase(S, A, B, C, D, centroid);
+      const M = new THREE.Vector3().lerpVectors(S, A, 0.5);
+      const N = new THREE.Vector3().lerpVectors(S, B, 0.5);
+      const P = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const Q = new THREE.Vector3().lerpVectors(S, D, 0.5);
+      highlightSectionPolygon([M, N, P, Q], centroid, ['M', 'N', 'P', 'Q'], 0xec4899, 0xdb2777);
+      return {
+        stepDesc: ['D3 - Câu 6: M là trung điểm SA, (α) // (ABCD) ⇒ Hình vuông MNPQ cạnh 4/2 = 2 ⇒ Chu vi P = 8.'],
+        solutions: [
+          `k = \\frac{SM}{SA} = \\frac{1}{2} \\Rightarrow MN = \\frac{1}{2} \\cdot 4 = 2`,
+          `P_{MNPQ} = 4 \\cdot 2 = 8 \\; (\\textbf{Đáp án B})`
+        ]
+      };
+    }
+
+    function buildModelD3DS1() {
+      // Hình chóp S.ABCD đáy hình thang cân AB=8, CD=4, BC=AD=3 (scale 0.6)
+      const sc = 0.6;
+      const A = new THREE.Vector3(-4 * sc, 0, 1.12 * sc);
+      const B = new THREE.Vector3(4 * sc, 0, 1.12 * sc);
+      const C = new THREE.Vector3(2 * sc, 0, -1.12 * sc);
+      const D = new THREE.Vector3(-2 * sc, 0, -1.12 * sc);
+      const S = new THREE.Vector3(0, 3.2, 0.2);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      drawPyramidBase(S, A, B, C, D, centroid);
+
+      const k = 1 / 3;
+      const M = new THREE.Vector3().lerpVectors(S, A, k);
+      const N = new THREE.Vector3().lerpVectors(S, B, k);
+      const P = new THREE.Vector3().lerpVectors(S, C, k);
+      const Q = new THREE.Vector3().lerpVectors(S, D, k);
+      highlightSectionPolygon([M, N, P, Q], centroid, ['M', 'N', 'P', 'Q'], 0xf97316, 0xea580c);
+
+      const sub = state.d3_ds1.sub;
+      if (sub === 'a') {
+        return {
+          stepDesc: ['Ý a (ĐÚNG): (P) // (ABCD) nên MNPQ đồng dạng với hình thang cân ABCD theo tỉ số k = 1/3.'],
+          solutions: [`(P) \\parallel (ABCD) \\Rightarrow MNPQ \\text{ là hình thang cân đồng dạng } ABCD \\text{ (} k = \\frac{1}{3} \\text{ - } \\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'b') {
+        return {
+          stepDesc: ['Ý b (ĐÚNG): Chu vi đáy P_đáy = 8 + 4 + 3 + 3 = 18 ⇒ Chu vi thiết diện P = (1/3)·18 = 6.'],
+          solutions: [`P_{\\text{đáy}} = 18 \\Rightarrow P_{MNPQ} = \\frac{1}{3} \\cdot 18 = 6 \\; (\\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'c') {
+        return {
+          stepDesc: ['Ý c (ĐÚNG): Đường cao đáy h_đáy = √(3² - 2²) = √5 ⇒ Đường cao thiết diện h = (√5)/3.'],
+          solutions: [`h_{\\text{đáy}} = \\sqrt{3^2 - \\left(\\frac{8-4}{2}\\right)^2} = \\sqrt{5} \\Rightarrow h = \\frac{\\sqrt{5}}{3} \\; (\\textbf{ĐÚNG})`]
+        };
+      } else {
+        return {
+          stepDesc: ['Ý d (SAI): S_đáy = ((8+4)/2)·√5 = 6√5 ⇒ S_MNPQ = (1/3)²·6√5 = (2√5)/3 (khác (4√5)/3).'],
+          solutions: [`S_{\\text{đáy}} = 6\\sqrt{5} \\Rightarrow S_{MNPQ} = \\frac{1}{9} \\cdot 6\\sqrt{5} = \\frac{2\\sqrt{5}}{3} \\; (\\textbf{Đề nói } \\frac{4\\sqrt{5}}{3} \\text{ là SAI})`]
+        };
+      }
+    }
+
+    function buildModelD3DS2() {
+      // Hình chóp S.ABCD đáy hình bình hành tâm O, AB = 8, SA = SB = 6 (scale 0.5)
+      const sc = 0.5;
+      const A = new THREE.Vector3(-4 * sc, 0, 2.2 * sc);
+      const B = new THREE.Vector3(4 * sc, 0, 2.2 * sc);
+      const C = new THREE.Vector3(3 * sc, 0, -2.2 * sc);
+      const D = new THREE.Vector3(-5 * sc, 0, -2.2 * sc);
+      const O = new THREE.Vector3().lerpVectors(A, C, 0.5);
+      const S = new THREE.Vector3(0, Math.sqrt(36 - 16) * sc, 2.2 * sc);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+      const tc = drawPyramidBase(S, A, B, C, D, centroid);
+
+      const M = new THREE.Vector3().lerpVectors(A, D, 0.5);
+      const N = new THREE.Vector3().lerpVectors(B, C, 0.5);
+      const P = new THREE.Vector3().lerpVectors(S, C, 0.5);
+      const Q = new THREE.Vector3().lerpVectors(S, D, 0.5);
+
+      addLine(A, C, tc.aux, true, 0.014);
+      addLine(B, D, tc.aux, true, 0.014);
+      addPoint(O, tc.aux, 0.06); addLabel('O', O, centroid, '#475569');
+      addFace([S, A, B], 0x22c55e, 0.16);
+      highlightSectionPolygon([M, N, P, Q], centroid, ['M', 'N', 'P', 'Q'], 0xec4899, 0xdb2777);
+
+      const sub = state.d3_ds2.sub;
+      if (sub === 'a') {
+        addLine(M, N, 0x2563eb, false, 0.036);
+        return {
+          stepDesc: ['Ý a (ĐÚNG): (P) qua O song song (SAB) ⇒ (P) ∩ (ABCD) = MN qua O song song AB.'],
+          solutions: [`(P) \\parallel (SAB) \\Rightarrow (P) \\cap (ABCD) = MN \\parallel AB \\; (O \\in MN \\text{ - } \\textbf{ĐÚNG})`]
+        };
+      } else if (sub === 'b') {
+        return {
+          stepDesc: ['Ý b (SAI): MN = 8 ≠ QP = 4, MQ = NP = 3 ⇒ MNPQ là hình thang cân (KHÔNG phải hình bình hành).'],
+          solutions: [`MN = 8, \\; QP = 4, \\; MQ = NP = 3 \\Rightarrow MNPQ \\text{ là hình thang cân } (\\textbf{Nói HBH là SAI})`]
+        };
+      } else if (sub === 'c') {
+        return {
+          stepDesc: ['Ý c (ĐÚNG): Chu vi thiết diện P = MN + QP + MQ + NP = 8 + 4 + 3 + 3 = 18.'],
+          solutions: [`P_{MNPQ} = 8 + 4 + 3 + 3 = 18 \\; (\\textbf{ĐÚNG})`]
+        };
+      } else {
+        return {
+          stepDesc: ['Ý d (SAI): h = √(3² - ((8-4)/2)²) = √5 ⇒ S = ((8+4)/2)·√5 = 6√5 (khác 12√5).'],
+          solutions: [`h = \\sqrt{3^2 - 2^2} = \\sqrt{5} \\Rightarrow S = \\frac{8+4}{2}\\sqrt{5} = 6\\sqrt{5} \\; (\\textbf{Đề nói } 12\\sqrt{5} \\text{ là SAI})`]
+        };
+      }
+    }
+
+    function buildModel11() {
+      const A = new THREE.Vector3(0, 3.2, 0.2);
+      const B = new THREE.Vector3(-2.3, 0, 1.7);
+      const C = new THREE.Vector3(2.3, 0, 1.4);
+      const D = new THREE.Vector3(0.2, 0, -2.3);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(D).divideScalar(4);
+      const G = new THREE.Vector3().add(A).add(B).add(C).divideScalar(3);
+
+      const { tM, tN, tP } = state.m11;
+      const M = new THREE.Vector3().lerpVectors(A, B, tM);
+      const N = new THREE.Vector3().lerpVectors(A, C, tN);
+      const P = new THREE.Vector3().lerpVectors(G, D, tP);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.17 : 0.65;
+
+      const fABC = makeFaceData([A, B, C], centroid);
+      const fABD = makeFaceData([A, B, D], centroid);
+      const fACD = makeFaceData([A, C, D], centroid);
+      const fBCD = makeFaceData([B, C, D], centroid);
+
+      [[A,B,C],[A,B,D],[A,C,D],[B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(A, B, fABC, fABD, tc.edge);
+      addDynamicEdge(A, C, fABC, fACD, tc.edge);
+      addDynamicEdge(A, D, fABD, fACD, tc.edge);
+      addDynamicEdge(B, C, fABC, fBCD, tc.edge);
+      addDynamicEdge(B, D, fABD, fBCD, tc.edge);
+      addDynamicEdge(C, D, fACD, fBCD, tc.edge);
+
+      addLine(A, G, tc.aux, true, 0.013);
+      addLine(G, D, tc.green, true, 0.013);
+
+      [['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+      addPoint(G, tc.aux, 0.045);
+      addLabel('G', G, centroid, '#475569');
+
+      // Plane (MNP) intersection with 6 edges
+      const normal = new THREE.Vector3().subVectors(N, M).cross(new THREE.Vector3().subVectors(P, M));
+      const dPlane = normal.dot(M);
+      const edges = [[A,B],[A,C],[A,D],[B,C],[B,D],[C,D]];
+      const interPts = [];
+      edges.forEach(([p, q]) => {
+        const vp = normal.dot(p) - dPlane;
+        const vq = normal.dot(q) - dPlane;
+        if (Math.abs(vp - vq) > 1e-6) {
+          const t = vp / (vp - vq);
+          if (t >= -1e-4 && t <= 1 + 1e-4) {
+            const pt = new THREE.Vector3().lerpVectors(p, q, Math.max(0, Math.min(1, t)));
+            if (!interPts.some(ex => ex.distanceTo(pt) < 0.03)) interPts.push(pt);
+          }
+        }
+      });
+
+      if (interPts.length >= 3) {
+        const cPoly = interPts.reduce((acc, p) => acc.add(p), new THREE.Vector3()).divideScalar(interPts.length);
+        const ref = new THREE.Vector3().subVectors(interPts[0], cPoly).normalize();
+        const ortho = new THREE.Vector3().crossVectors(normal.clone().normalize(), ref);
+        interPts.sort((p, q) => {
+          const dp = new THREE.Vector3().subVectors(p, cPoly);
+          const dq = new THREE.Vector3().subVectors(q, cPoly);
+          return Math.atan2(dp.dot(ortho), dp.dot(ref)) - Math.atan2(dq.dot(ortho), dq.dot(ref));
+        });
+      }
+
+      const isQuad = interPts.length === 4;
+
+      addPoint(M, 0xea580c, 0.075); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xea580c, 0.075); addLabel('N', N, centroid, '#c2410c');
+      addPoint(P, 0xea580c, 0.075); addLabel('P', P, centroid, '#c2410c');
+
+      if (state.step >= 2) {
+        addLine(M, N, 0xd97706, false, 0.023);
+        const d1 = new THREE.Vector3().subVectors(G, A);
+        const d2 = new THREE.Vector3().subVectors(N, M);
+        const r = new THREE.Vector3().subVectors(M, A);
+        const nABC = new THREE.Vector3().crossVectors(d1, d2);
+        if (nABC.lengthSq() > 1e-6) {
+          const s = new THREE.Vector3().crossVectors(r, d2).dot(nABC) / nABC.lengthSq();
+          const K = A.clone().addScaledVector(d1, s);
+          addPoint(K, 0x0284c7, 0.06);
+          addLabel('K', K, centroid, '#0284c7');
+          if (state.step >= 3) {
+            const kToP = new THREE.Vector3().subVectors(P, K);
+            addLine(K.clone().addScaledVector(kToP, -0.25), K.clone().addScaledVector(kToP, 1.55), 0x0284c7, true, 0.016);
+          }
+        }
+      }
+
+      if (state.step >= 4 && interPts.length >= 3) {
+        interPts.forEach((pt, i) => {
+          addLine(pt, interPts[(i + 1) % interPts.length], 0xea580c, false, 0.028);
+          addPoint(pt, 0xea580c, 0.07);
+        });
+        if (state.showSection) addFace(interPts, 0xf97316, 0.38);
+      }
+
+      return {
+        stepDesc: [
+          'Bước 1: Xác định 3 điểm M ∈ AB, N ∈ AC và P ∈ GD (G là trọng tâm ΔABC).',
+          'Bước 2: Trong (ABC), nối MN cắt trung tuyến AG tại giao điểm K.',
+          'Bước 3: Trong mặt phẳng phụ (AGD), kẻ đường thẳng KP cắt AD (hoặc kéo dài cắt cạnh bên).',
+          `Bước 4: Nối các giao điểm trên các cạnh để thu được thiết diện là ${isQuad ? 'TỨ GIÁC' : 'TAM GIÁC'} (${interPts.length} cạnh).`
+        ],
+        solutions: [
+          `\\text{Trong } (ABC): \\; MN \\cap AG = K`,
+          `\\text{Trong } (AGD): \\; KP \\text{ xác định giao điểm với } AD \\text{ (hoặc } BD, CD\\text{)}`,
+          `\\text{Số cạnh thiết diện hiện tại: } ${interPts.length} \\text{ (${isQuad ? 'Tứ giác' : 'Tam giác'})}`,
+          `\\text{Kéo thanh trượt } t_M, t_N \\text{ để thấy thiết diện biến đổi giữa Tam giác và Tứ giác!}`
+        ]
+      };
+    }
+
+    function buildModel12() {
+      const S = new THREE.Vector3(-0.3, 3.3, -0.3);
+      const A = new THREE.Vector3(-2.6, 0, 1.8);
+      const B = new THREE.Vector3(2.6, 0, 1.8);
+      const C = new THREE.Vector3(1.5, 0, -1.6);
+      const D = new THREE.Vector3(-1.5, 0, -1.6);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).add(D).divideScalar(5);
+
+      const { tM } = state.m12;
+      const M = new THREE.Vector3().lerpVectors(A, D, tM);
+      const N = new THREE.Vector3().lerpVectors(B, C, tM);
+      const Q = new THREE.Vector3().lerpVectors(A, S, tM);
+      const P = new THREE.Vector3().lerpVectors(B, S, tM);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.17 : 0.65;
+
+      const fSAB = makeFaceData([S,A,B], centroid);
+      const fSBC = makeFaceData([S,B,C], centroid);
+      const fSCD = makeFaceData([S,C,D], centroid);
+      const fSDA = makeFaceData([S,D,A], centroid);
+      const fABCD = makeFaceData([A,B,C,D], centroid);
+
+      [[S,A,B],[S,B,C],[S,C,D],[S,D,A],[A,B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+      addFace([S, C, D], 0x22c55e, 0.16);
+
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge);
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge);
+      addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABCD, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABCD, tc.edge);
+      addDynamicEdge(C, D, fSCD, fABCD, tc.edge);
+      addDynamicEdge(D, A, fSDA, fABCD, tc.edge);
+
+      [['S',S],['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+
+      addPoint(M, 0xea580c, 0.075); addLabel('M', M, centroid, '#c2410c');
+
+      if (state.step >= 2) {
+        addLine(M, N, 0xd97706, true, 0.02);
+        addPoint(N, 0xea580c, 0.075); addLabel('N', N, centroid, '#c2410c');
+      }
+      if (state.step >= 3) {
+        addLine(M, Q, 0x0284c7, false, 0.023);
+        addPoint(Q, 0xea580c, 0.075); addLabel('Q', Q, centroid, '#c2410c');
+        addLine(N, P, 0x0284c7, false, 0.023);
+        addPoint(P, 0xea580c, 0.075); addLabel('P', P, centroid, '#c2410c');
+      }
+      if (state.step >= 4) {
+        [M,N,P,Q].forEach((pt, i) => addLine(pt, [M,N,P,Q][(i+1)%4], 0xea580c, false, 0.028));
+        if (state.showSection) addFace([M, N, P, Q], 0xf97316, 0.38);
+      }
+
+      return {
+        stepDesc: [
+          'Bước 1: Xác định điểm M ∈ AD và mặt phẳng đích (SCD) (màu xanh lá).',
+          'Bước 2: Trong đáy (ABCD), qua M kẻ MN // CD (N ∈ BC).',
+          'Bước 3: Trong (SAD) kẻ MQ // SD (Q ∈ SA); trong (SBC) kẻ NP // SC (P ∈ SB).',
+          'Bước 4: Nối PQ (ta có PQ // AB // MN), thu được thiết diện là hình thang MNPQ.'
+        ],
+        solutions: [
+          `(\\alpha) \\parallel (SCD) \\Rightarrow (\\alpha) \\cap (ABCD) = MN \\parallel CD`,
+          `(\\alpha) \\cap (SAD) = MQ \\parallel SD \\; (Q \\in SA)`,
+          `(\\alpha) \\cap (SBC) = NP \\parallel SC \\; (P \\in SB)`,
+          `\\text{Thiết diện là hình thang } MNPQ \\; (MN \\parallel PQ)`
+        ]
+      };
+    }
+
+    function buildModel13() {
+      const A = new THREE.Vector3(-1.9, 0, 1.3);
+      const B = new THREE.Vector3(1.9, 0, 1.3);
+      const C = new THREE.Vector3(0, 0, -1.8);
+      const shift = new THREE.Vector3(0.5, 3.1, -0.2);
+      const Ap = A.clone().add(shift);
+      const Bp = B.clone().add(shift);
+      const Cp = C.clone().add(shift);
+      const centroid = new THREE.Vector3().add(A).add(B).add(C).add(Ap).add(Bp).add(Cp).divideScalar(6);
+
+      const M = new THREE.Vector3().lerpVectors(A, Ap, 0.5);
+      const N = new THREE.Vector3().lerpVectors(B, Bp, 0.5);
+      const P = new THREE.Vector3().lerpVectors(Ap, Cp, 0.5);
+      const Q = new THREE.Vector3().lerpVectors(Bp, Cp, 0.5);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.17 : 0.65;
+
+      const fBot = makeFaceData([A,B,C], centroid);
+      const fTop = makeFaceData([Ap,Bp,Cp], centroid);
+      const fAB = makeFaceData([A,B,Bp,Ap], centroid);
+      const fBC = makeFaceData([B,C,Cp,Bp], centroid);
+      const fCA = makeFaceData([C,A,Ap,Cp], centroid);
+
+      [[A,B,C],[Ap,Bp,Cp],[A,B,Bp,Ap],[B,C,Cp,Bp],[C,A,Ap,Cp]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(A, B, fBot, fAB, tc.edge);
+      addDynamicEdge(B, C, fBot, fBC, tc.edge);
+      addDynamicEdge(C, A, fBot, fCA, tc.edge);
+      addDynamicEdge(Ap, Bp, fTop, fAB, tc.edge);
+      addDynamicEdge(Bp, Cp, fTop, fBC, tc.edge);
+      addDynamicEdge(Cp, Ap, fTop, fCA, tc.edge);
+      addDynamicEdge(A, Ap, fAB, fCA, tc.edge);
+      addDynamicEdge(B, Bp, fAB, fBC, tc.edge);
+      addDynamicEdge(C, Cp, fBC, fCA, tc.edge);
+
+      [['A',A],['B',B],['C',C],["A'",Ap],["B'",Bp],["C'",Cp]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+
+      addPoint(M, 0xea580c, 0.075); addLabel('M', M, centroid, '#c2410c');
+      addPoint(N, 0xea580c, 0.075); addLabel('N', N, centroid, '#c2410c');
+      addPoint(P, 0xea580c, 0.075); addLabel('P', P, centroid, '#c2410c');
+
+      if (state.step >= 2) {
+        addLine(M, N, 0xd97706, false, 0.023);
+        addLine(M, P, 0x0284c7, false, 0.023);
+      }
+      if (state.step >= 3) {
+        addLine(P, Q, 0xd97706, false, 0.023);
+        addPoint(Q, 0xea580c, 0.075); addLabel('Q', Q, centroid, '#c2410c');
+      }
+      if (state.step >= 4) {
+        [M,N,Q,P].forEach((pt, i) => addLine(pt, [M,N,Q,P][(i+1)%4], 0xea580c, false, 0.028));
+        if (state.showSection) addFace([M, N, Q, P], 0xf97316, 0.38);
+      }
+
+      return {
+        stepDesc: [
+          "Bước 1: Lấy M, N lần lượt là trung điểm AA', BB' và P là trung điểm A'C'.",
+          "Bước 2: Nối MN (MN // AB // A'B') và nối MP trong mặt (ACC'A').",
+          "Bước 3: Trong đáy trên (A'B'C'), qua P kẻ PQ // A'B' (Q là trung điểm B'C').",
+          'Bước 4: Nối NQ, hoàn thành thiết diện cắt chéo là hình thang MNQP.'
+        ],
+        solutions: [
+          `M, N \\text{ là trung điểm } AA', BB' \\Rightarrow MN \\parallel AB \\parallel A'B'`,
+          `(MNP) \\cap (A'B'C') = PQ \\parallel A'B' \\; (Q \\text{ là trung điểm } B'C')`,
+          `PQ = \\frac{1}{2}A'B' = \\frac{1}{2}MN \\Rightarrow MNQP \\text{ là hình thang}`
+        ]
+      };
+    }
+
+    function buildModel21() {
+      const A = new THREE.Vector3(-1.7, 0, -1.3);
+      const B = new THREE.Vector3(-1.7, 0, 1.8);
+      const C = new THREE.Vector3(2.2, 0, 1.8);
+      const S = new THREE.Vector3(-1.7, 3.2, -1.3);
+      const centroid = new THREE.Vector3().add(S).add(A).add(B).add(C).divideScalar(4);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.17 : 0.65;
+
+      const fSAB = makeFaceData([S,A,B], centroid);
+      const fSBC = makeFaceData([S,B,C], centroid);
+      const fSCA = makeFaceData([S,C,A], centroid);
+      const fABC = makeFaceData([A,B,C], centroid);
+
+      [[S,A,B],[S,B,C],[S,C,A],[A,B,C]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABC, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABC, tc.edge);
+      addDynamicEdge(C, A, fSCA, fABC, tc.edge);
+
+      // SA is the altitude (crimson dashed or solid depending on view, highlighted in red!)
+      addLine(S, A, tc.alt, true, 0.025);
+
+      [['S',S],['A',A],['B',B],['C',C]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.062);
+        addLabel(lbl, pt, centroid);
+      });
+
+      addRightAngleMarker(A, S, B, 0.28, tc.green);
+      addRightAngleMarker(A, S, C, 0.28, tc.green);
+      addRightAngleMarker(B, A, C, 0.28, tc.green);
+
+      if (state.step >= 2) {
+        addFace([S, A, B], 0x22c55e, 0.22);
+        addLine(B, C, tc.green, false, 0.028);
+      }
+
+      if (state.step >= 3) {
+        addRightAngleMarker(B, S, C, 0.30, 0xea580c);
+        if (state.showSection) addFace([S, B, C], 0xf97316, 0.25);
+      }
+
+      if (state.step >= 4) {
+        addLine(A, C, tc.aux, true, 0.015);
+        addLine(S, C, 0xd97706, false, 0.026);
+        addAngleArc(C, A, S, 0.72, 0xd97706);
+      }
+
+      return {
+        stepDesc: [
+          'Bước 1: Dựng ΔABC vuông tại B và đường cao SA ⊥ (ABC) (nét đứt đỏ).',
+          'Bước 2: Vì BC ⊥ AB và BC ⊥ SA nên BC ⊥ (SAB) (mặt xanh lá).',
+          'Bước 3: Suy ra BC ⊥ SB, tức ΔSBC vuông tại B (kí hiệu góc vuông màu cam).',
+          'Bước 4: AC là hình chiếu của SC lên (ABC) ⇒ góc (SC, (ABC)) = ∠SCA.'
+        ],
+        solutions: [
+          `\\begin{cases} BC \\perp AB \\\\ BC \\perp SA \\end{cases} \\Rightarrow BC \\perp (SAB) \\Rightarrow BC \\perp SB`,
+          `\\Delta SAB, \\; \\Delta SAC, \\; \\Delta ABC, \\; \\Delta SBC \\text{ đều là tam giác vuông}`,
+          `\\widehat{(SC, (ABC))} = \\widehat{SCA}, \\quad \\tan\\widehat{SCA} = \\frac{SA}{AC}`
+        ]
+      };
+    }
+
+    function buildModel22() {
+      const S = new THREE.Vector3(0, 3.3, 0);
+      const A = new THREE.Vector3(-1.9, 0, 1.9);
+      const B = new THREE.Vector3(1.9, 0, 1.9);
+      const C = new THREE.Vector3(1.9, 0, -1.9);
+      const D = new THREE.Vector3(-1.9, 0, -1.9);
+      const O = new THREE.Vector3(0, 0, 0);
+      const M = new THREE.Vector3(1.9, 0, 0);
+      const centroid = new THREE.Vector3(0, 0.8, 0);
+
+      const dirSM = new THREE.Vector3().subVectors(M, S);
+      const tH = new THREE.Vector3().subVectors(O, S).dot(dirSM) / dirSM.lengthSq();
+      const H = S.clone().addScaledVector(dirSM, tH);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.17 : 0.65;
+
+      const fSAB = makeFaceData([S,A,B], centroid);
+      const fSBC = makeFaceData([S,B,C], centroid);
+      const fSCD = makeFaceData([S,C,D], centroid);
+      const fSDA = makeFaceData([S,D,A], centroid);
+      const fABCD = makeFaceData([A,B,C,D], centroid);
+
+      [[S,A,B],[S,B,C],[S,C,D],[S,D,A],[A,B,C,D]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge);
+      addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge);
+      addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      addDynamicEdge(A, B, fSAB, fABCD, tc.edge);
+      addDynamicEdge(B, C, fSBC, fABCD, tc.edge);
+      addDynamicEdge(C, D, fSCD, fABCD, tc.edge);
+      addDynamicEdge(D, A, fSDA, fABCD, tc.edge);
+
+      addLine(A, C, tc.aux, true, 0.012);
+      addLine(B, D, tc.aux, true, 0.012);
+
+      [['S',S],['A',A],['B',B],['C',C],['D',D]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.06);
+        addLabel(lbl, pt, centroid);
+      });
+      addPoint(O, tc.aux, 0.055); addLabel('O', O, centroid, '#475569');
+
+      addLine(S, O, tc.alt, true, 0.022);
+      addRightAngleMarker(O, S, M, 0.25, tc.green);
+
+      if (state.step >= 2) {
+        addLine(O, M, tc.green, true, 0.016);
+        addLine(S, M, 0x0284c7, false, 0.024);
+        addPoint(M, 0x0284c7, 0.068); addLabel('M', M, centroid, '#0284c7');
+        addRightAngleMarker(M, O, C, 0.24, tc.green);
+        addRightAngleMarker(M, S, C, 0.24, tc.green);
+      }
+
+      if (state.step >= 3) {
+        addAngleArc(M, O, S, 0.65, 0xd97706);
+        if (state.showSection) addFace([S, O, M], 0xfacc15, 0.22);
+      }
+
+      if (state.step >= 4) {
+        addLine(O, H, 0xea580c, true, 0.026);
+        addPoint(H, 0xea580c, 0.075); addLabel('H', H, centroid, '#c2410c');
+        addRightAngleMarker(H, O, S, 0.22, 0xea580c);
+      }
+
+      return {
+        stepDesc: [
+          'Bước 1: Dựng chóp đều S.ABCD tâm O với đường cao SO ⊥ (ABCD) (nét đứt đỏ).',
+          'Bước 2: Gọi M là trung điểm BC ⇒ OM ⊥ BC và trung đoạn SM ⊥ BC.',
+          'Bước 3: Góc nhị diện [S, BC, A] chính là góc phẳng ∠SMO.',
+          'Bước 4: Kẻ OH ⊥ SM (H ∈ SM) ⇒ OH ⊥ (SBC), suy ra d(O, (SBC)) = OH.'
+        ],
+        solutions: [
+          `BC \\perp (SOM) \\Rightarrow \\text{Góc nhị diện } [S, BC, A] = \\widehat{SMO}`,
+          `OH \\perp SM \\text{ và } OH \\perp BC \\Rightarrow OH \\perp (SBC)`,
+          `\\frac{1}{OH^2} = \\frac{1}{SO^2} + \\frac{1}{OM^2} \\Rightarrow d(O,(SBC)) = OH`
+        ]
+      };
+    }
+
+    function buildModel31() {
+      const s = 2.8;
+      const h = s / 2;
+      const A = new THREE.Vector3(-h, 0, h);
+      const B = new THREE.Vector3(h, 0, h);
+      const C = new THREE.Vector3(h, 0, -h);
+      const D = new THREE.Vector3(-h, 0, -h);
+      const Ap = new THREE.Vector3(-h, s, h);
+      const Bp = new THREE.Vector3(h, s, h);
+      const Cp = new THREE.Vector3(h, s, -h);
+      const Dp = new THREE.Vector3(-h, s, -h);
+      const O = new THREE.Vector3(0, 0, 0);
+      const centroid = new THREE.Vector3(0, h, 0);
+
+      const tc = getThemeColors();
+      const faceOp = state.xray ? 0.14 : 0.60;
+
+      const fBot = makeFaceData([A,B,C,D], centroid);
+      const fTop = makeFaceData([Ap,Bp,Cp,Dp], centroid);
+      const fFront = makeFaceData([A,B,Bp,Ap], centroid);
+      const fRight = makeFaceData([B,C,Cp,Bp], centroid);
+      const fBack = makeFaceData([C,D,Dp,Cp], centroid);
+      const fLeft = makeFaceData([D,A,Ap,Dp], centroid);
+
+      [[A,B,C,D],[Ap,Bp,Cp,Dp],[A,B,Bp,Ap],[B,C,Cp,Bp],[C,D,Dp,Cp],[D,A,Ap,Dp]].forEach(f => addFace(f, tc.face, faceOp));
+
+      addDynamicEdge(A, B, fBot, fFront, tc.edge);
+      addDynamicEdge(B, C, fBot, fRight, tc.edge);
+      addDynamicEdge(C, D, fBot, fBack, tc.edge);
+      addDynamicEdge(D, A, fBot, fLeft, tc.edge);
+      addDynamicEdge(Ap, Bp, fTop, fFront, tc.edge);
+      addDynamicEdge(Bp, Cp, fTop, fRight, tc.edge);
+      addDynamicEdge(Cp, Dp, fTop, fBack, tc.edge);
+      addDynamicEdge(Dp, Ap, fTop, fLeft, tc.edge);
+      addDynamicEdge(A, Ap, fFront, fLeft, tc.edge);
+      addDynamicEdge(B, Bp, fFront, fRight, tc.edge);
+      addDynamicEdge(C, Cp, fRight, fBack, tc.edge);
+      addDynamicEdge(D, Dp, fBack, fLeft, tc.edge);
+
+      [['A',A],['B',B],['C',C],['D',D],["A'",Ap],["B'",Bp],["C'",Cp],["D'",Dp]].forEach(([lbl, pt]) => {
+        addPoint(pt, tc.edge, 0.055);
+        addLabel(lbl, pt, centroid);
+      });
+
+      if (state.m31.pair === 'AAp_BD') {
+        addLine(A, Ap, 0x0284c7, false, 0.028);
+        addLine(B, D, tc.green, true, 0.024);
+
+        if (state.step >= 2) {
+          addLine(A, C, tc.aux, true, 0.013);
+          addPoint(O, 0xea580c, 0.075); addLabel('O', O, centroid, '#c2410c');
+        }
+        if (state.step >= 3) {
+          addRightAngleMarker(A, Ap, O, 0.25, 0xea580c);
+          addRightAngleMarker(O, A, B, 0.25, 0xea580c);
+        }
+        if (state.step >= 4) {
+          addLine(A, O, 0xea580c, true, 0.03);
+        }
+
+        return {
+          stepDesc: [
+            "Bước 1: Xác định hai đường thẳng chéo nhau AA' (xanh dương) và BD (xanh lá).",
+            'Bước 2: Gọi O = AC ∩ BD là tâm hình vuông ABCD.',
+            "Bước 3: Chứng minh AO ⊥ AA' (vì AA' ⊥ (ABCD)) và AO ⊥ BD (2 đường chéo hình vuông).",
+            "Bước 4: AO là đoạn vuông góc chung của AA' và BD ⇒ d(AA', BD) = AO = a√2 / 2."
+          ],
+          solutions: [
+            `AA' \\perp (ABCD) \\Rightarrow AA' \\perp AO`,
+            `AO \\perp BD \\text{ (hai đường chéo hình vuông } ABCD\\text{)}`,
+            `\\Rightarrow AO \\text{ là đoạn vuông góc chung của } AA' \\text{ và } BD`,
+            `d(AA', BD) = AO = \\frac{a\\sqrt{2}}{2}`
+          ]
+        };
+      } else {
+        addLine(A, Cp, 0x0284c7, true, 0.024);
+        addLine(B, D, tc.green, true, 0.024);
+
+        const dirACp = new THREE.Vector3().subVectors(Cp, A);
+        const tH = new THREE.Vector3().subVectors(O, A).dot(dirACp) / dirACp.lengthSq();
+        const H = A.clone().addScaledVector(dirACp, tH);
+
+        if (state.step >= 2) {
+          addLine(A, C, tc.aux, true, 0.013);
+          addPoint(O, 0xea580c, 0.075); addLabel('O', O, centroid, '#c2410c');
+          if (state.showSection) addFace([A, C, Cp, Ap], 0xfacc15, 0.16);
+        }
+        if (state.step >= 3) {
+          addLine(O, H, 0xea580c, true, 0.028);
+          addPoint(H, 0xea580c, 0.08); addLabel('H', H, centroid, '#c2410c');
+          addRightAngleMarker(H, O, Cp, 0.24, 0xea580c);
+        }
+        if (state.step >= 4) {
+          addRightAngleMarker(O, H, B, 0.24, tc.green);
+        }
+
+        return {
+          stepDesc: [
+            "Bước 1: Xác định hai đường chéo nhau AC' (xanh dương) và BD (xanh lá).",
+            "Bước 2: Dựng mặt phẳng phụ (ACC'A') chứa AC' và vuông góc với BD tại O.",
+            "Bước 3: Trong (ACC'A'), kẻ OH ⊥ AC' (H ∈ AC').",
+            "Bước 4: Vì BD ⊥ (ACC'A') ⇒ BD ⊥ OH. Vậy OH là đoạn vuông góc chung ⇒ d(AC', BD) = OH = a√6 / 6."
+          ],
+          solutions: [
+            `BD \\perp AC, \\; BD \\perp AA' \\Rightarrow BD \\perp (ACC'A') \\Rightarrow BD \\perp OH`,
+            `\\text{Kẻ } OH \\perp AC' \\Rightarrow OH \\text{ là đoạn vuông góc chung của } AC' \\text{ và } BD`,
+            `\\Delta OHC' \\sim \\Delta AA'C \\Rightarrow d(AC', BD) = \\frac{a\\sqrt{6}}{6}`
+          ]
+        };
+      }
+    }
+
+    // =========================================================================
+    // 5. CONTROLLER & UI UPDATES
+    // =========================================================================
+    const D1_META = {
+      d1_c1: {
+        prompt: 'Cho hình chóp S.ABCD có đáy ABCD là hình bình hành tâm O. Giao tuyến của hai mặt phẳng (SAC) và (SBD) là:',
+        ans: 'Đáp án A: SO',
+        exp: 'S \\in (SAC) \\cap (SBD), \\; O = AC \\cap BD \\Rightarrow (SAC) \\cap (SBD) = SO'
+      },
+      d1_c2: {
+        prompt: 'Cho tứ diện ABCD, lấy M ∈ AC, N ∈ AD sao cho MN cắt CD tại E. Giao tuyến của (BMN) và (BCD) là:',
+        ans: 'Đáp án A: BE',
+        exp: 'B \\in (BMN) \\cap (BCD), \\; E = MN \\cap CD \\Rightarrow (BMN) \\cap (BCD) = BE'
+      },
+      d1_c3: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình thang (AD // BC, AD > BC), M là trung điểm SA. Giao tuyến của (MBC) và (SAD) là:',
+        ans: 'Đáp án B: Đường thẳng qua M song song với AD',
+        exp: 'M \\in (MBC) \\cap (SAD), \\; BC \\parallel AD \\Rightarrow (MBC) \\cap (SAD) = MN \\parallel AD'
+      },
+      d1_c4: {
+        prompt: 'Cho hình chóp S.ABCD có đáy ABCD là hình bình hành tâm O. Giao tuyến của hai mặt phẳng (SAB) và (SCD) là:',
+        ans: 'Đáp án C: Đường thẳng qua S song song với AB',
+        exp: 'S \\in (SAB) \\cap (SCD), \\; AB \\parallel CD \\Rightarrow (SAB) \\cap (SCD) = Sx \\parallel AB'
+      },
+      d1_c5: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình bình hành tâm O; M, N lần lượt là trung điểm AD, BC. Giao tuyến của (SMN) và (SAC) là:',
+        ans: 'Đáp án C: SO',
+        exp: 'MN \\text{ là đường trung bình } \\Rightarrow O \\in MN \\subset (SMN) \\Rightarrow (SMN) \\cap (SAC) = SO'
+      },
+      d1_c6: {
+        prompt: 'Cho tứ diện ABCD; M, N lần lượt là trung điểm AB, AC; P ∈ CD (P ≠ C, D). Giao tuyến của (MNP) và (BCD) là:',
+        ans: 'Đáp án C: Đường thẳng qua P song song với BC',
+        exp: 'MN \\parallel BC, \\; P \\in (MNP) \\cap (BCD) \\Rightarrow (MNP) \\cap (BCD) = PQ \\parallel BC'
+      },
+      d1_ds1: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình thang (AB // CD, AB = 2CD), O = AC ∩ BD, E = AD ∩ BC, M là trung điểm SA. Xét các mệnh đề a, b, c, d:',
+        ans: 'a) ĐÚNG  |  b) ĐÚNG  |  c) SAI (// AB, CD chứ không phải // AD)  |  d) ĐÚNG',
+        exp: '(SAC)\\cap(SBD)=SO; \\; (SAD)\\cap(SBC)=SE; \\; (SAB)\\cap(SCD)=Sx\\parallel AB; \\; (MCD)\\cap(SAB)=MN\\parallel AB'
+      },
+      d1_ds2: {
+        prompt: 'Cho tứ diện ABCD; I, J lần lượt là trung điểm AB, AC; K ∈ CD sao cho KC = 2KD. Xét các mệnh đề a, b, c, d:',
+        ans: 'a) ĐÚNG  |  b) ĐÚNG  |  c) ĐÚNG  |  d) SAI nếu nói BE = 1/3 BD (Thực tế BE = 2/3 BD)',
+        exp: 'KE \\parallel BC \\Rightarrow \\frac{DE}{EB} = \\frac{DK}{KC} = \\frac{1}{2} \\Rightarrow BE = \\frac{2}{3} BD'
+      },
+      d2_c1: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình bình hành tâm O, M là trung điểm SC. Giao điểm I = AM ∩ (SBD) là:',
+        ans: 'Đáp án A: Trọng tâm ΔSAC',
+        exp: '\\text{Trong } (SAC): \\; AM \\cap SO = I \\text{ (2 trung tuyến } \\Delta SAC\\text{)} \\Rightarrow I \\text{ là trọng tâm } \\Delta SAC'
+      },
+      d2_c2: {
+        prompt: 'Cho tứ diện ABCD; M, N lần lượt là trung điểm AB, AC; P là trung điểm BD. Giao điểm Q = CD ∩ (MNP) là:',
+        ans: 'Đáp án A: Trung điểm của CD',
+        exp: 'MN \\parallel BC \\Rightarrow (MNP) \\cap (BCD) = PQ \\parallel BC \\Rightarrow Q \\text{ là trung điểm } CD'
+      },
+      d2_c3: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình bình hành tâm O; M, N lần lượt là trung điểm SB, SD. Gọi I = MN ∩ SO. Tỉ số SI/SO bằng:',
+        ans: 'Đáp án A: 1/2',
+        exp: 'MN \\text{ là đường trung bình } \\Delta SBD \\Rightarrow I \\text{ là trung điểm } SO \\Rightarrow \\frac{SI}{SO} = \\frac{1}{2}'
+      },
+      d2_c4: {
+        prompt: 'Cho tứ diện ABCD, E là trung điểm CD, G là trọng tâm ΔBCD, M là trung điểm AB. Giao điểm I = MG ∩ (ACD) là:',
+        ans: 'Đáp án A: Giao điểm của MG và AE',
+        exp: '\\text{Trong } (ABE): \\; (ABE) \\cap (ACD) = AE \\Rightarrow I = MG \\cap AE'
+      },
+      d2_c5: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình thang (AB // CD, AB = 2CD), M là trung điểm SD. Gọi N = SC ∩ (MAB). Tỉ số SN/SC bằng:',
+        ans: 'Đáp án C: 1/2',
+        exp: '(MAB) \\cap (SCD) = MN \\parallel CD \\Rightarrow N \\text{ là trung điểm } SC \\Rightarrow \\frac{SN}{SC} = \\frac{1}{2}'
+      },
+      d2_c6: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình bình hành tâm O, M là trung điểm SC. Giao điểm N = SD ∩ (ABM) là:',
+        ans: 'Đáp án B: Trung điểm SD',
+        exp: '(ABM) \\cap (SCD) = MN \\parallel CD \\Rightarrow N \\text{ là trung điểm } SD'
+      },
+      d2_ds1: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình bình hành tâm O, M là trung điểm SC, N là trung điểm AB. Xét các mệnh đề a, b, c, d:',
+        ans: 'a) ĐÚNG  |  b) ĐÚNG  |  c) ĐÚNG  |  d) Kiểm tra giao điểm K = MN ∩ (SBD)',
+        exp: '(SAC)\\cap(SBD)=SO; \\; I=AM\\cap SO \\text{ (trọng tâm } \\Delta SAC\\text{)}; \\; E=SD\\cap(ABM) \\text{ (trung điểm } SD\\text{)}'
+      },
+      d2_ds2: {
+        prompt: 'Cho tứ diện ABCD, M là trung điểm AB, N ∈ AC sao cho AN = 2NC, O nằm trong ΔBCD. Xét các mệnh đề a, b, c, d:',
+        ans: 'a) ĐÚNG  |  b) ĐÚNG  |  c) SAI (BD cắt OE, không cắt ON)  |  d) ĐÚNG (EB/EC = 2)',
+        exp: 'MN \\cap BC = E; \\; (OMN)\\cap(BCD)=OE; \\; BD \\cap OE = F; \\; \\frac{MA}{MB}\\cdot\\frac{EB}{EC}\\cdot\\frac{NC}{NA}=1 \\Rightarrow \\frac{EB}{EC}=2'
+      },
+      d3_c1: {
+        prompt: 'Cho tứ diện đều ABCD cạnh a; M, N, P lần lượt là trung điểm AB, AC, AD. Diện tích thiết diện ΔMNP bằng:',
+        ans: 'Đáp án C: (a²√3)/16',
+        exp: 'MN=NP=PM=\\frac{a}{2} \\Rightarrow S_{\\Delta MNP} = \\left(\\frac{a}{2}\\right)^2\\frac{\\sqrt{3}}{4} = \\frac{a^2\\sqrt{3}}{16}'
+      },
+      d3_c2: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình thang (AB // CD, AB = 2CD), M là trung điểm SA. Thiết diện cắt bởi (MCD) là hình gì?',
+        ans: 'Đáp án B: Hình thang',
+        exp: '(MCD) \\cap (SAB) = MN \\parallel AB \\parallel CD \\Rightarrow \\text{Thiết diện } MNCD \\text{ là Hình thang}'
+      },
+      d3_c3: {
+        prompt: 'Cho hình chóp tứ giác đều S.ABCD cạnh đáy 6, M ∈ SA sao cho SM = 2MA. Mặt phẳng (α) qua M // (ABCD). Diện tích thiết diện là:',
+        ans: 'Đáp án B: 16',
+        exp: 'k = \\frac{SM}{SA} = \\frac{2}{3} \\Rightarrow \\text{Cạnh hình vuông } MNPQ = \\frac{2}{3}\\cdot 6 = 4 \\Rightarrow S = 4^2 = 16'
+      },
+      d3_c4: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình vuông cạnh a, cạnh bên bằng a, M trung điểm AD. Mặt phẳng (α) qua M // AB, SA. Chu vi thiết diện là:',
+        ans: 'Đáp án A: 5a/2',
+        exp: 'MN = a, \\; MQ = NP = QP = \\frac{a}{2} \\Rightarrow P = a + \\frac{a}{2} + \\frac{a}{2} + \\frac{a}{2} = \\frac{5a}{2}'
+      },
+      d3_c5: {
+        prompt: 'Cho tứ diện đều ABCD cạnh a, G là trọng tâm ΔABC. Mặt phẳng (P) qua G // (BCD). Diện tích thiết diện là:',
+        ans: 'Đáp án C: (a²√3)/9',
+        exp: 'k = \\frac{AG}{AM} = \\frac{2}{3} \\Rightarrow S = \\left(\\frac{2}{3}\\right)^2 \\frac{a^2\\sqrt{3}}{4} = \\frac{a^2\\sqrt{3}}{9}'
+      },
+      d3_c6: {
+        prompt: 'Cho hình chóp S.ABCD đáy hình vuông cạnh 4, các mặt bên tam giác đều. Mặt phẳng (α) qua trung điểm M của SA // (ABCD). Chu vi thiết diện là:',
+        ans: 'Đáp án B: 8',
+        exp: 'k = \\frac{SM}{SA} = \\frac{1}{2} \\Rightarrow \\text{Cạnh } MNPQ = \\frac{4}{2} = 2 \\Rightarrow P = 4 \\cdot 2 = 8'
+      },
+      d3_ds1: {
+        prompt: 'Cho chóp S.ABCD đáy hình thang cân (BC = AD = 3, AB = 8, CD = 4). (P) // (ABCD) cắt SA tại M với SA = 3SM. Xét a, b, c, d:',
+        ans: 'a) ĐÚNG (Thang cân)  |  b) ĐÚNG (P = 6)  |  c) ĐÚNG (h = √5/3)  |  d) SAI (S = 2√5/3)',
+        exp: 'k=\\frac{1}{3}; \\; P_{\\text{đáy}}=18 \\Rightarrow P=6; \\; h_{\\text{đáy}}=\\sqrt{5} \\Rightarrow h=\\frac{\\sqrt{5}}{3}; \\; S=\\frac{1}{9}\\cdot 6\\sqrt{5}=\\frac{2\\sqrt{5}}{3}'
+      },
+      d3_ds2: {
+        prompt: 'Cho chóp S.ABCD đáy hình bình hành tâm O, AB = 8, SA = SB = 6. (P) qua O // (SAB). Xét a, b, c, d:',
+        ans: 'a) ĐÚNG (MN // AB)  |  b) SAI (Thang cân, không phải HBH)  |  c) ĐÚNG (P = 18)  |  d) SAI (S = 6√5)',
+        exp: 'MN=8, \\; QP=4, \\; MQ=NP=3 \\Rightarrow P=18; \\; h=\\sqrt{3^2-2^2}=\\sqrt{5} \\Rightarrow S=\\frac{8+4}{2}\\sqrt{5}=6\\sqrt{5}'
+      }
+    };
+
+    function rebuildScene() {
+      clearModelGroup();
+      let info;
+      if (state.modelId === 'vd1') info = buildModelVD1();
+      else if (state.modelId === 'vd2') info = buildModelVD2();
+      else if (state.modelId === 'vd3') info = buildModelVD3();
+      else if (state.modelId === 'd1_c1') info = buildModelD1C1();
+      else if (state.modelId === 'd1_c2') info = buildModelD1C2();
+      else if (state.modelId === 'd1_c3') info = buildModelD1C3();
+      else if (state.modelId === 'd1_c4') info = buildModelD1C4();
+      else if (state.modelId === 'd1_c5') info = buildModelD1C5();
+      else if (state.modelId === 'd1_c6') info = buildModelD1C6();
+      else if (state.modelId === 'd1_ds1') info = buildModelD1DS1();
+      else if (state.modelId === 'd1_ds2') info = buildModelD1DS2();
+      else if (state.modelId === 'd2_c1') info = buildModelD2C1();
+      else if (state.modelId === 'd2_c2') info = buildModelD2C2();
+      else if (state.modelId === 'd2_c3') info = buildModelD2C3();
+      else if (state.modelId === 'd2_c4') info = buildModelD2C4();
+      else if (state.modelId === 'd2_c5') info = buildModelD2C5();
+      else if (state.modelId === 'd2_c6') info = buildModelD2C6();
+      else if (state.modelId === 'd2_ds1') info = buildModelD2DS1();
+      else if (state.modelId === 'd2_ds2') info = buildModelD2DS2();
+      else if (state.modelId === 'd3_c1') info = buildModelD3C1();
+      else if (state.modelId === 'd3_c2') info = buildModelD3C2();
+      else if (state.modelId === 'd3_c3') info = buildModelD3C3();
+      else if (state.modelId === 'd3_c4') info = buildModelD3C4();
+      else if (state.modelId === 'd3_c5') info = buildModelD3C5();
+      else if (state.modelId === 'd3_c6') info = buildModelD3C6();
+      else if (state.modelId === 'd3_ds1') info = buildModelD3DS1();
+      else if (state.modelId === 'd3_ds2') info = buildModelD3DS2();
+      else if (state.modelId === '1.1') info = buildModel11();
+      else if (state.modelId === '1.2') info = buildModel12();
+      else if (state.modelId === '1.3') info = buildModel13();
+      else if (state.modelId === '2.1') info = buildModel21();
+      else if (state.modelId === '2.2') info = buildModel22();
+      else info = buildModel31();
+
+      updateDynamicEdges();
+
+      const maxStep = info.stepDesc.length;
+      const curStepIdx = Math.min(state.step, maxStep) - 1;
+      document.getElementById('hud-step-desc').innerHTML = `<strong>${info.stepDesc[curStepIdx]}</strong>`;
+
+      const solList = document.getElementById('solution-list');
+      solList.innerHTML = '';
+      if ((state.modelId.startsWith('d1_') || state.modelId.startsWith('d2_') || state.modelId.startsWith('d3_')) && !state.showAnswer) {
+        solList.innerHTML = `<div style="font-size:12px; color:#64748b; padding:6px 4px;">🔒 Đang ẩn lời giải để học sinh trả lời. Bấm <strong>Hiện Đáp án &amp; Giải thích ngắn</strong> ở trên để chiếu!</div>`;
+        return;
+      }
+
+      info.solutions.forEach((tex, idx) => {
+        const stepNum = Math.min(maxStep, idx + 1);
+        const div = document.createElement('div');
+        div.className = `sol-step ${stepNum === state.step ? 'current' : (stepNum > state.step ? 'dimmed' : '')}`;
+        div.innerHTML = `<span class="sol-badge">B${stepNum}</span><span class="katex-slot"></span>`;
+        solList.appendChild(div);
+        const slot = div.querySelector('.katex-slot');
+        if (window.katex) {
+          katex.render(tex, slot, { throwOnError: false });
+        } else {
+          slot.textContent = tex;
+        }
+      });
+    }
+
+    function setD1Sub(model, sub) {
+      state[model].sub = sub;
+      buildDynamicControls();
+      rebuildScene();
+    }
+
+    function toggleD1Answer() {
+      state.showAnswer = !state.showAnswer;
+      buildDynamicControls();
+      rebuildScene();
+    }
+
+    function setVD1Q(q) {
+      state.vd1.subQ = q;
+      buildDynamicControls();
+      rebuildScene();
+    }
+
+    function renderKaTeXInBox(box) {
+      if (!window.katex) return;
+      box.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.getAttribute('data-tex'), el, { throwOnError: false });
+      });
+    }
+
+    function buildDynamicControls() {
+      const box = document.getElementById('dynamic-controls');
+      if (state.modelId.startsWith('d1_') || state.modelId.startsWith('d2_') || state.modelId.startsWith('d3_')) {
+        const meta = D1_META[state.modelId];
+        const isDS = state.modelId.endsWith('_ds1') || state.modelId.endsWith('_ds2');
+        const curSub = isDS ? state[state.modelId].sub : '';
+        const subTabsHtml = isDS ? `
+          <div style="font-size:11.5px; font-weight:700; color:#475569; margin:8px 0 5px;">Bật/tắt nhanh từng ý:</div>
+          <div class="sub-tabs">
+            <button class="sub-tab ${curSub === 'a' ? 'active' : ''}" onclick="setD1Sub('${state.modelId}','a')">Ý a</button>
+            <button class="sub-tab ${curSub === 'b' ? 'active' : ''}" onclick="setD1Sub('${state.modelId}','b')">Ý b</button>
+            <button class="sub-tab ${curSub === 'c' ? 'active' : ''}" onclick="setD1Sub('${state.modelId}','c')">Ý c</button>
+            <button class="sub-tab ${curSub === 'd' ? 'active' : ''}" onclick="setD1Sub('${state.modelId}','d')">Ý d</button>
+          </div>
+        ` : '';
+
+        box.innerHTML = `
+          <div class="slider-box" style="background:#f8fafc; border-color:#cbd5e1;">
+            <div style="font-size:11.5px; font-weight:800; color:#1e3a8a; margin-bottom:4px;">📌 Đề bài:</div>
+            <div style="font-size:12.5px; line-height:1.45; color:#1e293b;">${meta.prompt}</div>
+            ${subTabsHtml}
+            <button class="toggle-btn ${state.showAnswer ? 'on' : 'on-blue'}" style="width:100%; margin-top:8px;" onclick="toggleD1Answer()">
+              ${state.showAnswer ? '🙈 Ẩn Đáp án &amp; Giải thích' : '👁️ Hiện Đáp án &amp; Giải thích ngắn'}
+            </button>
+            ${state.showAnswer ? `
+              <div style="margin-top:8px; padding:8px 10px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac;">
+                <div style="font-size:12.5px; font-weight:800; color:#15803d; margin-bottom:4px;">✓ ${meta.ans}</div>
+                <div style="font-size:12px; overflow-x:auto;" data-tex="${meta.exp}"></div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        renderKaTeXInBox(box);
+      } else if (state.modelId === 'vd1') {
+        box.innerHTML = `
+          <div style="font-size:11.5px; font-weight:700; color:#475569; margin-bottom:6px;">Chọn câu hỏi giao tuyến:</div>
+          <div class="sub-tabs">
+            <button class="sub-tab ${state.vd1.subQ === 'a' ? 'active' : ''}" onclick="setVD1Q('a')">a) (SAD)∩(SBC)</button>
+            <button class="sub-tab ${state.vd1.subQ === 'b' ? 'active' : ''}" onclick="setVD1Q('b')">b) (SAB)∩(SCD)</button>
+            <button class="sub-tab ${state.vd1.subQ === 'c' ? 'active' : ''}" onclick="setVD1Q('c')">c) (ABM)∩(SCD)</button>
+          </div>
+        `;
+      } else if (state.modelId === 'vd2') {
+        box.innerHTML = `
+          <div class="slider-box" style="background:#fff7ed; border-color:#fed7aa; margin-bottom:0;">
+            <div style="font-size:11.5px; font-weight:800; color:#c2410c; margin-bottom:6px;">📊 Bảng tỉ số Menelaus:</div>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;">
+              <span>Tỉ số 1:</span><span data-tex="\\frac{OI}{IS} = \\frac{2}{3}"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px;">
+              <span>Tỉ số 2:</span><span data-tex="\\frac{SK}{SC} = \\frac{1}{2}"></span>
+            </div>
+          </div>
+        `;
+        renderKaTeXInBox(box);
+      } else if (state.modelId === 'vd3') {
+        box.innerHTML = `
+          <div class="slider-box" style="background:#fff7ed; border-color:#fed7aa; margin-bottom:0;">
+            <div style="font-size:11.5px; font-weight:800; color:#c2410c; margin-bottom:6px;">📐 Thông số thiết diện hình thang cân MNPQ:</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px;">
+              <div data-tex="QP = \\frac{a}{3}"></div>
+              <div data-tex="MN = \\frac{7a}{3}"></div>
+              <div data-tex="MQ = NP = \\frac{4a}{3}"></div>
+              <div data-tex="P = \\frac{16a}{3}"></div>
+              <div data-tex="h = \\frac{a\\sqrt{7}}{3}"></div>
+              <div data-tex="S = \\frac{4a^2\\sqrt{7}}{9}"></div>
+            </div>
+          </div>
+        `;
+        renderKaTeXInBox(box);
+      } else if (state.modelId === '1.1') {
+        box.innerHTML = `
+          <div class="slider-box">
+            <div class="slider-head"><span>Vị trí M trên AB</span><span id="v-tm">${state.m11.tM.toFixed(2)}</span></div>
+            <input type="range" min="0.15" max="0.88" step="0.01" value="${state.m11.tM}" oninput="updateM11('tM', +this.value)">
+            <div class="slider-head" style="margin-top:6px;"><span>Vị trí N trên AC</span><span id="v-tn">${state.m11.tN.toFixed(2)}</span></div>
+            <input type="range" min="0.15" max="0.88" step="0.01" value="${state.m11.tN}" oninput="updateM11('tN', +this.value)">
+            <div class="slider-head" style="margin-top:6px;"><span>Vị trí P trên GD</span><span id="v-tp">${state.m11.tP.toFixed(2)}</span></div>
+            <input type="range" min="0.15" max="0.85" step="0.01" value="${state.m11.tP}" oninput="updateM11('tP', +this.value)">
+          </div>
+        `;
+      } else if (state.modelId === '1.2') {
+        box.innerHTML = `
+          <div class="slider-box">
+            <div class="slider-head"><span>Vị trí M trên cạnh AD</span><span id="v-tm12">${state.m12.tM.toFixed(2)}</span></div>
+            <input type="range" min="0.18" max="0.82" step="0.01" value="${state.m12.tM}" oninput="updateM12(+this.value)">
+          </div>
+        `;
+      } else if (state.modelId === '3.1') {
+        box.innerHTML = `
+          <div class="sub-tabs">
+            <button class="sub-tab ${state.m31.pair === 'ACp_BD' ? 'active' : ''}" onclick="setM31Pair('ACp_BD')">d(AC', BD)</button>
+            <button class="sub-tab ${state.m31.pair === 'AAp_BD' ? 'active' : ''}" onclick="setM31Pair('AAp_BD')">d(AA', BD)</button>
+          </div>
+        `;
+      } else {
+        box.innerHTML = '';
+      }
+    }
+
+    function updateM11(key, val) {
+      state.m11[key] = val;
+      document.getElementById(`v-${key.toLowerCase()}`).textContent = val.toFixed(2);
+      rebuildScene();
+    }
+
+    function updateM12(val) {
+      state.m12.tM = val;
+      document.getElementById('v-tm12').textContent = val.toFixed(2);
+      rebuildScene();
+    }
+
+    function setM31Pair(pair) {
+      state.m31.pair = pair;
+      buildDynamicControls();
+      rebuildScene();
+    }
+
+    function getMaxStep() {
+      if (state.modelId === 'vd1' || state.modelId.startsWith('d1_') || state.modelId.startsWith('d2_') || state.modelId.startsWith('d3_')) return 1;
+      if (state.modelId === 'vd2') return 2;
+      return 4;
+    }
+
+    function selectModel(id) {
+      state.modelId = id;
+      state.showAnswer = false;
+      document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`btn-m-${id.replace('.', '')}`).classList.add('active');
+      const maxS = getMaxStep();
+      const slider = document.getElementById('step-slider');
+      slider.max = maxS;
+      slider.disabled = (maxS === 1);
+      setStep(maxS);
+      buildDynamicControls();
+      rebuildScene();
+    }
+
+    function toggleXRay() {
+      state.xray = !state.xray;
+      document.getElementById('btn-xray').classList.toggle('on-blue', state.xray);
+      rebuildScene();
+    }
+
+    function toggleSection() {
+      state.showSection = !state.showSection;
+      document.getElementById('btn-section').classList.toggle('on', state.showSection);
+      rebuildScene();
+    }
+
+    function setStep(val) {
+      const maxS = getMaxStep();
+      const clamped = Math.max(1, Math.min(maxS, val));
+      state.step = clamped;
+      document.getElementById('step-slider').value = clamped;
+      document.getElementById('step-label').textContent = `Bước ${clamped} / ${maxS}`;
+      rebuildScene();
+    }
+
+    function toggleAutoPlay() {
+      const btn = document.getElementById('btn-play');
+      const maxS = getMaxStep();
+      if (state.autoPlayTimer) {
+        clearInterval(state.autoPlayTimer);
+        state.autoPlayTimer = null;
+        btn.textContent = '▶ Tự chạy';
+      } else {
+        setStep(1);
+        btn.textContent = '⏸ Dừng';
+        state.autoPlayTimer = setInterval(() => {
+          const next = state.step >= maxS ? 1 : state.step + 1;
+          setStep(next);
+        }, 1600);
+      }
+    }
+
+    function toggleGrid() {
+      state.showGrid = !state.showGrid;
+      gridHelper.visible = state.showGrid;
+      document.getElementById('btn-grid').textContent = state.showGrid ? '🌐 Ẩn lưới' : '🌐 Hiện lưới';
+    }
+
+    function toggleTheme() {
+      state.lightTheme = !state.lightTheme;
+      stageEl.classList.toggle('dark-theme', !state.lightTheme);
+      scene.background = new THREE.Color(state.lightTheme ? 0xffffff : 0x0b1120);
+      scene.remove(gridHelper);
+      gridHelper = new THREE.GridHelper(
+        12, 12,
+        state.lightTheme ? 0xcbd5e1 : 0x334155,
+        state.lightTheme ? 0xe2e8f0 : 0x1e293b
+      );
+      gridHelper.position.y = -0.01;
+      gridHelper.visible = state.showGrid;
+      scene.add(gridHelper);
+      document.getElementById('btn-theme').textContent = state.lightTheme ? '🌙 Nền tối hiện đại' : '☀️ Nền sáng (GeoGebra)';
+      rebuildScene();
+    }
+
+    function resetCamera() {
+      camera.position.set(5.2, 3.8, 6.4);
+      controls.target.set(0, 1.15, 0);
+      controls.update();
+    }
+
+    function topViewCamera() {
+      camera.position.set(0, 8.2, 0.01);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      updateDynamicEdges();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('load', () => {
+      selectModel('vd1');
+      animate();
+    });
+  </script>
+</body>
+</html>
