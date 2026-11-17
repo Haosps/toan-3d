@@ -11,6 +11,7 @@
   <!-- KaTeX CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <!-- Three.js & OrbitControls UMD CDN -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" crossorigin="anonymous"></script>
@@ -54,43 +55,43 @@
     header {
       background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
       color: #fff;
-      padding: 10px 20px;
+      padding: 6px 16px;
+      min-height: 50px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
       flex-shrink: 0;
       z-index: 20;
-      border-bottom: 2px solid rgba(245, 158, 11, 0.45);
-      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.28);
+      border-bottom: 1.5px solid rgba(245, 158, 11, 0.45);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.24);
       flex-wrap: wrap;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 11px;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
       background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(245, 158, 11, 0.22));
-      border: 1.5px solid rgba(245, 158, 11, 0.55);
+      border: 1px solid rgba(245, 158, 11, 0.55);
       display: grid;
       place-items: center;
-      box-shadow: 0 2px 12px rgba(14, 165, 233, 0.3);
       flex-shrink: 0;
     }
 
-    .brand h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.03em; color: #f8fafc; }
-    .brand p { font-size: 11.5px; color: #bae6fd; font-weight: 500; margin-top: 1px; }
+    .brand h1 { font-size: 13.5px; font-weight: 700; letter-spacing: 0.02em; color: #f8fafc; line-height: 1.2; }
+    .brand p { font-size: 10.5px; color: #bae6fd; font-weight: 500; margin-top: 1px; }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -98,14 +99,14 @@
       border: 1px solid rgba(255, 255, 255, 0.22);
       background: rgba(255, 255, 255, 0.1);
       color: #f8fafc;
-      padding: 7px 12px;
+      padding: 5px 11px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11.5px;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
     }
     .theme-pill:hover {
@@ -550,6 +551,119 @@
       opacity: 0.6;
     }
 
+    /* Compact Utils Popover & Sliding Pedagogical Proof Drawer */
+    .utils-wrap { position: relative; display: inline-flex; }
+    .utils-popover {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      right: 0;
+      min-width: 220px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(14px);
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 25;
+    }
+    .utils-popover.open { display: flex; }
+    .right-stage.dark-theme .utils-popover {
+      background: rgba(15, 23, 42, 0.94);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .utils-popover .dock-btn { width: 100%; justify-content: flex-start; padding: 6px 10px; border-radius: 8px; }
+
+    .proof-drawer {
+      position: absolute;
+      top: 56px;
+      right: 14px;
+      bottom: 84px;
+      width: 350px;
+      max-width: calc(100% - 28px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+      display: flex;
+      flex-direction: column;
+      z-index: 18;
+      transform: translateX(calc(100% + 24px));
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.24s ease, opacity 0.2s ease;
+    }
+    .proof-drawer.open {
+      transform: translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .right-stage.dark-theme .proof-drawer {
+      background: rgba(15, 23, 42, 0.92);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+    }
+    .proof-drawer-head {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+    .right-stage.dark-theme .proof-drawer-head { border-bottom-color: rgba(255,255,255,0.14); color: #7dd3fc; }
+    .proof-drawer-body {
+      padding: 10px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .proof-part {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #f8fafc;
+    }
+    .right-stage.dark-theme .proof-part {
+      background: rgba(30, 41, 59, 0.72);
+      border-color: rgba(255,255,255,0.12);
+    }
+    .proof-part-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0369a1;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .right-stage.dark-theme .proof-part-title { color: #38bdf8; }
+    .aux-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+    .aux-chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    #tab1-panel .model-btn { min-height: 32px; padding: 5px 9px; font-size: 12px; border-radius: 8px; }
+    .katex { font-size: 1.05em; }
+    .right-stage.dark-theme .katex { color: #f8fafc; }
+
     /* Step-by-step Presentation Bar (Bottom Stage above Dock) */
     .step-pres-bar {
       position: absolute;
@@ -741,7 +855,7 @@
   <header>
     <div class="brand">
       <div class="brand-icon" aria-hidden="true">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#F59E0B" stroke-width="1.8" fill="rgba(14,165,233,0.18)"/>
           <path d="M12 22V12M12 12L21 7M12 12L3 7" stroke="#38BDF8" stroke-width="1.6"/>
           <circle cx="12" cy="12" r="2" fill="#F59E0B"/>
@@ -749,16 +863,19 @@
       </div>
       <div>
         <h1>CƠ SỞ BỒI DƯỠNG VĂN HÓA HÀO HIỆP</h1>
-        <p>Hệ thống Trực quan hóa Hình học Không gian 3D • ThS. Phạm Ngọc Hào</p>
+        <p>Hình học Không gian 3D • ThS. Phạm Ngọc Hào</p>
       </div>
     </div>
+    <div class="main-tabs" role="tablist">
+      <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho chuyên đề</button>
+      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">🛠️ Xưởng AI</button>
+    </div>
     <div class="header-right">
-      <div class="main-tabs" role="tablist">
-        <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho Chuyên Đề 11</button>
-        <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">🛠️ Xưởng Tự Dựng Hình AI</button>
-      </div>
-      <button class="theme-pill" id="btn-theme" onclick="toggleTheme()" title="Chuyển chế độ Màn chiếu Lớp học / Studio 3D">
+      <button class="theme-pill" id="btn-theme" onclick="toggleTheme()" title="Đổi nền Sáng / Tối (Studio 3D)">
         <span>🌙 Studio 3D</span>
+      </button>
+      <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Chế độ Toàn màn hình (Phím F)">
+        <span>⛶ Toàn màn hình</span>
       </button>
     </div>
   </header>
@@ -778,7 +895,7 @@
           <summary class="acc-summary" style="border-left:3px solid #ea580c;">Chuyên đề: Giao tuyến - Giao điểm - Thiết diện (3 VD)</summary>
           <div class="acc-body">
             <div class="model-list">
-              <button class="model-btn active" id="btn-m-vd1" onclick="selectModel('vd1')"><span>VD 1: Giao tuyến 2 mặt phẳng (S.ABCD)</span><span>▸</span></button>
+              <button class="model-btn active" id="btn-m-vd1" onclick="selectModel('vd1')"><span>VD 1: Giao tuyến 2 mặt phẳng ($S.ABCD$)</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-vd2" onclick="selectModel('vd2')"><span>VD 2: Giao điểm đt &amp; mp (Menelaus)</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-vd3" onclick="selectModel('vd3')"><span>VD 3: Thiết diện &amp; Chu vi, Diện tích</span><span>▸</span></button>
             </div>
@@ -790,16 +907,16 @@
           <div class="acc-body">
             <div style="font-size:11px; font-weight:600; color:#64748b; margin:3px 0 3px 4px;">Phần I. Trắc nghiệm 4 lựa chọn</div>
             <div class="model-list">
-              <button class="model-btn" id="btn-m-d1_c1" onclick="selectModel('d1_c1')"><span>D1 - Câu 1: (SAC) ∩ (SBD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d1_c2" onclick="selectModel('d1_c2')"><span>D1 - Câu 2: (BMN) ∩ (BCD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d1_c3" onclick="selectModel('d1_c3')"><span>D1 - Câu 3: (MBC) ∩ (SAD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d1_c4" onclick="selectModel('d1_c4')"><span>D1 - Câu 4: (SAB) ∩ (SCD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d1_c5" onclick="selectModel('d1_c5')"><span>D1 - Câu 5: (SMN) ∩ (SAC)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d1_c6" onclick="selectModel('d1_c6')"><span>D1 - Câu 6: (MNP) ∩ (BCD)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_c1" onclick="selectModel('d1_c1')"><span>D1 - Câu 1: $(SAC) \cap (SBD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_c2" onclick="selectModel('d1_c2')"><span>D1 - Câu 2: $(BMN) \cap (BCD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_c3" onclick="selectModel('d1_c3')"><span>D1 - Câu 3: $(MBC) \cap (SAD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_c4" onclick="selectModel('d1_c4')"><span>D1 - Câu 4: $(SAB) \cap (SCD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_c5" onclick="selectModel('d1_c5')"><span>D1 - Câu 5: $(SMN) \cap (SAC)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_c6" onclick="selectModel('d1_c6')"><span>D1 - Câu 6: $(MNP) \cap (BCD)$</span><span>▸</span></button>
             </div>
             <div style="font-size:11px; font-weight:600; color:#64748b; margin:6px 0 3px 4px;">Phần II. Trắc nghiệm Đúng / Sai</div>
             <div class="model-list">
-              <button class="model-btn" id="btn-m-d1_ds1" onclick="selectModel('d1_ds1')"><span>D1 - Đúng/Sai Câu 1 (S.ABCD)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d1_ds1" onclick="selectModel('d1_ds1')"><span>D1 - Đúng/Sai Câu 1 ($S.ABCD$)</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-d1_ds2" onclick="selectModel('d1_ds2')"><span>D1 - Đúng/Sai Câu 2 (Tứ diện)</span><span>▸</span></button>
             </div>
           </div>
@@ -810,16 +927,16 @@
           <div class="acc-body">
             <div style="font-size:11px; font-weight:600; color:#64748b; margin:3px 0 3px 4px;">Phần I. Trắc nghiệm 4 lựa chọn</div>
             <div class="model-list">
-              <button class="model-btn" id="btn-m-d2_c1" onclick="selectModel('d2_c1')"><span>D2 - Câu 1: I = AM ∩ (SBD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d2_c2" onclick="selectModel('d2_c2')"><span>D2 - Câu 2: Q = CD ∩ (MNP)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d2_c3" onclick="selectModel('d2_c3')"><span>D2 - Câu 3: I = MN ∩ SO (SI/SO)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d2_c4" onclick="selectModel('d2_c4')"><span>D2 - Câu 4: I = MG ∩ (ACD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d2_c5" onclick="selectModel('d2_c5')"><span>D2 - Câu 5: N = SC ∩ (MAB)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d2_c6" onclick="selectModel('d2_c6')"><span>D2 - Câu 6: N = SD ∩ (ABM)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_c1" onclick="selectModel('d2_c1')"><span>D2 - Câu 1: $I = AM \cap (SBD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_c2" onclick="selectModel('d2_c2')"><span>D2 - Câu 2: $Q = CD \cap (MNP)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_c3" onclick="selectModel('d2_c3')"><span>D2 - Câu 3: $I = MN \cap SO$ ($SI/SO$)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_c4" onclick="selectModel('d2_c4')"><span>D2 - Câu 4: $I = MG \cap (ACD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_c5" onclick="selectModel('d2_c5')"><span>D2 - Câu 5: $N = SC \cap (MAB)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_c6" onclick="selectModel('d2_c6')"><span>D2 - Câu 6: $N = SD \cap (ABM)$</span><span>▸</span></button>
             </div>
             <div style="font-size:11px; font-weight:600; color:#64748b; margin:6px 0 3px 4px;">Phần II. Trắc nghiệm Đúng / Sai</div>
             <div class="model-list">
-              <button class="model-btn" id="btn-m-d2_ds1" onclick="selectModel('d2_ds1')"><span>D2 - Đúng/Sai Câu 1 (S.ABCD)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d2_ds1" onclick="selectModel('d2_ds1')"><span>D2 - Đúng/Sai Câu 1 ($S.ABCD$)</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-d2_ds2" onclick="selectModel('d2_ds2')"><span>D2 - Đúng/Sai Câu 2 (Tứ diện)</span><span>▸</span></button>
             </div>
           </div>
@@ -830,12 +947,12 @@
           <div class="acc-body">
             <div style="font-size:11px; font-weight:600; color:#64748b; margin:3px 0 3px 4px;">Phần I. Trắc nghiệm 4 lựa chọn</div>
             <div class="model-list">
-              <button class="model-btn" id="btn-m-d3_c1" onclick="selectModel('d3_c1')"><span>D3 - Câu 1: Tứ diện đều (MNP)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d3_c2" onclick="selectModel('d3_c2')"><span>D3 - Câu 2: Thiết diện (MCD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d3_c3" onclick="selectModel('d3_c3')"><span>D3 - Câu 3: Chóp đều (MNPQ)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d3_c4" onclick="selectModel('d3_c4')"><span>D3 - Câu 4: Hình thang cân (α)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d3_c5" onclick="selectModel('d3_c5')"><span>D3 - Câu 5: Trọng tâm G // (BCD)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-d3_c6" onclick="selectModel('d3_c6')"><span>D3 - Câu 6: Chóp vuông cạnh 4</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d3_c1" onclick="selectModel('d3_c1')"><span>D3 - Câu 1: Tứ diện đều $(MNP)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d3_c2" onclick="selectModel('d3_c2')"><span>D3 - Câu 2: Thiết diện $(MCD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d3_c3" onclick="selectModel('d3_c3')"><span>D3 - Câu 3: Chóp đều $(MNPQ)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d3_c4" onclick="selectModel('d3_c4')"><span>D3 - Câu 4: Hình thang cân $(\alpha)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d3_c5" onclick="selectModel('d3_c5')"><span>D3 - Câu 5: Trọng tâm $G \parallel (BCD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-d3_c6" onclick="selectModel('d3_c6')"><span>D3 - Câu 6: Chóp vuông cạnh $4$</span><span>▸</span></button>
             </div>
             <div style="font-size:11px; font-weight:600; color:#64748b; margin:6px 0 3px 4px;">Phần II. Trắc nghiệm Đúng / Sai</div>
             <div class="model-list">
@@ -849,12 +966,12 @@
           <summary class="acc-summary" style="border-left:3px solid #0284c7;">Chuyên đề HK2: Quan hệ vuông góc - Góc - Khoảng cách (6 mô hình)</summary>
           <div class="acc-body">
             <div class="model-list">
-              <button class="model-btn" id="btn-m-hk2_1" onclick="selectModel('hk2_1')"><span>HK2 - Bài 1: Chóp SA ⊥ đáy (góc &amp; vuông)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-hk2_2" onclick="selectModel('hk2_2')"><span>HK2 - Bài 2: Chóp đều (Nhị diện &amp; góc cạnh bên)</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-hk2_3" onclick="selectModel('hk2_3')"><span>HK2 - Bài 3: Mặt bên (SAB) ⊥ đáy</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-hk2_4" onclick="selectModel('hk2_4')"><span>HK2 - Bài 4: Khoảng cách từ chân đ/cao (3 nét kẻ)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-hk2_1" onclick="selectModel('hk2_1')"><span>HK2 - Bài 1: Chóp $SA \perp (ABC)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-hk2_2" onclick="selectModel('hk2_2')"><span>HK2 - Bài 2: Chóp đều (Nhị diện &amp; góc)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-hk2_3" onclick="selectModel('hk2_3')"><span>HK2 - Bài 3: Mặt bên $(SAB) \perp$ đáy</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-hk2_4" onclick="selectModel('hk2_4')"><span>HK2 - Bài 4: $d(A, (SBC))$ (3 nét kẻ)</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-hk2_5" onclick="selectModel('hk2_5')"><span>HK2 - Bài 5: Khoảng cách quy về chân đ/cao</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-hk2_6" onclick="selectModel('hk2_6')"><span>HK2 - Bài 6: Khoảng cách 2 đường chéo nhau</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-hk2_6" onclick="selectModel('hk2_6')"><span>HK2 - Bài 6: $d$ giữa 2 đường chéo nhau</span><span>▸</span></button>
             </div>
           </div>
         </details>
@@ -863,12 +980,12 @@
           <summary class="acc-summary" style="border-left:3px solid #7c3aed;">Khối tròn xoay &amp; Mặt cầu ngoại tiếp (6 mô hình Toán 12)</summary>
           <div class="acc-body">
             <div class="model-list">
-              <button class="model-btn" id="btn-m-k12_1" onclick="selectModel('k12_1')"><span>Bài 12.1: Hình Nón &amp; Thiết diện qua trục / đỉnh</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-k12_2" onclick="selectModel('k12_2')"><span>Bài 12.2: Hình Trụ &amp; Thiết diện // trục</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-k12_3" onclick="selectModel('k12_3')"><span>Bài 12.3: Mặt cầu ngoại tiếp Chóp SA ⊥ đáy</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-k12_4" onclick="selectModel('k12_4')"><span>Bài 12.4: Mặt cầu ngoại tiếp Hình chóp đều</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-k12_5" onclick="selectModel('k12_5')"><span>Bài 12.5: Mặt cầu ngoại tiếp Chóp (SAB) ⊥ đáy</span><span>▸</span></button>
-              <button class="model-btn" id="btn-m-k12_6" onclick="selectModel('k12_6')"><span>Bài 12.6: Mặt cầu ngoại tiếp Lăng trụ đứng</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-k12_1" onclick="selectModel('k12_1')"><span>Bài 12.1: Hình Nón &amp; Thiết diện</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-k12_2" onclick="selectModel('k12_2')"><span>Bài 12.2: Hình Trụ &amp; Thiết diện $\parallel OO'$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-k12_3" onclick="selectModel('k12_3')"><span>Bài 12.3: Mặt cầu ngoại tiếp $SA \perp$ đáy</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-k12_4" onclick="selectModel('k12_4')"><span>Bài 12.4: Mặt cầu ngoại tiếp Chóp đều</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-k12_5" onclick="selectModel('k12_5')"><span>Bài 12.5: Mặt cầu ngoại tiếp $(SAB) \perp$ đáy</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-k12_6" onclick="selectModel('k12_6')"><span>Bài 12.6: Mặt cầu Lăng trụ $ABC.A'B'C'$</span><span>▸</span></button>
             </div>
           </div>
         </details>
@@ -902,124 +1019,144 @@
       </section>
       </div>
 
-      <!-- TAB 2: XƯỞNG TỰ DỰNG HÌNH 3D TÙY CHỈNH -->
-      <div id="tab2-panel" style="display:none; flex-direction:column; gap:12px;">
-        <section class="card" style="border:1.5px solid #818cf8; background:linear-gradient(180deg, #eef2ff 0%, #ffffff 30%);">
-          <div class="card-title" style="color:#4338ca; margin-bottom:5px;">
-            <span>🤖 Trợ lý đọc đề bài &amp; Tự dựng hình 3D</span>
+      <!-- TAB 2: XƯỞNG TỰ DỰNG HÌNH 3D TÙY CHỈNH (4 NGĂN KÉO GỌN GÀNG) -->
+      <div id="tab2-panel" style="display:none; flex-direction:column; gap:8px;">
+        <!-- Ngăn kéo 1: Trợ lý đọc đề bài (Mặc định thu gọn) -->
+        <details class="acc-group" id="ws-acc-ai" style="border-color:#a5b4fc;">
+          <summary class="acc-summary" style="background:#eef2ff; color:#3730a3; border-left:3px solid #6366f1;">🤖 Nhập đề bài bằng chữ để AI tự dựng hình</summary>
+          <div class="acc-body" style="padding:8px;">
+            <textarea id="ws-problem-input" rows="2" oninput="this.style.height='auto'; this.style.height=Math.min(140, this.scrollHeight)+'px';" style="width:100%; padding:7px 9px; border:1px solid #c7d2fe; border-radius:8px; font-size:12px; line-height:1.4; font-family:inherit; resize:vertical; outline:none;" placeholder="Dán đề bài hình học không gian vào đây..."></textarea>
+            <div class="preset-row" style="margin:5px 0 6px;">
+              <button class="preset-btn" onclick="loadSampleProblem(1)">Mẫu 1: Tứ diện</button>
+              <button class="preset-btn" onclick="loadSampleProblem(2)">Mẫu 2: Chóp thang</button>
+              <button class="preset-btn" onclick="loadSampleProblem(3)">Mẫu 3: Song song</button>
+            </div>
+            <button onclick="parseAndBuildProblem()" style="width:100%; border:none; border-radius:8px; padding:8px 12px; font-size:12px; font-weight:700; color:#fff; background:linear-gradient(135deg, #2563eb, #7c3aed); cursor:pointer;">
+              ⚡ Phân tích &amp; Dựng hình 3D ngay
+            </button>
+            <div id="ws-parse-log" style="display:none; margin-top:8px; padding:8px 10px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac; font-size:11.5px; line-height:1.45; color:#166534;"></div>
           </div>
-          <textarea id="ws-problem-input" rows="2" oninput="this.style.height='auto'; this.style.height=Math.min(140, this.scrollHeight)+'px';" style="width:100%; padding:7px 9px; border:1px solid #c7d2fe; border-radius:7px; font-size:12px; line-height:1.4; font-family:inherit; resize:vertical; outline:none;" placeholder="Dán đề bài hình học không gian vào đây..."></textarea>
-          <div class="preset-row" style="margin:5px 0 6px;">
-            <button class="preset-btn" onclick="loadSampleProblem(1)">Mẫu 1: Tứ diện</button>
-            <button class="preset-btn" onclick="loadSampleProblem(2)">Mẫu 2: Chóp thang</button>
-            <button class="preset-btn" onclick="loadSampleProblem(3)">Mẫu 3: Song song</button>
+        </details>
+
+        <!-- Ngăn kéo 2: Chọn khối hình & Đổi tên đỉnh (Mặc định mở) -->
+        <details class="acc-group" id="ws-acc-shape" open>
+          <summary class="acc-summary" style="border-left:3px solid #2563eb;">1. Chọn khối hình &amp; Đổi tên đỉnh</summary>
+          <div class="acc-body" style="padding:8px;">
+            <select id="ws-shape" class="aux-select" style="width:100%; padding:7px 8px; font-size:12.5px;" onchange="changeWorkshopShape(this.value)">
+              <optgroup label="1. Nhóm Hình Chóp">
+                <option value="tetra">Tứ diện ABCD</option>
+                <option value="reg_tetra">Tứ diện đều ABCD</option>
+                <option value="right_pyr">Hình chóp S.ABC có SA ⊥ (ABC)</option>
+                <option value="para_pyr">Hình chóp S.ABCD đáy hình bình hành / HCN / vuông</option>
+                <option value="trap_pyr">Hình chóp S.ABCD đáy hình thang (AB // CD)</option>
+                <option value="reg_pyr4">Hình chóp tứ giác đều S.ABCD</option>
+              </optgroup>
+              <optgroup label="2. Nhóm Hình Lăng Trụ &amp; Hình Hộp">
+                <option value="prism">Lăng trụ tam giác đứng ABC.A'B'C'</option>
+                <option value="oblique_prism">Lăng trụ tam giác xiên ABC.A'B'C'</option>
+                <option value="cube">Hình lập phương ABCD.A'B'C'D'</option>
+                <option value="box">Hình hộp chữ nhật ABCD.A'B'C'D'</option>
+                <option value="oblique_box">Hình hộp xiên / Hình hộp thoi ABCD.A'B'C'D'</option>
+              </optgroup>
+              <optgroup label="3. Đa Diện Đều &amp; Khối Tròn Xoay">
+                <option value="octa">Hình bát diện đều (S.ABCD.S')</option>
+                <option value="frustum">Hình chóp cụt tứ giác đều ABCD.A'B'C'D'</option>
+                <option value="cone">Hình Nón (đỉnh S, tâm O, bán kính R)</option>
+                <option value="cylinder">Hình Trụ (hai đáy tâm O, O', bán kính R)</option>
+              </optgroup>
+            </select>
+            <div style="margin-top:7px;">
+              <div class="preset-row" style="margin-top:0;">
+                <button class="preset-btn" onclick="applyVertexPreset('standard')">Chuẩn (ABCD)</button>
+                <button class="preset-btn" onclick="applyVertexPreset('mnpq')">Bộ MNPQ</button>
+                <button class="preset-btn" onclick="applyVertexPreset('efgh')">Bộ EFGH</button>
+              </div>
+            </div>
+            <details style="margin-top:7px; border:1px solid #e2e8f0; border-radius:8px; padding:5px 8px; background:#f8fafc;">
+              <summary style="font-size:11.5px; font-weight:600; color:#1e3a8a; cursor:pointer; user-select:none;">✏️ Tùy chỉnh tên đỉnh</summary>
+              <div id="ws-vertex-inputs" style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:7px;"></div>
+            </details>
           </div>
-          <button onclick="parseAndBuildProblem()" style="width:100%; border:none; border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:700; color:#fff; background:linear-gradient(135deg, #2563eb, #7c3aed); cursor:pointer;">
-            ⚡ Phân tích &amp; Dựng hình 3D ngay
-          </button>
-          <div id="ws-parse-log" style="display:none; margin-top:8px; padding:8px 10px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac; font-size:12px; line-height:1.45; color:#166534;"></div>
-        </section>
+        </details>
 
-        <section class="card">
-          <div class="card-title"><span>1. Chọn khung khối đa diện gốc</span></div>
-          <select id="ws-shape" class="aux-select" style="width:100%; padding:8px; font-size:13px;" onchange="changeWorkshopShape(this.value)">
-            <option value="tetra">Tứ diện ABCD</option>
-            <option value="para_pyr">Hình chóp S.ABCD đáy hình bình hành</option>
-            <option value="trap_pyr">Hình chóp S.ABCD đáy hình thang (AB // CD)</option>
-            <option value="right_pyr">Hình chóp S.ABC có SA ⊥ (ABC)</option>
-            <option value="prism">Lăng trụ tam giác ABC.A'B'C'</option>
-            <option value="cube">Hình lập phương ABCD.A'B'C'D'</option>
-          </select>
+        <!-- Ngăn kéo 3: Đặt điểm phụ trên cạnh (Thu gọn dạng chip, bấm + Thêm để bung) -->
+        <details class="acc-group" id="ws-acc-aux">
+          <summary class="acc-summary" style="border-left:3px solid #16a34a;">
+            <span>2. Điểm phụ trên cạnh</span>
+            <span id="ws-aux-count" style="font-size:11px; color:#15803d; margin-left:auto; margin-right:6px;"></span>
+          </summary>
+          <div class="acc-body" style="padding:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:6px;">
+              <div id="ws-aux-chips" class="aux-chip-row" style="margin-bottom:0;"></div>
+              <button class="step-btn" onclick="document.getElementById('ws-acc-aux').open=true; addAuxPoint();" style="background:#eff6ff; color:#1d4ed8; border-color:#93c5fd; flex-shrink:0;">+ Thêm</button>
+            </div>
+            <div id="ws-aux-list"></div>
+          </div>
+        </details>
 
-          <div style="margin-top:8px;">
-            <div style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px;">Bộ tên đỉnh nhanh (1-click):</div>
-            <div class="preset-row" style="margin-top:0;">
-              <button class="preset-btn" onclick="applyVertexPreset('standard')">Chuẩn (ABCD)</button>
-              <button class="preset-btn" onclick="applyVertexPreset('mnpq')">Bộ MNPQ</button>
-              <button class="preset-btn" onclick="applyVertexPreset('efgh')">Bộ EFGH</button>
+        <!-- Ngăn kéo 4: Mặt phẳng cắt thiết diện & Đo khoảng cách/Góc -->
+        <details class="acc-group" id="ws-acc-measure" open>
+          <summary class="acc-summary" style="border-left:3px solid #ea580c;">3. Cắt thiết diện &amp; Đo khoảng cách / Góc</summary>
+          <div class="acc-body" style="padding:8px;">
+            <div class="sub-tabs" style="margin-bottom:8px;">
+              <button class="sub-tab active" id="ws-mtab-sec" onclick="switchWsMeasureTab('sec')">✂️ Cắt thiết diện</button>
+              <button class="sub-tab" id="ws-mtab-perp" onclick="switchWsMeasureTab('perp')">📐 Khoảng cách &amp; Góc</button>
+            </div>
+            <div id="ws-panel-sec">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11.5px; font-weight:600; color:#475569;">Chọn cách dựng mặt phẳng (α):</span>
+                <button class="step-btn" onclick="clearPlaneSelection()">Bỏ chọn</button>
+              </div>
+              <div class="sub-tabs" style="margin-bottom:8px;">
+                <button class="sub-tab active" id="pm-3pts" onclick="setPlaneMode('3pts')">3 điểm</button>
+                <button class="sub-tab" id="pm-1pt_2lines" onclick="setPlaneMode('1pt_2lines')">1đ // 2đt</button>
+                <button class="sub-tab" id="pm-1pt_plane" onclick="setPlaneMode('1pt_plane')">1đ // 1mp</button>
+              </div>
+              <div id="ws-plane-controls"></div>
+              <div class="result-banner" id="ws-section-result">Hãy thiết lập mặt phẳng cắt để tìm thiết diện.</div>
+              <div id="ws-metrics-box" style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;">
+                <div class="aux-card" style="margin:0; text-align:center;">
+                  <div style="font-size:10px; color:#64748b; font-weight:700;">CHU VI</div>
+                  <div id="ws-perim" style="font-size:13px; font-weight:800; color:#1d4ed8;">—</div>
+                </div>
+                <div class="aux-card" style="margin:0; text-align:center;">
+                  <div style="font-size:10px; color:#64748b; font-weight:700;">DIỆN TÍCH</div>
+                  <div id="ws-area" style="font-size:13px; font-weight:800; color:#c2410c;">—</div>
+                </div>
+              </div>
+            </div>
+            <div id="ws-panel-perp" style="display:none;">
+              <div class="sub-tabs" style="margin-bottom:8px;">
+                <button class="sub-tab active" id="perp-none" onclick="setPerpMode('none')">Tắt</button>
+                <button class="sub-tab" id="perp-dist_pt_plane" onclick="setPerpMode('dist_pt_plane')">d(Điểm, Mp)</button>
+                <button class="sub-tab" id="perp-dist_skew" onclick="setPerpMode('dist_skew')">d(2 đt chéo)</button>
+                <button class="sub-tab" id="perp-angle" onclick="setPerpMode('angle')">Góc 3D</button>
+              </div>
+              <div id="ws-perp-controls"></div>
+              <div class="result-banner" id="ws-perp-result" style="display:none; background:#f0f9ff; border-color:#7dd3fc; color:#0c4a6e;"></div>
             </div>
           </div>
+        </details>
 
-          <details style="margin-top:8px; border:1px solid #e2e8f0; border-radius:8px; padding:6px 8px; background:#f8fafc;">
-            <summary style="font-size:12px; font-weight:700; color:#1e3a8a; cursor:pointer; user-select:none;">✏️ Tùy chỉnh tên đỉnh</summary>
-            <div id="ws-vertex-inputs" style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;"></div>
-          </details>
-        </section>
-
-        <section class="card">
-          <div class="card-title">
-            <span>2. Đặt điểm phụ trên cạnh (tối đa 5)</span>
-            <button class="step-btn" onclick="addAuxPoint()" style="background:#eff6ff; color:#1d4ed8; border-color:#93c5fd;">+ Thêm điểm phụ</button>
-          </div>
-          <div id="ws-aux-list"></div>
-        </section>
-
-        <section class="card">
-          <div class="card-title">
-            <span>3. Mặt phẳng cắt (α) &amp; Thiết diện</span>
-            <button class="step-btn" onclick="clearPlaneSelection()">Bỏ chọn</button>
-          </div>
-          <div class="sub-tabs" style="margin-bottom:8px;">
-            <button class="sub-tab active" id="pm-3pts" onclick="setPlaneMode('3pts')">3 điểm</button>
-            <button class="sub-tab" id="pm-1pt_2lines" onclick="setPlaneMode('1pt_2lines')">1 điểm // 2 đt</button>
-            <button class="sub-tab" id="pm-1pt_plane" onclick="setPlaneMode('1pt_plane')">1 điểm // 1 mp</button>
-          </div>
-          <div id="ws-plane-controls"></div>
-          <div class="result-banner" id="ws-section-result">Hãy thiết lập mặt phẳng cắt để tìm thiết diện.</div>
-        </section>
-
-        <section class="card" style="border:1px solid #bae6fd; background:linear-gradient(180deg, #f0f9ff 0%, #ffffff 30%);">
-          <div class="card-title" style="color:#0369a1;">
-            <span>📐 Đo đạc Vuông góc: Khoảng cách &amp; Góc 3D</span>
-          </div>
-          <div class="sub-tabs" style="margin-bottom:8px;">
-            <button class="sub-tab active" id="perp-none" onclick="setPerpMode('none')">Tắt</button>
-            <button class="sub-tab" id="perp-dist_pt_plane" onclick="setPerpMode('dist_pt_plane')">d(Điểm, Mp)</button>
-            <button class="sub-tab" id="perp-dist_skew" onclick="setPerpMode('dist_skew')">d(2 đt chéo)</button>
-            <button class="sub-tab" id="perp-angle" onclick="setPerpMode('angle')">Góc 3D</button>
-          </div>
-          <div id="ws-perp-controls"></div>
-          <div class="result-banner" id="ws-perp-result" style="display:none; background:#f0f9ff; border-color:#7dd3fc; color:#0c4a6e;"></div>
-        </section>
-
-        <section class="card">
-          <div class="card-title"><span>4. Điểm di động &amp; Đo đạc thời gian thực</span></div>
-          <div id="ws-moving-box"></div>
-          <div id="ws-metrics-box" style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;">
-            <div class="aux-card" style="margin:0; text-align:center;">
-              <div style="font-size:10.5px; color:#64748b; font-weight:700;">CHU VI THIẾT DIỆN</div>
-              <div id="ws-perim" style="font-size:14px; font-weight:800; color:#1d4ed8;">—</div>
+        <!-- Ngăn kéo phụ: Điểm di động, Trải phẳng & Lưu (thu gọn) -->
+        <details class="acc-group" id="ws-acc-extra">
+          <summary class="acc-summary" style="border-left:3px solid #64748b;">4. Điểm di động, Trải phẳng &amp; Lưu bài</summary>
+          <div class="acc-body" style="padding:8px;">
+            <div id="ws-moving-box" style="margin-bottom:8px;"></div>
+            <div class="slider-box" style="margin-bottom:8px;">
+              <div class="slider-head">
+                <span>📦 Trải phẳng hình khai triển (Net)</span>
+                <span id="ws-unfold-lbl" style="color:var(--primary);">0%</span>
+              </div>
+              <input type="range" id="ws-unfold" min="0" max="100" step="1" value="0" oninput="setUnfold(+this.value)" />
             </div>
-            <div class="aux-card" style="margin:0; text-align:center;">
-              <div style="font-size:10.5px; color:#64748b; font-weight:700;">DIỆN TÍCH THIẾT DIỆN</div>
-              <div id="ws-area" style="font-size:14px; font-weight:800; color:#c2410c;">—</div>
+            <div style="display:flex; gap:6px; margin-bottom:6px;">
+              <input type="text" id="ws-save-name" class="aux-select" placeholder="Tên bài toán cần lưu..." style="padding:6px 8px;" />
+              <button class="step-btn" onclick="saveWorkshopProblem()" style="background:#16a34a; color:#fff; border-color:#15803d; padding:6px 10px;">💾 Lưu</button>
             </div>
+            <div id="ws-saved-list" style="display:flex; flex-direction:column; gap:5px;"></div>
           </div>
-        </section>
-
-        <section class="card">
-          <div class="card-title"><span>5. Trải phẳng &amp; Hiển thị</span></div>
-          <div class="toggle-grid">
-            <button class="toggle-btn on-blue" id="btn-ws-xray" onclick="toggleXRay()"><span>👁️</span> Xuyên thấu (X-Ray)</button>
-            <button class="toggle-btn on" id="btn-ws-section" onclick="toggleSection()"><span>🔶</span> Tô màu Thiết diện</button>
-          </div>
-          <div class="slider-box" style="margin-bottom:0;">
-            <div class="slider-head">
-              <span>📦 Trải phẳng hình khai triển (Net)</span>
-              <span id="ws-unfold-lbl" style="color:var(--primary);">0%</span>
-            </div>
-            <input type="range" id="ws-unfold" min="0" max="100" step="1" value="0" oninput="setUnfold(+this.value)" />
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-title"><span>6. Lưu vào Kho cá nhân</span></div>
-          <div style="display:flex; gap:6px; margin-bottom:8px;">
-            <input type="text" id="ws-save-name" class="aux-select" placeholder="Tên bài toán (VD: Thiết diện qua M)..." style="padding:7px 9px;" />
-            <button class="step-btn" onclick="saveWorkshopProblem()" style="background:#16a34a; color:#fff; border-color:#15803d; padding:7px 11px;">💾 Lưu</button>
-          </div>
-          <div id="ws-saved-list" style="display:flex; flex-direction:column; gap:5px;"></div>
-        </section>
+        </details>
       </div>
     </aside>
 
@@ -1051,8 +1188,18 @@
             <button class="step-btn" onclick="undoDrawOverlay()" title="Hoàn tác nét vừa vẽ">↩️ Hoàn tác</button>
             <button class="step-btn" onclick="clearDrawOverlay()" title="Xóa toàn bộ bảng" style="color:#dc2626;">🗑️ Xóa hết</button>
           </div>
+          <button class="hud-btn" id="btn-proof-toggle" onclick="toggleProofDrawer()" title="Mở / Đóng Bảng Lời Giải Sư Phạm Chi Tiết">📖 Xem lời giải chi tiết</button>
         </div>
       </div>
+
+      <!-- Sliding Pedagogical Detailed Solution Drawer -->
+      <aside class="proof-drawer" id="proof-drawer">
+        <div class="proof-drawer-head">
+          <span>📖 Lời Giải Sư Phạm Chi Tiết</span>
+          <button class="step-btn" onclick="toggleProofDrawer()" style="padding:3px 8px;">✕</button>
+        </div>
+        <div class="proof-drawer-body" id="proof-drawer-body"></div>
+      </aside>
 
       <!-- Step-by-Step Pedagogical Presentation Bar -->
       <div class="step-pres-bar" id="step-pres-bar">
@@ -1063,24 +1210,29 @@
           <button class="step-pill active" id="sp-4" onclick="setStep(4)">B4</button>
         </div>
         <span class="dock-sep"></span>
-        <button class="dock-btn" onclick="stepPrev()" title="Phím mũi tên Trái">◀ Bước trước</button>
-        <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()">▶ Tự động chạy</button>
-        <button class="dock-btn" onclick="stepNext()" title="Phím mũi tên Phải">Bước tiếp theo ▶</button>
+        <button class="dock-btn" onclick="stepPrev()" title="Phím mũi tên Trái">◀ Trước</button>
+        <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()">▶ Tự động</button>
+        <button class="dock-btn" onclick="stepNext()" title="Phím mũi tên Phải">Tiếp ▶</button>
         <span class="dock-sep"></span>
-        <button class="dock-btn" id="btn-show-all" onclick="toggleShowAllSteps()" title="Bỏ qua từng bước, hiện đủ cả 4 bước">⚡ Hiện toàn bộ</button>
+        <button class="dock-btn" id="btn-show-all" onclick="toggleShowAllSteps()" title="Bỏ qua từng bước, hiện đủ cả 4 bước">⚡ Hiện đủ</button>
       </div>
 
-      <!-- macOS-style Glassmorphism Floating Dock -->
+      <!-- Compact 3-Core Floating Dock -->
       <div class="floating-dock">
-        <button class="dock-btn" id="btn-autorotate" onclick="toggleAutoRotate()" title="Tự động xoay khối 3D">🔄 Tự xoay</button>
-        <button class="dock-btn" onclick="resetCamera()" title="Góc nhìn chuẩn">🎯 Góc chuẩn</button>
-        <button class="dock-btn" onclick="topViewCamera()" title="Nhìn từ trên xuống">⬇️ Nhìn trên</button>
+        <button class="dock-btn" id="btn-pen" onclick="togglePenMode()" title="Bật / Tắt Bút vẽ màn chiếu (Phím tắt: B)">✏️ Bút vẽ (B)</button>
         <span class="dock-sep"></span>
-        <button class="dock-btn active-dock" id="btn-dock-xray" onclick="toggleXRay()" title="Chế độ Xuyên thấu (X-Ray)">👁️ X-Ray</button>
-        <button class="dock-btn" id="btn-grid" onclick="toggleGrid()" title="Hiện / Ẩn lưới tọa độ">🌐 Lưới</button>
-        <span class="dock-sep"></span>
-        <button class="dock-btn" id="btn-pen" onclick="togglePenMode()" title="Bật / Tắt Bút vẽ màn chiếu (Phím tắt: B)">✏️ Bút (B)</button>
-        <button class="dock-btn" onclick="exportExamPNG()" title="Xuất ảnh đề thi nền trắng nét đen">📷 Đề thi</button>
+        <div class="utils-wrap">
+          <button class="dock-btn" id="btn-utils-menu" onclick="toggleUtilsPopover()" title="Mở menu tiện ích hiển thị 3D">⚙️ Tiện ích hiển thị ▾</button>
+          <div class="utils-popover" id="utils-popover">
+            <button class="dock-btn" id="btn-autorotate" onclick="toggleAutoRotate()">🔄 Tự động xoay</button>
+            <button class="dock-btn" onclick="resetCamera()">🎯 Góc nhìn chuẩn</button>
+            <button class="dock-btn" onclick="topViewCamera()">⬇️ Nhìn từ trên</button>
+            <button class="dock-btn active-dock" id="btn-dock-xray" onclick="toggleXRay()">👁️ Xuyên thấu (X-Ray)</button>
+            <button class="dock-btn" id="btn-grid" onclick="toggleGrid()">🌐 Lưới tọa độ</button>
+            <button class="dock-btn" onclick="switchMainTab(2); document.getElementById('ws-acc-extra').open=true; toggleUtilsPopover();">📦 Trải phẳng (Net)</button>
+            <button class="dock-btn" onclick="exportExamPNG()">📷 Xuất ảnh đề thi</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -4236,6 +4388,86 @@
           slot.textContent = tex;
         }
       });
+
+      renderProofDrawerTab1(info);
+      renderAllMath(document.getElementById('hud-step-desc'));
+      renderAllMath(document.getElementById('dynamic-controls'));
+    }
+
+    function getTab1MethodAndConclusion(id, info) {
+      if (id === 'vd1' || id.startsWith('1.') || id.startsWith('d1_')) {
+        return {
+          method: 'Tìm hai điểm chung phân biệt của hai mặt phẳng (hoặc áp dụng định lý giao tuyến song song nếu có hai đường thẳng song song).',
+          conclusion: info.stepDesc[info.stepDesc.length - 1]
+        };
+      }
+      if (id === 'vd2' || id.startsWith('2.') || id.startsWith('d2_')) {
+        return {
+          method: 'Chọn mặt phẳng phụ chứa đường thẳng đã cho, tìm giao tuyến với mặt phẳng còn lại rồi lấy giao điểm (kết hợp định lý Menelaus khi tính tỉ số).',
+          conclusion: info.stepDesc[info.stepDesc.length - 1]
+        };
+      }
+      if (id === 'vd3' || id.startsWith('3.') || id.startsWith('d3_')) {
+        return {
+          method: 'Tìm các đoạn giao tuyến liên tiếp của mặt phẳng cắt với từng mặt của khối đa diện để khép kín đa giác thiết diện.',
+          conclusion: info.stepDesc[info.stepDesc.length - 1]
+        };
+      }
+      if (id.startsWith('hk2_')) {
+        return {
+          method: 'Áp dụng định lý đường thẳng vuông góc mặt phẳng, quy tắc 3 nét kẻ xác định hình chiếu vuông góc và hệ thức lượng tam giác vuông.',
+          conclusion: info.stepDesc[info.stepDesc.length - 1]
+        };
+      }
+      if (id.startsWith('k12_')) {
+        return {
+          method: 'Xác định trục đường tròn ngoại tiếp đáy, giao điểm với mặt phẳng trung trực cạnh bên (hoặc trục mặt bên) để tìm tâm I và bán kính R.',
+          conclusion: info.stepDesc[info.stepDesc.length - 1]
+        };
+      }
+      return {
+        method: 'Phân tích giả thiết hình học không gian và dựng các yếu tố phụ.',
+        conclusion: info.stepDesc[info.stepDesc.length - 1]
+      };
+    }
+
+    function renderProofDrawerTab1(info) {
+      const body = document.getElementById('proof-drawer-body');
+      if (!body || !info) return;
+      const meta = getTab1MethodAndConclusion(state.modelId, info);
+      const eff = state.showAllSteps ? info.stepDesc.length : state.step;
+
+      body.innerHTML = `
+        <div class="proof-part">
+          <div class="proof-part-title">Phần 1 • Phân tích &amp; Phương pháp</div>
+          <div>${meta.method}</div>
+        </div>
+        <div class="proof-part">
+          <div class="proof-part-title">Phần 2 • Lời giải từng bước (B1 → B${info.stepDesc.length})</div>
+          <div style="display:flex; flex-direction:column; gap:6px;" id="proof-steps-slot"></div>
+        </div>
+        <div class="proof-part">
+          <div class="proof-part-title">Phần 3 • Kết luận &amp; Công thức</div>
+          <div style="font-weight:600; color:#c2410c;">${meta.conclusion}</div>
+        </div>
+      `;
+      const slotWrap = document.getElementById('proof-steps-slot');
+      info.stepDesc.forEach((desc, i) => {
+        const sNum = i + 1;
+        const row = document.createElement('div');
+        row.className = `sol-step ${sNum === eff ? 'current' : (sNum > eff ? 'dimmed' : '')}`;
+        row.innerHTML = `<div><span class="sol-badge">B${sNum}</span><span>${desc.replace(/^Bước\s*\d\/\d:\s*/i, '')}</span></div>`;
+        if (info.solutions[i]) {
+          const kDiv = document.createElement('div');
+          kDiv.style.marginTop = '4px';
+          kDiv.style.overflowX = 'auto';
+          row.appendChild(kDiv);
+          if (window.katex) katex.render(info.solutions[i], kDiv, { throwOnError: false });
+          else kDiv.textContent = info.solutions[i];
+        }
+        slotWrap.appendChild(row);
+      });
+      renderAllMath(body);
     }
 
     function setD1Sub(model, sub) {
@@ -4645,6 +4877,7 @@
         renderWorkshopUI();
       }
       rebuildScene();
+      renderAllMath(document.querySelector('.left-panel'));
     }
 
     function getWorkshopPolyhedron(shape) {
@@ -4663,12 +4896,48 @@
         ];
         return { vertices, edges, baseFace, sideFaces, topFace: null };
       }
+      if (shape === 'reg_tetra') {
+        const R = 2.1;
+        const B = new THREE.Vector3(-R * Math.sqrt(3) / 2, 0, R * 0.5);
+        const C = new THREE.Vector3(R * Math.sqrt(3) / 2, 0, R * 0.5);
+        const D = new THREE.Vector3(0, 0, -R);
+        const side = B.distanceTo(C);
+        const h = side * Math.sqrt(2 / 3);
+        const A = new THREE.Vector3(0, h, 0);
+        const vertices = { A, B, C, D };
+        const edges = [['A','B'],['A','C'],['A','D'],['B','C'],['B','D'],['C','D']];
+        const baseFace = [B, C, D];
+        const sideFaces = [
+          { pts: [A, B, C], hinge: [B, C] },
+          { pts: [A, C, D], hinge: [C, D] },
+          { pts: [A, D, B], hinge: [D, B] }
+        ];
+        return { vertices, edges, baseFace, sideFaces, topFace: null };
+      }
       if (shape === 'para_pyr') {
         const A = new THREE.Vector3(-2.3, 0, 1.5);
         const B = new THREE.Vector3(1.5, 0, 1.5);
         const C = new THREE.Vector3(2.3, 0, -1.5);
         const D = new THREE.Vector3(-1.5, 0, -1.5);
         const S = new THREE.Vector3(-0.2, 3.2, -0.2);
+        const vertices = { S, A, B, C, D };
+        const edges = [['S','A'],['S','B'],['S','C'],['S','D'],['A','B'],['B','C'],['C','D'],['D','A']];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [S, A, B], hinge: [A, B] },
+          { pts: [S, B, C], hinge: [B, C] },
+          { pts: [S, C, D], hinge: [C, D] },
+          { pts: [S, D, A], hinge: [D, A] }
+        ];
+        return { vertices, edges, baseFace, sideFaces, topFace: null };
+      }
+      if (shape === 'reg_pyr4') {
+        const s = 1.6, h = 3.1;
+        const A = new THREE.Vector3(-s, 0, s);
+        const B = new THREE.Vector3(s, 0, s);
+        const C = new THREE.Vector3(s, 0, -s);
+        const D = new THREE.Vector3(-s, 0, -s);
+        const S = new THREE.Vector3(0, h, 0);
         const vertices = { S, A, B, C, D };
         const edges = [['S','A'],['S','B'],['S','C'],['S','D'],['A','B'],['B','C'],['C','D'],['D','A']];
         const baseFace = [A, B, C, D];
@@ -4712,11 +4981,11 @@
         ];
         return { vertices, edges, baseFace, sideFaces, topFace: null };
       }
-      if (shape === 'prism') {
+      if (shape === 'prism' || shape === 'oblique_prism') {
         const A = new THREE.Vector3(-1.9, 0, 1.3);
         const B = new THREE.Vector3(1.9, 0, 1.3);
         const C = new THREE.Vector3(0, 0, -1.8);
-        const shift = new THREE.Vector3(0.4, 3.0, -0.2);
+        const shift = shape === 'oblique_prism' ? new THREE.Vector3(0.85, 3.0, -0.35) : new THREE.Vector3(0, 3.0, 0);
         const Ap = A.clone().add(shift);
         const Bp = B.clone().add(shift);
         const Cp = C.clone().add(shift);
@@ -4730,6 +4999,133 @@
         ];
         const topFace = { pts: [Ap, Bp, Cp], hingeTop: [Bp, Cp], hingeBase: [B, C] };
         return { vertices, edges, baseFace, sideFaces, topFace };
+      }
+      if (shape === 'box') {
+        const w = 1.9, d = 1.2, h = 2.6;
+        const A = new THREE.Vector3(-w, 0, d);
+        const B = new THREE.Vector3(w, 0, d);
+        const C = new THREE.Vector3(w, 0, -d);
+        const D = new THREE.Vector3(-w, 0, -d);
+        const Ap = new THREE.Vector3(-w, h, d);
+        const Bp = new THREE.Vector3(w, h, d);
+        const Cp = new THREE.Vector3(w, h, -d);
+        const Dp = new THREE.Vector3(-w, h, -d);
+        const vertices = { A, B, C, D, "A'": Ap, "B'": Bp, "C'": Cp, "D'": Dp };
+        const edges = [['A','B'],['B','C'],['C','D'],['D','A'],["A'","B'"],["B'","C'"],["C'","D'"],["D'","A'"],['A',"A'"],['B',"B'"],['C',"C'"],['D',"D'"]];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [A, B, Bp, Ap], hinge: [A, B] },
+          { pts: [B, C, Cp, Bp], hinge: [B, C] },
+          { pts: [C, D, Dp, Cp], hinge: [C, D] },
+          { pts: [D, A, Ap, Dp], hinge: [D, A] }
+        ];
+        const topFace = { pts: [Ap, Bp, Cp, Dp], hingeTop: [Cp, Dp], hingeBase: [C, D] };
+        return { vertices, edges, baseFace, sideFaces, topFace };
+      }
+      if (shape === 'oblique_box') {
+        const A = new THREE.Vector3(-2.0, 0, 1.3);
+        const B = new THREE.Vector3(1.2, 0, 1.3);
+        const C = new THREE.Vector3(2.0, 0, -1.2);
+        const D = new THREE.Vector3(-1.2, 0, -1.2);
+        const shift = new THREE.Vector3(0.75, 2.7, -0.35);
+        const Ap = A.clone().add(shift), Bp = B.clone().add(shift), Cp = C.clone().add(shift), Dp = D.clone().add(shift);
+        const vertices = { A, B, C, D, "A'": Ap, "B'": Bp, "C'": Cp, "D'": Dp };
+        const edges = [['A','B'],['B','C'],['C','D'],['D','A'],["A'","B'"],["B'","C'"],["C'","D'"],["D'","A'"],['A',"A'"],['B',"B'"],['C',"C'"],['D',"D'"]];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [A, B, Bp, Ap], hinge: [A, B] },
+          { pts: [B, C, Cp, Bp], hinge: [B, C] },
+          { pts: [C, D, Dp, Cp], hinge: [C, D] },
+          { pts: [D, A, Ap, Dp], hinge: [D, A] }
+        ];
+        const topFace = { pts: [Ap, Bp, Cp, Dp], hingeTop: [Cp, Dp], hingeBase: [C, D] };
+        return { vertices, edges, baseFace, sideFaces, topFace };
+      }
+      if (shape === 'octa') {
+        const r = 2.0, h = 2.0;
+        const A = new THREE.Vector3(-r, 0, 0);
+        const B = new THREE.Vector3(0, 0, r);
+        const C = new THREE.Vector3(r, 0, 0);
+        const D = new THREE.Vector3(0, 0, -r);
+        const S = new THREE.Vector3(0, h, 0);
+        const Sp = new THREE.Vector3(0, -h, 0);
+        const vertices = { S, A, B, C, D, "S'": Sp };
+        const edges = [
+          ['S','A'],['S','B'],['S','C'],['S','D'],
+          ["S'",'A'],["S'",'B'],["S'",'C'],["S'",'D'],
+          ['A','B'],['B','C'],['C','D'],['D','A']
+        ];
+        const baseFace = [S, A, B];
+        const sideFaces = [
+          { pts: [S, B, C], hinge: [S, B] },
+          { pts: [S, C, D], hinge: [S, C] },
+          { pts: [S, D, A], hinge: [S, D] },
+          { pts: [Sp, B, A], hinge: [A, B] },
+          { pts: [Sp, C, B], hinge: [B, C] },
+          { pts: [Sp, D, C], hinge: [C, D] },
+          { pts: [Sp, A, D], hinge: [D, A] }
+        ];
+        return { vertices, edges, baseFace, sideFaces, topFace: null };
+      }
+      if (shape === 'frustum') {
+        const s1 = 1.9, s2 = 1.0, h = 2.6;
+        const A = new THREE.Vector3(-s1, 0, s1), B = new THREE.Vector3(s1, 0, s1);
+        const C = new THREE.Vector3(s1, 0, -s1), D = new THREE.Vector3(-s1, 0, -s1);
+        const Ap = new THREE.Vector3(-s2, h, s2), Bp = new THREE.Vector3(s2, h, s2);
+        const Cp = new THREE.Vector3(s2, h, -s2), Dp = new THREE.Vector3(-s2, h, -s2);
+        const vertices = { A, B, C, D, "A'": Ap, "B'": Bp, "C'": Cp, "D'": Dp };
+        const edges = [['A','B'],['B','C'],['C','D'],['D','A'],["A'","B'"],["B'","C'"],["C'","D'"],["D'","A'"],['A',"A'"],['B',"B'"],['C',"C'"],['D',"D'"]];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [A, B, Bp, Ap], hinge: [A, B] },
+          { pts: [B, C, Cp, Bp], hinge: [B, C] },
+          { pts: [C, D, Dp, Cp], hinge: [C, D] },
+          { pts: [D, A, Ap, Dp], hinge: [D, A] }
+        ];
+        const topFace = { pts: [Ap, Bp, Cp, Dp], hingeTop: [Cp, Dp], hingeBase: [C, D] };
+        return { vertices, edges, baseFace, sideFaces, topFace };
+      }
+      if (shape === 'cone') {
+        const R = 1.95, h = 3.1;
+        const O = new THREE.Vector3(0, 0, 0);
+        const S = new THREE.Vector3(0, h, 0);
+        const A = new THREE.Vector3(-R, 0, 0);
+        const B = new THREE.Vector3(0, 0, R);
+        const C = new THREE.Vector3(R, 0, 0);
+        const D = new THREE.Vector3(0, 0, -R);
+        const vertices = { S, O, A, B, C, D };
+        const edges = [['S','O'],['S','A'],['S','B'],['S','C'],['S','D'],['A','B'],['B','C'],['C','D'],['D','A'],['A','C'],['B','D']];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [S, A, B], hinge: [A, B] },
+          { pts: [S, B, C], hinge: [B, C] },
+          { pts: [S, C, D], hinge: [C, D] },
+          { pts: [S, D, A], hinge: [D, A] }
+        ];
+        return { vertices, edges, baseFace, sideFaces, topFace: null, isRound: 'cone', R, h };
+      }
+      if (shape === 'cylinder') {
+        const R = 1.85, h = 3.0;
+        const O = new THREE.Vector3(0, 0, 0);
+        const Op = new THREE.Vector3(0, h, 0);
+        const A = new THREE.Vector3(-R, 0, 0), B = new THREE.Vector3(0, 0, R), C = new THREE.Vector3(R, 0, 0), D = new THREE.Vector3(0, 0, -R);
+        const Ap = new THREE.Vector3(-R, h, 0), Bp = new THREE.Vector3(0, h, R), Cp = new THREE.Vector3(R, h, 0), Dp = new THREE.Vector3(0, h, -R);
+        const vertices = { O, "O'": Op, A, B, C, D, "A'": Ap, "B'": Bp, "C'": Cp, "D'": Dp };
+        const edges = [
+          ['O',"O'"],
+          ['A','B'],['B','C'],['C','D'],['D','A'],
+          ["A'","B'"],["B'","C'"],["C'","D'"],["D'","A'"],
+          ['A',"A'"],['B',"B'"],['C',"C'"],['D',"D'"]
+        ];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [A, B, Bp, Ap], hinge: [A, B] },
+          { pts: [B, C, Cp, Bp], hinge: [B, C] },
+          { pts: [C, D, Dp, Cp], hinge: [C, D] },
+          { pts: [D, A, Ap, Dp], hinge: [D, A] }
+        ];
+        const topFace = { pts: [Ap, Bp, Cp, Dp], hingeTop: [Cp, Dp], hingeBase: [C, D] };
+        return { vertices, edges, baseFace, sideFaces, topFace, isRound: 'cylinder', R, h };
       }
       // cube
       const h = 1.4, s = 2.8;
@@ -4835,13 +5231,22 @@
       }
 
       // NORMAL 3D SOLID + AUXILIARY POINTS + PLANE INTERSECTION MODE
-      const faceOp = state.examExportMode ? 0.02 : (state.xray ? 0.14 : 0.62);
+      const faceOp = poly.isRound ? 0.04 : (state.examExportMode ? 0.02 : (state.xray ? 0.14 : 0.62));
       const allFaces = [poly.baseFace, ...poly.sideFaces.map(sf => sf.pts)];
       if (poly.topFace) allFaces.push(poly.topFace.pts);
       const faceDataList = allFaces.map(f => {
         addFace(f, tc.face, faceOp);
         return makeFaceData(f, centroid);
       });
+
+      if (poly.isRound === 'cone') {
+        addGlassCone(poly.vertices.O, poly.R, poly.h, 0x38bdf8, state.xray ? 0.22 : 0.36);
+        addCircle3D(poly.vertices.O, poly.R, tc.edge, new THREE.Vector3(0, 1, 0), 0.018);
+      } else if (poly.isRound === 'cylinder') {
+        addGlassCylinder(poly.vertices.O, poly.R, poly.h, 0x38bdf8, state.xray ? 0.22 : 0.36);
+        addCircle3D(poly.vertices.O, poly.R, tc.edge, new THREE.Vector3(0, 1, 0), 0.018);
+        addCircle3D(poly.vertices["O'"], poly.R, tc.edge, new THREE.Vector3(0, 1, 0), 0.018);
+      }
 
       // Match each edge to its 2 adjacent faces for dynamic hidden-line removal
       poly.edges.forEach(([uName, vName]) => {
@@ -5046,6 +5451,107 @@
       }
 
       renderWorkshopPerpMeasurement(poly, allFaces, pointMap, pointLabelMap, sectionInterPts, centroid, wsStep);
+      renderProofDrawerTab2(poly, pointLabelMap, sectionInterPts, wsStep);
+      renderAllMath(document.getElementById('hud-step-desc'));
+      renderAllMath(document.getElementById('ws-section-result'));
+      renderAllMath(document.getElementById('ws-perp-result'));
+      renderAllMath(document.getElementById('proof-drawer-body'));
+    }
+
+    function renderProofDrawerTab2(poly, pointLabelMap, sectionInterPts, wsStep) {
+      const body = document.getElementById('proof-drawer-body');
+      if (!body) return;
+      const ws = state.workshop;
+      const shapeName = document.getElementById('ws-shape')?.selectedOptions[0]?.textContent || ws.shape;
+      const auxDesc = ws.auxPoints.length > 0
+        ? ws.auxPoints.map(a => `$${a.name} \\in ${edgeLabel(a.edge)}$ ($k = ${a.k.toFixed(2)}$)`).join('; ')
+        : 'Chưa đặt thêm điểm phụ trên cạnh.';
+
+      const faceLabels = getFaceLabels(ws.shape);
+      const secResText = document.getElementById('ws-section-result')?.innerText || '';
+      const perpResText = document.getElementById('ws-perp-result')?.innerText || '';
+      const perimTxt = document.getElementById('ws-perim')?.textContent || '—';
+      const areaTxt = document.getElementById('ws-area')?.textContent || '—';
+
+      let methodText = 'Dựng mặt phẳng cắt $(\\alpha)$ và xác định các đoạn giao tuyến với từng mặt của khối đa diện.';
+      let stepsHtml = '';
+      let conclusionHtml = '';
+
+      if (ws.perp && ws.perp.mode !== 'none') {
+        const ptLbl = pointLabelMap[ws.perp.ptId] || ws.perp.ptId;
+        const pName = ws.perp.planeIdx === 'section' ? '$(\\alpha)$' : (faceLabels[ws.perp.planeIdx] || 'mặt phẳng');
+        if (ws.perp.mode === 'dist_pt_plane') {
+          methodText = 'Phép chiếu vuông góc: Từ điểm $M$ dựng đường thẳng vuông góc với mặt phẳng $(\\alpha)$ để tìm chân đường vuông góc $H$.';
+          stepsHtml = `
+            <div class="sol-step ${wsStep===1?'current':''}"><span class="sol-badge">B1</span><span>Dựng khung khối <strong>${shapeName}</strong>.</span></div>
+            <div class="sol-step ${wsStep===2?'current':''}"><span class="sol-badge">B2</span><span>Xác định điểm $${ptLbl}$ và mặt phẳng ${pName}.</span></div>
+            <div class="sol-step ${wsStep===3?'current':''}"><span class="sol-badge">B3</span><span>Xác định chân đường chiếu vuông góc $H \\in$ ${pName} sao cho $${ptLbl}H \\perp$ ${pName}.</span></div>
+            <div class="sol-step ${wsStep>=4?'current':''}"><span class="sol-badge">B4</span><span>Kẻ đoạn vuông góc $${ptLbl}H$ (ký hiệu góc vuông tại $H$). Khi đó $d(${ptLbl}, \\text{mp}) = ${ptLbl}H$.</span></div>
+          `;
+          conclusionHtml = perpResText || `Khoảng cách từ $${ptLbl}$ đến ${pName} bằng độ dài đoạn $${ptLbl}H$.`;
+        } else if (ws.perp.mode === 'dist_skew') {
+          const l1 = edgeLabel(ws.perp.line1), l2 = edgeLabel(ws.perp.line2);
+          methodText = 'Dựng đoạn vuông góc chung $PQ$ của hai đường thẳng chéo nhau $d_1, d_2$ (hoặc mặt phẳng phụ chứa $d_2$ song song $d_1$).';
+          stepsHtml = `
+            <div class="sol-step ${wsStep===1?'current':''}"><span class="sol-badge">B1</span><span>Dựng khung khối <strong>${shapeName}</strong>.</span></div>
+            <div class="sol-step ${wsStep===2?'current':''}"><span class="sol-badge">B2</span><span>Xét hai đường thẳng chéo nhau $d_1 = ${l1}$ và $d_2 = ${l2}$.</span></div>
+            <div class="sol-step ${wsStep===3?'current':''}"><span class="sol-badge">B3</span><span>Dựng mặt phẳng phụ $(P)$ chứa $${l2}$ và $(P) \\parallel ${l1} \\Rightarrow d(${l1}, ${l2}) = d(${l1}, (P))$.</span></div>
+            <div class="sol-step ${wsStep>=4?'current':''}"><span class="sol-badge">B4</span><span>Xác định đoạn vuông góc chung $PQ$ ($P \\in ${l1},\\; Q \\in ${l2},\\; PQ \\perp ${l1},\\; PQ \\perp ${l2}$).</span></div>
+          `;
+          conclusionHtml = perpResText || `Khoảng cách giữa $${l1}$ và $${l2}$ bằng độ dài $PQ$.`;
+        } else {
+          methodText = ws.perp.angleSub === 'line_plane'
+            ? 'Xác định hình chiếu của đường thẳng lên mặt phẳng; góc giữa đường thẳng và mặt phẳng là góc giữa đường thẳng và hình chiếu.'
+            : 'Tìm giao tuyến $\\Delta$ của hai mặt phẳng, dựng hai tia nằm trong hai mặt cùng vuông góc với $\\Delta$ tại một điểm.';
+          stepsHtml = `
+            <div class="sol-step ${wsStep===1?'current':''}"><span class="sol-badge">B1</span><span>Dựng khung khối <strong>${shapeName}</strong>.</span></div>
+            <div class="sol-step ${wsStep===2?'current':''}"><span class="sol-badge">B2</span><span>Xác định các đối tượng cần đo góc trên hình.</span></div>
+            <div class="sol-step ${wsStep===3?'current':''}"><span class="sol-badge">B3</span><span>Dựng hình chiếu vuông góc / giao tuyến $\\Delta$ để đưa về góc phẳng.</span></div>
+            <div class="sol-step ${wsStep>=4?'current':''}"><span class="sol-badge">B4</span><span>Tô sáng cung góc và tính số đo góc theo hệ thức lượng.</span></div>
+          `;
+          conclusionHtml = perpResText || 'Số đo góc được hiển thị trực tiếp trên sân khấu 3D.';
+        }
+      } else {
+        let planeRule = '';
+        if (ws.planeMode === '3pts') {
+          const pts = ws.selectedPlanePts.map(id => pointLabelMap[id] || id).join('');
+          planeRule = `Mặt phẳng cắt $(\\alpha)$ đi qua $3$ điểm $(${pts || '\\dots'})$.`;
+        } else if (ws.planeMode === '1pt_2lines') {
+          planeRule = `Mặt phẳng $(\\alpha)$ qua $${pointLabelMap[ws.pt1] || ws.pt1}$ và song song $${edgeLabel(ws.line1)},\\; ${edgeLabel(ws.line2)}$.`;
+          methodText = 'Áp dụng định lý giao tuyến song song: qua điểm đã cho kẻ các đường thẳng song song với hai phương đã biết.';
+        } else {
+          planeRule = `Mặt phẳng $(\\alpha)$ qua $${pointLabelMap[ws.pt1] || ws.pt1}$ và song song ${faceLabels[ws.refFace] || 'mặt phẳng'}.`;
+          methodText = 'Hai mặt phẳng song song bị cắt bởi mặt phẳng thứ ba cho các giao tuyến song song.';
+        }
+        const nPts = sectionInterPts ? sectionInterPts.length : 0;
+        const segDesc = nPts >= 3
+          ? `Tìm được $${nPts}$ đỉnh cắt tạo thành chu trình giao tuyến khép kín qua $${nPts}$ mặt của khối đa diện.`
+          : 'Chọn đủ dữ kiện mặt phẳng cắt $(\\alpha)$ để xác định các đoạn giao tuyến.';
+        stepsHtml = `
+          <div class="sol-step ${wsStep===1?'current':''}"><span class="sol-badge">B1</span><span>Dựng khung <strong>${shapeName}</strong>.</span></div>
+          <div class="sol-step ${wsStep===2?'current':''}"><span class="sol-badge">B2</span><span>Điểm giả thiết: ${auxDesc}</span></div>
+          <div class="sol-step ${wsStep===3?'current':''}"><span class="sol-badge">B3</span><span>${planeRule}</span></div>
+          <div class="sol-step ${wsStep>=4?'current':''}"><span class="sol-badge">B4</span><span>${segDesc}</span></div>
+        `;
+        conclusionHtml = nPts >= 3
+          ? `${secResText} • Chu vi: <strong>${perimTxt}</strong> | Diện tích: <strong>${areaTxt}</strong>`
+          : 'Chưa có thiết diện khép kín.';
+      }
+
+      body.innerHTML = `
+        <div class="proof-part">
+          <div class="proof-part-title">Phần 1 • Phân tích &amp; Phương pháp</div>
+          <div>${methodText}</div>
+        </div>
+        <div class="proof-part">
+          <div class="proof-part-title">Phần 2 • Lời giải tự luận từng bước</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">${stepsHtml}</div>
+        </div>
+        <div class="proof-part">
+          <div class="proof-part-title">Phần 3 • Kết luận &amp; Kết quả</div>
+          <div style="font-weight:600; color:#c2410c;">${conclusionHtml}</div>
+        </div>
+      `;
     }
 
     function getWorkshopLinePairs(poly) {
@@ -5270,17 +5776,23 @@
       const shape = state.workshop.shape;
       let map = {};
       if (preset === 'mnpq') {
-        if (shape === 'tetra') map = { A: 'M', B: 'N', C: 'P', D: 'Q' };
-        else if (shape === 'para_pyr' || shape === 'trap_pyr') map = { S: 'S', A: 'M', B: 'N', C: 'P', D: 'Q' };
+        if (shape === 'tetra' || shape === 'reg_tetra') map = { A: 'M', B: 'N', C: 'P', D: 'Q' };
+        else if (shape === 'para_pyr' || shape === 'trap_pyr' || shape === 'reg_pyr4') map = { S: 'S', A: 'M', B: 'N', C: 'P', D: 'Q' };
         else if (shape === 'right_pyr') map = { S: 'S', A: 'M', B: 'N', C: 'P' };
-        else if (shape === 'prism') map = { A: 'M', B: 'N', C: 'P', "A'": "M'", "B'": "N'", "C'": "P'" };
-        else if (shape === 'cube') map = { A: 'M', B: 'N', C: 'P', D: 'Q', "A'": "M'", "B'": "N'", "C'": "P'", "D'": "Q'" };
+        else if (shape === 'prism' || shape === 'oblique_prism') map = { A: 'M', B: 'N', C: 'P', "A'": "M'", "B'": "N'", "C'": "P'" };
+        else if (shape === 'octa') map = { S: 'S', A: 'M', B: 'N', C: 'P', D: 'Q', "S'": "S'" };
+        else if (shape === 'cone') map = { S: 'S', O: 'O', A: 'M', B: 'N', C: 'P', D: 'Q' };
+        else if (shape === 'cylinder') map = { O: 'O', "O'": "O'", A: 'M', B: 'N', C: 'P', D: 'Q', "A'": "M'", "B'": "N'", "C'": "P'", "D'": "Q'" };
+        else map = { A: 'M', B: 'N', C: 'P', D: 'Q', "A'": "M'", "B'": "N'", "C'": "P'", "D'": "Q'" };
       } else if (preset === 'efgh') {
-        if (shape === 'tetra') map = { A: 'E', B: 'F', C: 'G', D: 'H' };
-        else if (shape === 'para_pyr' || shape === 'trap_pyr') map = { S: 'S', A: 'E', B: 'F', C: 'G', D: 'H' };
+        if (shape === 'tetra' || shape === 'reg_tetra') map = { A: 'E', B: 'F', C: 'G', D: 'H' };
+        else if (shape === 'para_pyr' || shape === 'trap_pyr' || shape === 'reg_pyr4') map = { S: 'S', A: 'E', B: 'F', C: 'G', D: 'H' };
         else if (shape === 'right_pyr') map = { S: 'S', A: 'E', B: 'F', C: 'G' };
-        else if (shape === 'prism') map = { A: 'E', B: 'F', C: 'G', "A'": "E'", "B'": "F'", "C'": "G'" };
-        else if (shape === 'cube') map = { A: 'E', B: 'F', C: 'G', D: 'H', "A'": "E'", "B'": "F'", "C'": "G'", "D'": "H'" };
+        else if (shape === 'prism' || shape === 'oblique_prism') map = { A: 'E', B: 'F', C: 'G', "A'": "E'", "B'": "F'", "C'": "G'" };
+        else if (shape === 'octa') map = { S: 'S', A: 'E', B: 'F', C: 'G', D: 'H', "S'": "S'" };
+        else if (shape === 'cone') map = { S: 'S', O: 'O', A: 'E', B: 'F', C: 'G', D: 'H' };
+        else if (shape === 'cylinder') map = { O: 'O', "O'": "O'", A: 'E', B: 'F', C: 'G', D: 'H', "A'": "E'", "B'": "F'", "C'": "G'", "D'": "H'" };
+        else map = { A: 'E', B: 'F', C: 'G', D: 'H', "A'": "E'", "B'": "F'", "C'": "G'", "D'": "H'" };
       }
       state.workshop.vertexNames = map;
       renderWorkshopUI();
@@ -5399,8 +5911,16 @@
       }
 
       const auxList = document.getElementById('ws-aux-list');
+      const auxChips = document.getElementById('ws-aux-chips');
+      const auxCount = document.getElementById('ws-aux-count');
+      if (auxCount) auxCount.textContent = ws.auxPoints.length > 0 ? `${ws.auxPoints.length} điểm` : '';
+      if (auxChips) {
+        auxChips.innerHTML = ws.auxPoints.length === 0
+          ? '<span style="font-size:11px; color:#64748b;">Chưa có điểm phụ</span>'
+          : ws.auxPoints.map(a => `<span class="aux-chip">${a.name} ∈ ${edgeLabel(a.edge)} (${a.k.toFixed(2)})</span>`).join('');
+      }
       auxList.innerHTML = ws.auxPoints.length === 0
-        ? '<div style="font-size:12px; color:#64748b;">Chưa có điểm phụ. Bấm "+ Thêm điểm phụ" để tạo điểm phụ...</div>'
+        ? '<div style="font-size:11.5px; color:#64748b;">Bấm "+ Thêm" để đặt điểm phụ trên cạnh.</div>'
         : '';
 
       ws.auxPoints.forEach((ap, idx) => {
@@ -5422,11 +5942,11 @@
           <div style="display:flex; align-items:center; gap:5px;">
             <input id="aux-rng-${idx}" type="range" min="0.10" max="0.90" step="0.01" value="${ap.k}" style="flex:1;" oninput="updateAuxK(${idx}, +this.value)" />
             <div class="preset-row" style="margin:0; gap:2px; flex-shrink:0;">
-              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.25)">1/4</button>
-              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.333)">1/3</button>
-              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.50)">1/2</button>
-              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.667)">2/3</button>
-              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.75)">3/4</button>
+              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.25)">$\frac{1}{4}$</button>
+              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.333)">$\frac{1}{3}$</button>
+              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.50)">$\frac{1}{2}$</button>
+              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.667)">$\frac{2}{3}$</button>
+              <button class="preset-btn" style="padding:2px 4px; font-size:10px;" onclick="updateAuxK(${idx}, 0.75)">$\frac{3}{4}$</button>
             </div>
           </div>
         `;
@@ -5435,6 +5955,8 @@
 
       renderWorkshopDynamicSections();
       renderSavedProblemsList();
+      renderAllMath(document.getElementById('ws-aux-list'));
+      renderAllMath(document.getElementById('ws-aux-chips'));
     }
 
     function renderWorkshopDynamicSections() {
@@ -5651,7 +6173,7 @@
 
     function getFaceLabels(shape) {
       const L = vLabel;
-      if (shape === 'tetra') return [
+      if (shape === 'tetra' || shape === 'reg_tetra') return [
         `Đáy (${L('B')}${L('C')}${L('D')})`,
         `Mặt (${L('A')}${L('B')}${L('C')})`,
         `Mặt (${L('A')}${L('C')}${L('D')})`,
@@ -5663,14 +6185,24 @@
         `Mặt (${L('S')}${L('B')}${L('C')})`,
         `Mặt (${L('S')}${L('C')}${L('A')})`
       ];
-      if (shape === 'prism') return [
+      if (shape === 'prism' || shape === 'oblique_prism') return [
         `Đáy (${L('A')}${L('B')}${L('C')})`,
         `Mặt (${L('A')}${L('B')}${L("B'")}${L("A'")})`,
         `Mặt (${L('B')}${L('C')}${L("C'")}${L("B'")})`,
         `Mặt (${L('C')}${L('A')}${L("A'")}${L("C'")})`,
         `Đáy trên (${L("A'")}${L("B'")}${L("C'")})`
       ];
-      if (shape === 'cube') return [
+      if (shape === 'octa') return [
+        `Mặt (${L('S')}${L('A')}${L('B')})`,
+        `Mặt (${L('S')}${L('B')}${L('C')})`,
+        `Mặt (${L('S')}${L('C')}${L('D')})`,
+        `Mặt (${L('S')}${L('D')}${L('A')})`,
+        `Mặt (${L("S'")}${L('B')}${L('A')})`,
+        `Mặt (${L("S'")}${L('C')}${L('B')})`,
+        `Mặt (${L("S'")}${L('D')}${L('C')})`,
+        `Mặt (${L("S'")}${L('A')}${L('D')})`
+      ];
+      if (shape === 'cube' || shape === 'box' || shape === 'oblique_box' || shape === 'frustum' || shape === 'cylinder') return [
         `Đáy (${L('A')}${L('B')}${L('C')}${L('D')})`,
         `Mặt (${L('A')}${L('B')}${L("B'")}${L("A'")})`,
         `Mặt (${L('B')}${L('C')}${L("C'")}${L("B'")})`,
@@ -6018,15 +6550,54 @@
       if (/lập\s*phương/.test(lower)) {
         shape = 'cube';
         shapeDesc = 'Hình lập phương';
+      } else if (/bát\s*diện\s*đều/.test(lower)) {
+        shape = 'octa';
+        shapeDesc = 'Hình bát diện đều';
+      } else if (/chóp\s*cụt/.test(lower)) {
+        shape = 'frustum';
+        shapeDesc = 'Hình chóp cụt tứ giác đều';
+      } else if (/hình\s*nón/.test(lower)) {
+        shape = 'cone';
+        shapeDesc = 'Hình nón';
+      } else if (/hình\s*trụ/.test(lower)) {
+        shape = 'cylinder';
+        shapeDesc = 'Hình trụ';
+      } else if (/hình\s*hộp\s*chữ\s*nhật/.test(lower)) {
+        shape = 'box';
+        shapeDesc = 'Hình hộp chữ nhật';
+      } else if (/hình\s*hộp/.test(lower)) {
+        shape = 'oblique_box';
+        shapeDesc = 'Hình hộp';
+      } else if (/lăng\s*trụ\s*xiên/.test(lower)) {
+        shape = 'oblique_prism';
+        shapeDesc = 'Lăng trụ tam giác xiên';
       } else if (/lăng\s*trụ/.test(lower)) {
         shape = 'prism';
-        shapeDesc = 'Lăng trụ tam giác';
+        shapeDesc = /lăng\s*trụ\s*đứng/.test(lower) ? 'Lăng trụ tam giác đứng' : 'Lăng trụ tam giác';
+      } else if (/tứ\s*diện\s*đều/.test(lower)) {
+        shape = 'reg_tetra';
+        const mTet = raw.match(/tứ\s*diện\s*đều\s*([A-Z])([A-Z])([A-Z])([A-Z])/);
+        if (mTet) {
+          vMap = { A: mTet[1], B: mTet[2], C: mTet[3], D: mTet[4] };
+          shapeDesc = `Tứ diện đều ${mTet[1]}${mTet[2]}${mTet[3]}${mTet[4]}`;
+        } else {
+          shapeDesc = 'Tứ diện đều';
+        }
       } else if (/tứ\s*diện/.test(lower)) {
         shape = 'tetra';
-        const mTet = raw.match(/tứ\s*diện\s*(?:đều\s*)?([A-Z])([A-Z])([A-Z])([A-Z])/);
+        const mTet = raw.match(/tứ\s*diện\s*([A-Z])([A-Z])([A-Z])([A-Z])/);
         if (mTet) {
           vMap = { A: mTet[1], B: mTet[2], C: mTet[3], D: mTet[4] };
           shapeDesc = `Tứ diện ${mTet[1]}${mTet[2]}${mTet[3]}${mTet[4]}`;
+        }
+      } else if (/chóp\s*tứ\s*giác\s*đều/.test(lower)) {
+        shape = 'reg_pyr4';
+        const mPyr4 = raw.match(/chóp\s*tứ\s*giác\s*đều\s*([A-Z])\.([A-Z])([A-Z])([A-Z])([A-Z])/);
+        if (mPyr4) {
+          vMap = { S: mPyr4[1], A: mPyr4[2], B: mPyr4[3], C: mPyr4[4], D: mPyr4[5] };
+          shapeDesc = `Hình chóp tứ giác đều ${mPyr4[1]}.${mPyr4[2]}${mPyr4[3]}${mPyr4[4]}${mPyr4[5]}`;
+        } else {
+          shapeDesc = 'Hình chóp tứ giác đều S.ABCD';
         }
       } else if (/hình\s*chóp|chóp/.test(lower)) {
         const mPyr4 = raw.match(/chóp\s*(?:tứ\s*giác\s*(?:đều\s*)?)?([A-Z])\.([A-Z])([A-Z])([A-Z])([A-Z])/);
@@ -6297,6 +6868,7 @@
       if (secRes && secRes.includes('Thiết diện')) logs.push(secRes);
       logEl.style.display = 'block';
       logEl.innerHTML = logs.join('<br>');
+      renderAllMath(logEl);
     }
 
     function resize3DStage() {
@@ -6316,8 +6888,40 @@
         btn.textContent = isFocus ? '▶ Mở bảng điều khiển' : '◀ Thu gọn bảng bên';
         btn.classList.toggle('active-dock', isFocus);
       }
+      const hdrBtn = document.getElementById('btn-hdr-focus');
+      if (hdrBtn) {
+        hdrBtn.innerHTML = isFocus ? '<span>◧ Hiện bảng bên</span>' : '<span>⛶ Toàn màn hình</span>';
+      }
       resize3DStage();
       setTimeout(resize3DStage, 270);
+    }
+
+    function toggleProofDrawer() {
+      const dr = document.getElementById('proof-drawer');
+      const btn = document.getElementById('btn-proof-toggle');
+      if (!dr) return;
+      const open = dr.classList.toggle('open');
+      if (btn) btn.classList.toggle('active-dock', open);
+    }
+
+    function toggleUtilsPopover() {
+      const pop = document.getElementById('utils-popover');
+      const btn = document.getElementById('btn-utils-menu');
+      if (!pop) return;
+      const open = pop.classList.toggle('open');
+      if (btn) btn.classList.toggle('active-dock', open);
+    }
+
+    function switchWsMeasureTab(tab) {
+      const isSec = tab === 'sec';
+      const pSec = document.getElementById('ws-panel-sec');
+      const pPerp = document.getElementById('ws-panel-perp');
+      const bSec = document.getElementById('ws-mtab-sec');
+      const bPerp = document.getElementById('ws-mtab-perp');
+      if (pSec) pSec.style.display = isSec ? 'block' : 'none';
+      if (pPerp) pPerp.style.display = isSec ? 'none' : 'block';
+      if (bSec) bSec.classList.toggle('active', isSec);
+      if (bPerp) bPerp.classList.toggle('active', !isSec);
     }
 
     window.addEventListener('resize', resize3DStage);
@@ -6337,7 +6941,34 @@
       renderer.render(scene, camera);
     }
 
+    function renderAllMath(target = document.body) {
+      if (!window.renderMathInElement || !target) return;
+      try {
+        renderMathInElement(target, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false,
+          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        });
+      } catch (e) {}
+    }
+
     window.addEventListener('load', () => {
+      // Single-open Accordion behavior in Tab 1
+      document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => {
+        acc.addEventListener('toggle', () => {
+          if (acc.open) {
+            document.querySelectorAll('#tab1-panel .acc-group').forEach(other => {
+              if (other !== acc) other.open = false;
+            });
+          }
+        });
+      });
+
       // Decorate model buttons with color-coded badges (VD / TN / Đ/S)
       document.querySelectorAll('#tab1-panel .model-btn').forEach(btn => {
         const id = btn.id;
@@ -6354,6 +6985,7 @@
       });
       resizeDrawOverlay();
       selectModel('vd1');
+      renderAllMath(document.body);
       animate();
     });
   </script>
