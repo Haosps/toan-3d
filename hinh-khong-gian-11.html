@@ -869,6 +869,7 @@
     <div class="main-tabs" role="tablist">
       <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho chuyên đề</button>
       <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">🛠️ Xưởng AI</button>
+      <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">📐 Hình phẳng 2D</button>
     </div>
     <div class="header-right">
       <button class="theme-pill" id="btn-theme" onclick="toggleTheme()" title="Đổi nền Sáng / Tối (Studio 3D)">
@@ -1064,6 +1065,15 @@
                 <option value="cone">Hình Nón (đỉnh S, tâm O, bán kính R)</option>
                 <option value="cylinder">Hình Trụ (hai đáy tâm O, O', bán kính R)</option>
               </optgroup>
+              <optgroup label="4. Đa Diện Nâng Cao &amp; 5 Khối Đều">
+                <option value="pent_pyr">Hình chóp ngũ giác S.ABCDE</option>
+                <option value="hex_pyr">Hình chóp lục giác đều S.ABCDEF</option>
+                <option value="reg_prism4">Lăng trụ tứ giác đều ABCD.A'B'C'D'</option>
+                <option value="hex_prism">Lăng trụ lục giác đều ABCDEF.A'..F'</option>
+                <option value="frustum3">Hình chóp cụt tam giác đều ABC.A'B'C'</option>
+                <option value="dodeca">Khối thập nhị diện đều (12 mặt ngũ giác)</option>
+                <option value="icosa">Khối nhị thập diện đều (20 mặt tam giác)</option>
+              </optgroup>
             </select>
             <div style="margin-top:7px;">
               <div class="preset-row" style="margin-top:0;">
@@ -1158,11 +1168,59 @@
           </div>
         </details>
       </div>
+
+      <!-- TAB 3: XƯỞNG HÌNH HỌC PHẲNG 2D (LỚP 9 & 10) -->
+      <div id="tab3-panel" style="display:none; flex-direction:column; gap:8px;">
+        <section class="card">
+          <div class="card-title"><span>1. Chọn hình phẳng chuẩn (2D)</span></div>
+          <select id="p2d-shape" class="aux-select" style="width:100%; padding:7px 8px; font-size:12.5px;" onchange="state.plane2d.shape=this.value; rebuildScene();">
+            <optgroup label="Tam giác &amp; Đường tròn">
+              <option value="tri_any">Tam giác thường ABC</option>
+              <option value="tri_right">Tam giác vuông ABC (tại A, đường cao AH)</option>
+              <option value="tri_iso">Tam giác cân ABC (AB = AC)</option>
+              <option value="tri_eq">Tam giác đều ABC</option>
+              <option value="circle_tri">Đường tròn ngoại tiếp &amp; nội tiếp ΔABC</option>
+              <option value="circle_tan">Đường tròn (O; R), dây cung &amp; tiếp tuyến MA, MB</option>
+            </optgroup>
+            <optgroup label="Tứ giác đặc biệt">
+              <option value="trap">Hình thang cân ABCD (AB // CD)</option>
+              <option value="para">Hình bình hành ABCD</option>
+              <option value="rhombus">Hình thoi ABCD</option>
+              <option value="cyclic_quad">Tứ giác nội tiếp ABCD</option>
+            </optgroup>
+          </select>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>2. Yếu tố dựng hình 2D</span></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px; color:#334155;">
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-mid" checked onchange="state.plane2d.showMid=this.checked; rebuildScene();" /> Trung điểm</label>
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-alt" checked onchange="state.plane2d.showAlt=this.checked; rebuildScene();" /> Đường cao &amp; $H$</label>
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-cent" onchange="state.plane2d.showCent=this.checked; rebuildScene();" /> Trọng tâm $G$</label>
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-circ" onchange="state.plane2d.showCirc=this.checked; rebuildScene();" /> Ngoại tiếp $(O)$</label>
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-inc" onchange="state.plane2d.showInc=this.checked; rebuildScene();" /> Nội tiếp $(I)$</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>3. Công thức &amp; Hệ thức lượng (KaTeX)</span></div>
+          <div id="tab3-formulas" style="display:flex; flex-direction:column; gap:6px; font-size:12px;"></div>
+        </section>
+      </div>
     </aside>
 
     <!-- Right 70%: Three.js 3D Stage -->
     <section class="right-stage" id="right-stage">
       <div id="canvas3d"></div>
+      <div id="plane2d-stage" style="display:none; position:absolute; inset:0; background:#ffffff; z-index:4;">
+        <canvas id="canvas2d" style="width:100%; height:100%; display:block;"></canvas>
+        <div id="plane2d-bar" style="position:absolute; top:56px; left:14px; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,0.94); border:1px solid #cbd5e1; border-radius:9px; padding:5px 9px; box-shadow:0 4px 12px rgba(15,23,42,0.1); z-index:6; font-size:12px;">
+          <span style="font-weight:700; color:#1e3a8a;">📐 Góc nhìn Phẳng 2D:</span>
+          <button class="step-btn active-tool" id="btn-2d-base" onclick="set2DExtractSource('base')">Mặt đáy</button>
+          <button class="step-btn" id="btn-2d-sec" onclick="set2DExtractSource('section')">Mặt thiết diện</button>
+          <button class="step-btn" onclick="close2DOverlay()" style="color:#dc2626; margin-left:4px;">✕ Quay lại 3D</button>
+        </div>
+      </div>
       <canvas id="drawOverlay"></canvas>
 
       <div class="stage-toolbar">
@@ -1188,6 +1246,7 @@
             <button class="step-btn" onclick="undoDrawOverlay()" title="Hoàn tác nét vừa vẽ">↩️ Hoàn tác</button>
             <button class="step-btn" onclick="clearDrawOverlay()" title="Xóa toàn bộ bảng" style="color:#dc2626;">🗑️ Xóa hết</button>
           </div>
+          <button class="hud-btn" id="btn-2d-extract" onclick="toggle2DOverlay()" title="Trải phẳng mặt đáy hoặc thiết diện ra 2D">📐 Chiếu phẳng 2D</button>
           <button class="hud-btn" id="btn-proof-toggle" onclick="toggleProofDrawer()" title="Mở / Đóng Bảng Lời Giải Sư Phạm Chi Tiết">📖 Xem lời giải chi tiết</button>
         </div>
       </div>
@@ -1390,6 +1449,16 @@
         startY: 0,
         snapshot: null,
         history: []
+      },
+      plane2d: {
+        activeOverlay: false,
+        extractSource: 'base',
+        shape: 'tri_any',
+        showMid: true,
+        showAlt: true,
+        showCent: false,
+        showCirc: false,
+        showInc: false
       }
     };
 
@@ -4310,8 +4379,13 @@
 
     function rebuildScene() {
       clearModelGroup();
+      if (state.mainTab === 3) {
+        buildPlane2DScene();
+        return;
+      }
       if (state.mainTab === 2) {
         buildWorkshopScene();
+        if (state.plane2d && state.plane2d.activeOverlay) renderExtracted2D();
         return;
       }
       let info;
@@ -4869,13 +4943,25 @@
     function switchMainTab(tab) {
       stopAutoPlay();
       state.mainTab = tab;
+      state.plane2d.activeOverlay = false;
       document.getElementById('main-tab-1').classList.toggle('active', tab === 1);
       document.getElementById('main-tab-2').classList.toggle('active', tab === 2);
+      const t3Btn = document.getElementById('main-tab-3');
+      if (t3Btn) t3Btn.classList.toggle('active', tab === 3);
       document.getElementById('tab1-panel').style.display = tab === 1 ? 'flex' : 'none';
       document.getElementById('tab2-panel').style.display = tab === 2 ? 'flex' : 'none';
-      if (tab === 2) {
-        renderWorkshopUI();
-      }
+      const p3 = document.getElementById('tab3-panel');
+      if (p3) p3.style.display = tab === 3 ? 'flex' : 'none';
+
+      const stage2d = document.getElementById('plane2d-stage');
+      const bar2d = document.getElementById('plane2d-bar');
+      const extBtn = document.getElementById('btn-2d-extract');
+      if (stage2d) stage2d.style.display = tab === 3 ? 'block' : 'none';
+      if (bar2d) bar2d.style.display = 'none';
+      if (extBtn) extBtn.classList.remove('active-dock');
+
+      if (tab === 2) renderWorkshopUI();
+      if (tab === 3) updateStepPresentationBar(4);
       rebuildScene();
       renderAllMath(document.querySelector('.left-panel'));
     }
@@ -5104,6 +5190,142 @@
         ];
         return { vertices, edges, baseFace, sideFaces, topFace: null, isRound: 'cone', R, h };
       }
+      if (shape === 'pent_pyr') {
+        const R = 2.0, h = 3.1, names = ['A','B','C','D','E'], base = [];
+        const vertices = { S: new THREE.Vector3(-0.1, h, 0.1) };
+        for (let i = 0; i < 5; i++) {
+          const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+          const p = new THREE.Vector3(R * Math.cos(a), 0, R * Math.sin(a));
+          vertices[names[i]] = p; base.push(p);
+        }
+        const edges = [];
+        for (let i = 0; i < 5; i++) { edges.push(['S', names[i]]); edges.push([names[i], names[(i + 1) % 5]]); }
+        const sideFaces = names.map((n, i) => ({ pts: [vertices.S, base[i], base[(i + 1) % 5]], hinge: [base[i], base[(i + 1) % 5]] }));
+        return { vertices, edges, baseFace: base, sideFaces, topFace: null };
+      }
+      if (shape === 'hex_pyr') {
+        const R = 2.0, h = 3.1, names = ['A','B','C','D','E','F'], base = [];
+        const vertices = { S: new THREE.Vector3(0, h, 0) };
+        for (let i = 0; i < 6; i++) {
+          const a = (i * 2 * Math.PI) / 6;
+          const p = new THREE.Vector3(R * Math.cos(a), 0, R * Math.sin(a));
+          vertices[names[i]] = p; base.push(p);
+        }
+        const edges = [];
+        for (let i = 0; i < 6; i++) { edges.push(['S', names[i]]); edges.push([names[i], names[(i + 1) % 6]]); }
+        const sideFaces = names.map((n, i) => ({ pts: [vertices.S, base[i], base[(i + 1) % 6]], hinge: [base[i], base[(i + 1) % 6]] }));
+        return { vertices, edges, baseFace: base, sideFaces, topFace: null };
+      }
+      if (shape === 'reg_prism4') {
+        const s = 1.4, h = 3.1;
+        const A = new THREE.Vector3(-s, 0, s), B = new THREE.Vector3(s, 0, s), C = new THREE.Vector3(s, 0, -s), D = new THREE.Vector3(-s, 0, -s);
+        const Ap = new THREE.Vector3(-s, h, s), Bp = new THREE.Vector3(s, h, s), Cp = new THREE.Vector3(s, h, -s), Dp = new THREE.Vector3(-s, h, -s);
+        const vertices = { A, B, C, D, "A'": Ap, "B'": Bp, "C'": Cp, "D'": Dp };
+        const edges = [['A','B'],['B','C'],['C','D'],['D','A'],["A'","B'"],["B'","C'"],["C'","D'"],["D'","A'"],['A',"A'"],['B',"B'"],['C',"C'"],['D',"D'"]];
+        const baseFace = [A, B, C, D];
+        const sideFaces = [
+          { pts: [A, B, Bp, Ap], hinge: [A, B] },
+          { pts: [B, C, Cp, Bp], hinge: [B, C] },
+          { pts: [C, D, Dp, Cp], hinge: [C, D] },
+          { pts: [D, A, Ap, Dp], hinge: [D, A] }
+        ];
+        const topFace = { pts: [Ap, Bp, Cp, Dp], hingeTop: [Cp, Dp], hingeBase: [C, D] };
+        return { vertices, edges, baseFace, sideFaces, topFace };
+      }
+      if (shape === 'hex_prism') {
+        const R = 1.85, h = 2.8, names = ['A','B','C','D','E','F'], base = [], top = [];
+        const vertices = {};
+        for (let i = 0; i < 6; i++) {
+          const a = (i * 2 * Math.PI) / 6;
+          const pb = new THREE.Vector3(R * Math.cos(a), 0, R * Math.sin(a));
+          const pt = new THREE.Vector3(R * Math.cos(a), h, R * Math.sin(a));
+          vertices[names[i]] = pb; vertices[names[i] + "'" ] = pt;
+          base.push(pb); top.push(pt);
+        }
+        const edges = [];
+        for (let i = 0; i < 6; i++) {
+          const nxt = (i + 1) % 6;
+          edges.push([names[i], names[nxt]]);
+          edges.push([names[i] + "'", names[nxt] + "'"]);
+          edges.push([names[i], names[i] + "'"]);
+        }
+        const sideFaces = names.map((n, i) => ({ pts: [base[i], base[(i + 1) % 6], top[(i + 1) % 6], top[i]], hinge: [base[i], base[(i + 1) % 6]] }));
+        const topFace = { pts: top, hingeTop: [top[2], top[3]], hingeBase: [base[2], base[3]] };
+        return { vertices, edges, baseFace: base, sideFaces, topFace };
+      }
+      if (shape === 'frustum3') {
+        const r1 = 2.1, r2 = 1.05, h = 2.6, names = ['A','B','C'], base = [], top = [];
+        const vertices = {};
+        for (let i = 0; i < 3; i++) {
+          const a = -Math.PI / 2 + (i * 2 * Math.PI) / 3;
+          const pb = new THREE.Vector3(r1 * Math.cos(a), 0, r1 * Math.sin(a));
+          const pt = new THREE.Vector3(r2 * Math.cos(a), h, r2 * Math.sin(a));
+          vertices[names[i]] = pb; vertices[names[i] + "'"] = pt;
+          base.push(pb); top.push(pt);
+        }
+        const edges = [['A','B'],['B','C'],['C','A'],["A'","B'"],["B'","C'"],["C'","A'"],['A',"A'"],['B',"B'"],['C',"C'"]];
+        const sideFaces = names.map((n, i) => ({ pts: [base[i], base[(i + 1) % 3], top[(i + 1) % 3], top[i]], hinge: [base[i], base[(i + 1) % 3]] }));
+        const topFace = { pts: top, hingeTop: [top[1], top[2]], hingeBase: [base[1], base[2]] };
+        return { vertices, edges, baseFace: base, sideFaces, topFace };
+      }
+      if (shape === 'icosa' || shape === 'dodeca') {
+        const phi = (1 + Math.sqrt(5)) / 2;
+        const rawIco = [
+          [-1, phi, 0], [1, phi, 0], [-1, -phi, 0], [1, -phi, 0],
+          [0, -1, phi], [0, 1, phi], [0, -1, -phi], [0, 1, -phi],
+          [phi, 0, -1], [phi, 0, 1], [-phi, 0, -1], [-phi, 0, 1]
+        ].map(([x, y, z]) => new THREE.Vector3(x, y, z).normalize().multiplyScalar(2.05));
+        const icoFacesIdx = [
+          [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+          [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+          [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+          [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+        ];
+        if (shape === 'icosa') {
+          const shiftY = new THREE.Vector3(0, 1.9, 0);
+          const pts = rawIco.map(p => p.clone().add(shiftY));
+          const vertices = {}; pts.forEach((p, i) => { vertices[`V${i + 1}`] = p; });
+          const edgeSet = new Set(), edges = [];
+          icoFacesIdx.forEach(f => {
+            for (let k = 0; k < 3; k++) {
+              const a = f[k], b = f[(k + 1) % 3], key = Math.min(a, b) + '_' + Math.max(a, b);
+              if (!edgeSet.has(key)) { edgeSet.add(key); edges.push([`V${a + 1}`, `V${b + 1}`]); }
+            }
+          });
+          const allF = icoFacesIdx.map(f => f.map(i => pts[i]));
+          return { vertices, edges, baseFace: allF[0], sideFaces: [{ pts: allF[1], hinge: [allF[1][0], allF[1][1]] }], topFace: null, extraFaces: allF.slice(2), noUnfold: true };
+        } else {
+          // Dual of icosahedron -> exact regular dodecahedron
+          const shiftY = new THREE.Vector3(0, 1.85, 0);
+          const faceCenters = icoFacesIdx.map(f =>
+            new THREE.Vector3().add(rawIco[f[0]]).add(rawIco[f[1]]).add(rawIco[f[2]]).divideScalar(3).normalize().multiplyScalar(2.05).add(shiftY)
+          );
+          const vertices = {}; faceCenters.forEach((p, i) => { vertices[`V${i + 1}`] = p; });
+          const pentFaces = rawIco.map((vPos, vIdx) => {
+            const adjFaces = [];
+            icoFacesIdx.forEach((f, fIdx) => { if (f.includes(vIdx)) adjFaces.push(fIdx); });
+            const n = vPos.clone().normalize();
+            const ref = Math.abs(n.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+            const u = new THREE.Vector3().crossVectors(n, ref).normalize();
+            const w = new THREE.Vector3().crossVectors(n, u).normalize();
+            adjFaces.sort((a, b) => {
+              const pa = new THREE.Vector3().subVectors(faceCenters[a], shiftY);
+              const pb = new THREE.Vector3().subVectors(faceCenters[b], shiftY);
+              return Math.atan2(pa.dot(w), pa.dot(u)) - Math.atan2(pb.dot(w), pb.dot(u));
+            });
+            return adjFaces;
+          });
+          const edgeSet = new Set(), edges = [];
+          pentFaces.forEach(f => {
+            for (let k = 0; k < f.length; k++) {
+              const a = f[k], b = f[(k + 1) % f.length], key = Math.min(a, b) + '_' + Math.max(a, b);
+              if (!edgeSet.has(key)) { edgeSet.add(key); edges.push([`V${a + 1}`, `V${b + 1}`]); }
+            }
+          });
+          const allF = pentFaces.map(f => f.map(i => faceCenters[i]));
+          return { vertices, edges, baseFace: allF[0], sideFaces: [{ pts: allF[1], hinge: [allF[1][0], allF[1][1]] }], topFace: null, extraFaces: allF.slice(2), noUnfold: true };
+        }
+      }
       if (shape === 'cylinder') {
         const R = 1.85, h = 3.0;
         const O = new THREE.Vector3(0, 0, 0);
@@ -5183,7 +5405,7 @@
       const centroid = allVerts.reduce((acc, p) => acc.add(p), new THREE.Vector3()).divideScalar(allVerts.length);
       const baseCentroid = poly.baseFace.reduce((acc, p) => acc.add(p), new THREE.Vector3()).divideScalar(poly.baseFace.length);
 
-      if (tUnfold > 0.005) {
+      if (tUnfold > 0.005 && !poly.noUnfold) {
         // NET UNFOLDING MODE
         const faceOp = state.xray ? 0.25 : 0.72;
         addFace(poly.baseFace, tc.face, faceOp);
@@ -5234,6 +5456,7 @@
       const faceOp = poly.isRound ? 0.04 : (state.examExportMode ? 0.02 : (state.xray ? 0.14 : 0.62));
       const allFaces = [poly.baseFace, ...poly.sideFaces.map(sf => sf.pts)];
       if (poly.topFace) allFaces.push(poly.topFace.pts);
+      if (poly.extraFaces) poly.extraFaces.forEach(ef => allFaces.push(ef));
       const faceDataList = allFaces.map(f => {
         addFace(f, tc.face, faceOp);
         return makeFaceData(f, centroid);
@@ -5452,6 +5675,7 @@
 
       renderWorkshopPerpMeasurement(poly, allFaces, pointMap, pointLabelMap, sectionInterPts, centroid, wsStep);
       renderProofDrawerTab2(poly, pointLabelMap, sectionInterPts, wsStep);
+      window._lastWorkshopExtract = { poly, allFaces, pointMap, pointLabelMap, sectionInterPts };
       renderAllMath(document.getElementById('hud-step-desc'));
       renderAllMath(document.getElementById('ws-section-result'));
       renderAllMath(document.getElementById('ws-perp-result'));
@@ -6202,7 +6426,19 @@
         `Mặt (${L("S'")}${L('D')}${L('C')})`,
         `Mặt (${L("S'")}${L('A')}${L('D')})`
       ];
-      if (shape === 'cube' || shape === 'box' || shape === 'oblique_box' || shape === 'frustum' || shape === 'cylinder') return [
+      if (shape === 'frustum3') return [
+        `Đáy (${L('A')}${L('B')}${L('C')})`,
+        `Mặt (${L('A')}${L('B')}${L("B'")}${L("A'")})`,
+        `Mặt (${L('B')}${L('C')}${L("C'")}${L("B'")})`,
+        `Mặt (${L('C')}${L('A')}${L("A'")}${L("C'")})`,
+        `Đáy trên (${L("A'")}${L("B'")}${L("C'")})`
+      ];
+      if (shape === 'pent_pyr') return [`Đáy (${L('A')}${L('B')}${L('C')}${L('D')}${L('E')})`, ...['A','B','C','D','E'].map((n,i,a)=>`Mặt (${L('S')}${L(n)}${L(a[(i+1)%5])})`)];
+      if (shape === 'hex_pyr') return [`Đáy (${L('A')}..${L('F')})`, ...['A','B','C','D','E','F'].map((n,i,a)=>`Mặt (${L('S')}${L(n)}${L(a[(i+1)%6])})`)];
+      if (shape === 'hex_prism') return [`Đáy (${L('A')}..${L('F')})`, ...['A','B','C','D','E','F'].map((n,i,a)=>`Mặt (${L(n)}${L(a[(i+1)%6])})`), `Đáy trên (${L("A'")}..${L("F'")})`];
+      if (shape === 'dodeca') return Array.from({ length: 12 }, (_, i) => `Mặt ngũ giác ${i + 1}`);
+      if (shape === 'icosa') return Array.from({ length: 20 }, (_, i) => `Mặt tam giác ${i + 1}`);
+      if (shape === 'cube' || shape === 'box' || shape === 'oblique_box' || shape === 'frustum' || shape === 'cylinder' || shape === 'reg_prism4') return [
         `Đáy (${L('A')}${L('B')}${L('C')}${L('D')})`,
         `Mặt (${L('A')}${L('B')}${L("B'")}${L("A'")})`,
         `Mặt (${L('B')}${L('C')}${L("C'")}${L("B'")})`,
@@ -6553,9 +6789,30 @@
       } else if (/bát\s*diện\s*đều/.test(lower)) {
         shape = 'octa';
         shapeDesc = 'Hình bát diện đều';
+      } else if (/thập\s*nhị\s*diện/.test(lower)) {
+        shape = 'dodeca';
+        shapeDesc = 'Khối thập nhị diện đều (12 mặt)';
+      } else if (/nhị\s*thập\s*diện/.test(lower)) {
+        shape = 'icosa';
+        shapeDesc = 'Khối nhị thập diện đều (20 mặt)';
+      } else if (/chóp\s*cụt\s*tam\s*giác/.test(lower)) {
+        shape = 'frustum3';
+        shapeDesc = 'Hình chóp cụt tam giác đều';
       } else if (/chóp\s*cụt/.test(lower)) {
         shape = 'frustum';
         shapeDesc = 'Hình chóp cụt tứ giác đều';
+      } else if (/chóp\s*ngũ\s*giác/.test(lower)) {
+        shape = 'pent_pyr';
+        shapeDesc = 'Hình chóp ngũ giác S.ABCDE';
+      } else if (/chóp\s*lục\s*giác/.test(lower)) {
+        shape = 'hex_pyr';
+        shapeDesc = 'Hình chóp lục giác đều S.ABCDEF';
+      } else if (/lăng\s*trụ\s*lục\s*giác/.test(lower)) {
+        shape = 'hex_prism';
+        shapeDesc = 'Lăng trụ lục giác đều';
+      } else if (/lăng\s*trụ\s*tứ\s*giác/.test(lower)) {
+        shape = 'reg_prism4';
+        shapeDesc = 'Lăng trụ tứ giác đều';
       } else if (/hình\s*nón/.test(lower)) {
         shape = 'cone';
         shapeDesc = 'Hình nón';
@@ -6877,6 +7134,8 @@
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
       resizeDrawOverlay();
+      if (state.mainTab === 3) buildPlane2DScene();
+      else if (state.plane2d && state.plane2d.activeOverlay) renderExtracted2D();
     }
 
     function toggleFocusMode() {
@@ -6922,6 +7181,446 @@
       if (pPerp) pPerp.style.display = isSec ? 'none' : 'block';
       if (bSec) bSec.classList.toggle('active', isSec);
       if (bPerp) bPerp.classList.toggle('active', !isSec);
+    }
+
+    // =========================================================================
+    // 8. CHẾ ĐỘ HÌNH HỌC PHẲNG 2D & TRÍCH XUẤT MẶT ĐÁY / THIẾT DIỆN
+    // =========================================================================
+    function setup2DCanvas() {
+      const c = document.getElementById('canvas2d');
+      const wrap = document.getElementById('plane2d-stage');
+      if (!c || !wrap) return null;
+      const w = wrap.clientWidth || container.clientWidth || 800;
+      const h = wrap.clientHeight || container.clientHeight || 560;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      c.width = w * dpr;
+      c.height = h * dpr;
+      const ctx = c.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const isDark = !state.lightTheme;
+      ctx.fillStyle = isDark ? '#0b1120' : '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+      return { ctx, w, h, isDark };
+    }
+
+    function toggle2DOverlay() {
+      if (state.mainTab === 3) { switchMainTab(2); return; }
+      state.plane2d.activeOverlay = !state.plane2d.activeOverlay;
+      const stage2d = document.getElementById('plane2d-stage');
+      const bar2d = document.getElementById('plane2d-bar');
+      const btn = document.getElementById('btn-2d-extract');
+      if (stage2d) stage2d.style.display = state.plane2d.activeOverlay ? 'block' : 'none';
+      if (bar2d) bar2d.style.display = state.plane2d.activeOverlay ? 'flex' : 'none';
+      if (btn) btn.classList.toggle('active-dock', state.plane2d.activeOverlay);
+      if (state.plane2d.activeOverlay) renderExtracted2D();
+    }
+
+    function set2DExtractSource(src) {
+      state.plane2d.extractSource = src;
+      const b1 = document.getElementById('btn-2d-base');
+      const b2 = document.getElementById('btn-2d-sec');
+      if (b1) b1.classList.toggle('active-tool', src === 'base');
+      if (b2) b2.classList.toggle('active-tool', src === 'section');
+      renderExtracted2D();
+    }
+
+    function close2DOverlay() {
+      state.plane2d.activeOverlay = false;
+      const stage2d = document.getElementById('plane2d-stage');
+      const bar2d = document.getElementById('plane2d-bar');
+      const btn = document.getElementById('btn-2d-extract');
+      if (stage2d) stage2d.style.display = 'none';
+      if (bar2d) bar2d.style.display = 'none';
+      if (btn) btn.classList.remove('active-dock');
+    }
+
+    function draw2DPoint(ctx, pt, label, color = '#1e3a8a', ox = 8, oy = -8, isDark = false) {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = 'italic 600 16px "Times New Roman", Georgia, serif';
+      ctx.fillStyle = isDark ? '#f8fafc' : color;
+      ctx.fillText(label, pt.x + ox, pt.y + oy);
+      ctx.restore();
+    }
+
+    function draw2DRightAngle(ctx, V, P1, P2, sz = 13, color = '#16a34a') {
+      const d1 = Math.hypot(P1.x - V.x, P1.y - V.y) || 1;
+      const d2 = Math.hypot(P2.x - V.x, P2.y - V.y) || 1;
+      const u = { x: ((P1.x - V.x) / d1) * sz, y: ((P1.y - V.y) / d1) * sz };
+      const v = { x: ((P2.x - V.x) / d2) * sz, y: ((P2.y - V.y) / d2) * sz };
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(V.x + u.x, V.y + u.y);
+      ctx.lineTo(V.x + u.x + v.x, V.y + u.y + v.y);
+      ctx.lineTo(V.x + v.x, V.y + v.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function renderExtracted2D() {
+      const env = setup2DCanvas();
+      if (!env) return;
+      const { ctx, w, h, isDark } = env;
+      const ext = window._lastWorkshopExtract;
+      let pts3D = [];
+      let labels = [];
+      let titleText = 'Mặt đáy chuẩn';
+
+      if (state.mainTab === 2 && ext) {
+        if (state.plane2d.extractSource === 'section' && ext.sectionInterPts && ext.sectionInterPts.length >= 3) {
+          pts3D = ext.sectionInterPts;
+          labels = pts3D.map((_, i) => `P${i + 1}`);
+          titleText = `Thiết diện cắt (${pts3D.length} cạnh)`;
+        } else {
+          pts3D = ext.poly.baseFace;
+          labels = pts3D.map(bp => {
+            const found = Object.entries(ext.poly.vertices).find(([, vp]) => vp.distanceTo(bp) < 0.02);
+            return found ? (ext.pointLabelMap[found[0]] || found[0]) : '';
+          });
+          titleText = `Mặt đáy ${labels.join('')}`;
+        }
+      } else {
+        // Fallback base polygon for Tab 1
+        pts3D = [new THREE.Vector3(-2,0,1.5), new THREE.Vector3(1.6,0,1.5), new THREE.Vector3(2.2,0,-1.4), new THREE.Vector3(-1.4,0,-1.4)];
+        labels = ['A', 'B', 'C', 'D'];
+        titleText = 'Mặt đáy tham chiếu ABCD';
+      }
+
+      if (pts3D.length < 3) return;
+      const origin = pts3D[0];
+      const u = new THREE.Vector3().subVectors(pts3D[1], origin).normalize();
+      const n = new THREE.Vector3().subVectors(pts3D[2], origin).cross(u).normalize();
+      const v = new THREE.Vector3().crossVectors(n, u).normalize();
+
+      const pts2D = pts3D.map(p => {
+        const d = new THREE.Vector3().subVectors(p, origin);
+        return { x: d.dot(u), y: -d.dot(v), p3: p };
+      });
+      const xs = pts2D.map(p => p.x), ys = pts2D.map(p => p.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+      const span = Math.max(maxX - minX, maxY - minY, 1);
+      const scale = Math.min(w, h) * 0.54 / span;
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      const toPx = p => ({ x: w / 2 + (p.x - cx) * scale, y: h / 2 + (p.y - cy) * scale });
+      const pxPts = pts2D.map(toPx);
+
+      // Fill & stroke polygon
+      ctx.save();
+      ctx.fillStyle = state.plane2d.extractSource === 'section' ? 'rgba(249, 115, 22, 0.16)' : 'rgba(59, 130, 246, 0.12)';
+      ctx.strokeStyle = state.plane2d.extractSource === 'section' ? '#ea580c' : (isDark ? '#38bdf8' : '#1e3a8a');
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      pxPts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Side lengths & right-angle checks
+      for (let i = 0; i < pxPts.length; i++) {
+        const p1 = pxPts[i], p2 = pxPts[(i + 1) % pxPts.length];
+        const pPrev = pxPts[(i - 1 + pxPts.length) % pxPts.length];
+        const len = pts3D[i].distanceTo(pts3D[(i + 1) % pts3D.length]);
+        ctx.font = '600 12px "Be Vietnam Pro", sans-serif';
+        ctx.fillStyle = isDark ? '#94a3b8' : '#475569';
+        ctx.fillText(len.toFixed(2), (p1.x + p2.x) / 2 + 5, (p1.y + p2.y) / 2 - 5);
+
+        const v1 = new THREE.Vector2(pPrev.x - p1.x, pPrev.y - p1.y).normalize();
+        const v2 = new THREE.Vector2(p2.x - p1.x, p2.y - p1.y).normalize();
+        if (Math.abs(v1.dot(v2)) < 0.04) draw2DRightAngle(ctx, p1, pPrev, p2);
+      }
+
+      // Draw vertices
+      const centPx = pxPts.reduce((a, p) => ({ x: a.x + p.x / pxPts.length, y: a.y + p.y / pxPts.length }), { x: 0, y: 0 });
+      pxPts.forEach((p, i) => {
+        const dx = p.x - centPx.x, dy = p.y - centPx.y;
+        const d = Math.hypot(dx, dy) || 1;
+        draw2DPoint(ctx, p, labels[i], isDark ? '#38bdf8' : '#1e3a8a', (dx / d) * 14 - 4, (dy / d) * 14 + 4, isDark);
+      });
+
+      // Draw any aux points lying on this plane
+      if (state.mainTab === 2 && ext) {
+        state.workshop.auxPoints.forEach(ap => {
+          const p3 = ext.pointMap[ap.id];
+          if (!p3) return;
+          const rel = new THREE.Vector3().subVectors(p3, origin);
+          if (Math.abs(rel.dot(n)) < 0.04) {
+            const p2 = toPx({ x: rel.dot(u), y: -rel.dot(v) });
+            draw2DPoint(ctx, p2, ap.name, '#dc2626', 8, -8, isDark);
+          }
+        });
+      }
+      ctx.restore();
+      document.getElementById('hud-step-desc').innerHTML = `<strong>📐 Chiếu phẳng 2D: ${titleText}</strong>`;
+    }
+
+    function buildPlane2DScene() {
+      const env = setup2DCanvas();
+      if (!env) return;
+      const { ctx, w, h, isDark } = env;
+      const p2 = state.plane2d;
+      const eff = state.showAllSteps ? 4 : state.step;
+      const cx = w / 2, cy = h / 2 + 12;
+      const R = Math.min(w, h) * 0.30;
+      const strokeMain = isDark ? '#38bdf8' : '#1e3a8a';
+
+      let pts = [];
+      let labels = [];
+      let isCircle = false;
+      let stepDesc = [];
+      let formulas = [];
+
+      if (p2.shape === 'tri_right') {
+        pts = [{ x: cx - R * 0.9, y: cy + R * 0.65 }, { x: cx - R * 0.9, y: cy - R * 0.75 }, { x: cx + R * 1.0, y: cy + R * 0.65 }];
+        labels = ['A', 'B', 'C'];
+        stepDesc = [
+          'Bước 1/4: Dựng tam giác $ABC$ vuông tại $A$.',
+          'Bước 2/4: Kẻ đường cao $AH \\perp BC$ ($H \\in BC$).',
+          'Bước 3/4: Xác định trung điểm $M$ của $BC$ (tâm ngoại tiếp $O \\equiv M$).',
+          'Bước 4/4: Tô miền phẳng và áp dụng hệ thức lượng tam giác vuông.'
+        ];
+        formulas = [
+          'AB^2 + AC^2 = BC^2 \\quad (\\text{Pytago})',
+          'AH \\cdot BC = AB \\cdot AC, \\quad \\frac{1}{AH^2} = \\frac{1}{AB^2} + \\frac{1}{AC^2}',
+          'S_{\\Delta ABC} = \\frac{1}{2} AB \\cdot AC = \\frac{1}{2} AH \\cdot BC'
+        ];
+      } else if (p2.shape === 'tri_eq') {
+        const s = R * 1.45, hh = s * Math.sqrt(3) / 2;
+        pts = [{ x: cx, y: cy - hh * 0.6 }, { x: cx - s / 2, y: cy + hh * 0.4 }, { x: cx + s / 2, y: cy + hh * 0.4 }];
+        labels = ['A', 'B', 'C'];
+        stepDesc = [
+          'Bước 1/4: Dựng tam giác đều $ABC$ cạnh $a$.',
+          'Bước 2/4: Đường cao $AH$ đồng thời là trung tuyến, phân giác.',
+          'Bước 3/4: Tâm $G \\equiv H_{\\text{trực}} \\equiv O \\equiv I$ chia trung tuyến theo tỉ số $\\frac{2}{3}$.',
+          'Bước 4/4: Hoàn thiện đường tròn ngoại tiếp $R = \\frac{a\\sqrt{3}}{3}$ và diện tích.'
+        ];
+        formulas = [
+          'h = \\frac{a\\sqrt{3}}{2}, \\quad S = \\frac{a^2\\sqrt{3}}{4}',
+          'R = \\frac{a\\sqrt{3}}{3}, \\quad r = \\frac{a\\sqrt{3}}{6}'
+        ];
+      } else if (p2.shape === 'tri_iso') {
+        pts = [{ x: cx, y: cy - R * 0.85 }, { x: cx - R * 0.85, y: cy + R * 0.65 }, { x: cx + R * 0.85, y: cy + R * 0.65 }];
+        labels = ['A', 'B', 'C'];
+        stepDesc = [
+          'Bước 1/4: Dựng tam giác cân $ABC$ tại $A$ ($AB = AC$).',
+          'Bước 2/4: Kẻ đường cao $AH \\perp BC$ ($H$ là trung điểm $BC$).',
+          'Bước 3/4: Xác định trọng tâm $G$, trực tâm và tâm ngoại tiếp trên trục $AH$.',
+          'Bước 4/4: Áp dụng định lý Cosin và công thức diện tích.'
+        ];
+        formulas = [
+          'a^2 = b^2 + c^2 - 2bc\\cos A, \\quad \\frac{a}{\\sin A} = 2R',
+          'S = \\frac{1}{2} ah_a = \\frac{1}{2} bc \\sin A'
+        ];
+      } else if (p2.shape === 'circle_tan') {
+        isCircle = true;
+        stepDesc = [
+          'Bước 1/4: Dựng đường tròn $(O; R)$ và điểm $M$ nằm ngoài đường tròn.',
+          'Bước 2/4: Kẻ hai tiếp tuyến $MA, MB$ và dây cung $AB$.',
+          'Bước 3/4: Nối $OM$ cắt $AB$ tại $H$ ($OM \\perp AB$ tại trung điểm $H$).',
+          'Bước 4/4: Ký hiệu góc vuông tại $A, B, H$ và hệ thức lượng.'
+        ];
+        formulas = [
+          'MA = MB, \\quad OA \\perp MA, \\quad OB \\perp MB',
+          'OH \\cdot OM = R^2, \\quad MA^2 = OM^2 - R^2'
+        ];
+      } else if (p2.shape === 'trap') {
+        pts = [{ x: cx - R * 0.65, y: cy - R * 0.55 }, { x: cx + R * 0.65, y: cy - R * 0.55 }, { x: cx + R * 1.05, y: cy + R * 0.55 }, { x: cx - R * 1.05, y: cy + R * 0.55 }];
+        labels = ['A', 'B', 'C', 'D'];
+        stepDesc = [
+          'Bước 1/4: Dựng hình thang cân $ABCD$ ($AB \\parallel CD$).',
+          'Bước 2/4: Kẻ hai đường cao $AH, BK$ xuống đáy lớn $CD$.',
+          'Bước 3/4: Nối đường trung bình $MN$ và hai đường chéo $AC, BD$.',
+          'Bước 4/4: Tính diện tích $S = \\frac{(AB + CD)\\cdot h}{2}$.'
+        ];
+        formulas = [
+          'MN = \\frac{AB + CD}{2}, \\quad S = \\frac{(AB + CD) \\cdot AH}{2}'
+        ];
+      } else if (p2.shape === 'para') {
+        pts = [{ x: cx - R * 0.6, y: cy - R * 0.55 }, { x: cx + R * 1.0, y: cy - R * 0.55 }, { x: cx + R * 0.6, y: cy + R * 0.55 }, { x: cx - R * 1.0, y: cy + R * 0.55 }];
+        labels = ['A', 'B', 'C', 'D'];
+        stepDesc = [
+          'Bước 1/4: Dựng hình bình hành $ABCD$ ($AB \\parallel CD, AD \\parallel BC$).',
+          'Bước 2/4: Kẻ hai đường chéo $AC, BD$ cắt nhau tại trung điểm $O$.',
+          'Bước 3/4: Hạ đường cao $AH \\perp CD$.',
+          'Bước 4/4: Tính diện tích $S = CD \\cdot AH = AB \\cdot AD \\sin A$.'
+        ];
+        formulas = [
+          '\\overrightarrow{AB} + \\overrightarrow{AD} = \\overrightarrow{AC}',
+          'S = CD \\cdot AH = AB \\cdot AD \\sin A'
+        ];
+      } else if (p2.shape === 'rhombus') {
+        pts = [{ x: cx, y: cy - R * 0.85 }, { x: cx + R * 1.1, y: cy }, { x: cx, y: cy + R * 0.85 }, { x: cx - R * 1.1, y: cy }];
+        labels = ['A', 'B', 'C', 'D'];
+        stepDesc = [
+          'Bước 1/4: Dựng hình thoi $ABCD$ có $4$ cạnh bằng nhau.',
+          'Bước 2/4: Kẻ hai đường chéo $AC \\perp BD$ tại trung điểm $O$.',
+          'Bước 3/4: Ký hiệu góc vuông tại $O$ và tâm đối xứng.',
+          'Bước 4/4: Tính diện tích $S = \\frac{1}{2} AC \\cdot BD$.'
+        ];
+        formulas = [
+          'AC \\perp BD \\text{ tại } O, \\quad S = \\frac{1}{2} AC \\cdot BD'
+        ];
+      } else if (p2.shape === 'cyclic_quad') {
+        const angs = [-2.25, -0.75, 0.55, 2.15];
+        pts = angs.map(a => ({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) }));
+        labels = ['A', 'B', 'C', 'D'];
+        stepDesc = [
+          'Bước 1/4: Dựng tứ giác $ABCD$ có $4$ đỉnh nằm trên $(O; R)$.',
+          'Bước 2/4: Nối hai đường chéo $AC, BD$.',
+          'Bước 3/4: Tổng hai góc đối $\\widehat{A} + \\widehat{C} = \\widehat{B} + \\widehat{D} = 180^\\circ$.',
+          'Bước 4/4: Áp dụng định lý Ptolemy và công thức Brahmagupta.'
+        ];
+        formulas = [
+          '\\widehat{A} + \\widehat{C} = 180^\\circ',
+          'AC \\cdot BD = AB \\cdot CD + AD \\cdot BC \\; (\\text{Ptolemy})'
+        ];
+      } else {
+        // tri_any or circle_tri
+        pts = [{ x: cx - R * 0.35, y: cy - R * 0.8 }, { x: cx - R * 0.95, y: cy + R * 0.65 }, { x: cx + R * 1.05, y: cy + R * 0.65 }];
+        labels = ['A', 'B', 'C'];
+        stepDesc = [
+          'Bước 1/4: Dựng tam giác $ABC$ với $3$ cạnh $a, b, c$.',
+          'Bước 2/4: Xác định trung điểm các cạnh và đường cao $AH$.',
+          'Bước 3/4: Xác định trọng tâm $G$, trực tâm $H$ và tâm ngoại tiếp $O$.',
+          'Bước 4/4: Áp dụng Định lý Sin, Định lý Cosin và công thức Heron.'
+        ];
+        formulas = [
+          'a^2 = b^2 + c^2 - 2bc\\cos A, \\quad \\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C} = 2R',
+          'S = \\sqrt{p(p-a)(p-b)(p-c)} = \\frac{abc}{4R} = pr'
+        ];
+      }
+
+      if (isCircle) {
+        const O = { x: cx - R * 0.45, y: cy };
+        const cr = R * 0.78;
+        const M = { x: cx + R * 1.25, y: cy };
+        const dOM = M.x - O.x;
+        const alpha = Math.acos(cr / dOM);
+        const A = { x: O.x + cr * Math.cos(-alpha), y: O.y + cr * Math.sin(-alpha) };
+        const B = { x: O.x + cr * Math.cos(alpha), y: O.y + cr * Math.sin(alpha) };
+        const H = { x: A.x, y: O.y };
+
+        ctx.strokeStyle = strokeMain; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.arc(O.x, O.y, cr, 0, Math.PI * 2); ctx.stroke();
+        draw2DPoint(ctx, O, 'O', strokeMain, -16, 16, isDark);
+        draw2DPoint(ctx, M, 'M', '#ea580c', 8, 5, isDark);
+        if (eff >= 2) {
+          ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2.2;
+          ctx.beginPath(); ctx.moveTo(M.x, M.y); ctx.lineTo(A.x, A.y); ctx.moveTo(M.x, M.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+          ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+          draw2DPoint(ctx, A, 'A', strokeMain, -4, -10, isDark);
+          draw2DPoint(ctx, B, 'B', strokeMain, -4, 18, isDark);
+        }
+        if (eff >= 3) {
+          ctx.setLineDash([6, 5]); ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.moveTo(O.x, O.y); ctx.lineTo(M.x, M.y); ctx.moveTo(O.x, O.y); ctx.lineTo(A.x, A.y); ctx.moveTo(O.x, O.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+          ctx.setLineDash([]);
+          draw2DPoint(ctx, H, 'H', '#16a34a', 5, -8, isDark);
+        }
+        if (eff >= 4) {
+          draw2DRightAngle(ctx, A, O, M);
+          draw2DRightAngle(ctx, B, O, M);
+          draw2DRightAngle(ctx, H, O, A);
+        }
+      } else {
+        // Polygon 2D
+        ctx.save();
+        if (eff >= 4) {
+          ctx.fillStyle = 'rgba(59, 130, 246, 0.11)';
+          ctx.beginPath(); pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.fill();
+        }
+        ctx.strokeStyle = strokeMain; ctx.lineWidth = 2.4;
+        ctx.beginPath(); pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+
+        const cent = pts.reduce((a, p) => ({ x: a.x + p.x / pts.length, y: a.y + p.y / pts.length }), { x: 0, y: 0 });
+        pts.forEach((p, i) => {
+          const dx = p.x - cent.x, dy = p.y - cent.y, d = Math.hypot(dx, dy) || 1;
+          draw2DPoint(ctx, p, labels[i], strokeMain, (dx / d) * 14 - 4, (dy / d) * 14 + 4, isDark);
+        });
+
+        if (pts.length === 3) {
+          const [A, B, C] = pts;
+          const Mbc = { x: (B.x + C.x) / 2, y: (B.y + C.y) / 2 };
+          if (eff >= 2 && p2.showMid) {
+            draw2DPoint(ctx, Mbc, 'M', '#16a34a', 4, 18, isDark);
+          }
+          if (eff >= 2 && p2.showAlt) {
+            const bcx = C.x - B.x, bcy = C.y - B.y, len2 = bcx * bcx + bcy * bcy || 1;
+            const t = ((A.x - B.x) * bcx + (A.y - B.y) * bcy) / len2;
+            const H = { x: B.x + t * bcx, y: B.y + t * bcy };
+            ctx.setLineDash([6, 4]); ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(H.x, H.y); ctx.stroke();
+            ctx.setLineDash([]);
+            draw2DRightAngle(ctx, H, A, C, 12, '#dc2626');
+            draw2DPoint(ctx, H, 'H', '#dc2626', 6, 16, isDark);
+          }
+          if (eff >= 3 && p2.showCent) {
+            const G = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+            ctx.setLineDash([5, 4]); ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(Mbc.x, Mbc.y); ctx.stroke();
+            ctx.setLineDash([]);
+            draw2DPoint(ctx, G, 'G', '#d97706', 8, -6, isDark);
+          }
+          if (eff >= 3 && (p2.showCirc || p2.shape === 'circle_tri')) {
+            const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y)) || 1;
+            const ox = ((A.x*A.x + A.y*A.y)*(B.y - C.y) + (B.x*B.x + B.y*B.y)*(C.y - A.y) + (C.x*C.x + C.y*C.y)*(A.y - B.y)) / d;
+            const oy = ((A.x*A.x + A.y*A.y)*(C.x - B.x) + (B.x*B.x + B.y*B.y)*(A.x - C.x) + (C.x*C.x + C.y*C.y)*(B.x - A.x)) / d;
+            const cr = Math.hypot(ox - A.x, oy - A.y);
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.arc(ox, oy, cr, 0, Math.PI * 2); ctx.stroke();
+            draw2DPoint(ctx, { x: ox, y: oy }, 'O', '#0ea5e9', 6, -6, isDark);
+          }
+          if (eff >= 3 && (p2.showInc || p2.shape === 'circle_tri')) {
+            const a = Math.hypot(B.x - C.x, B.y - C.y), b = Math.hypot(A.x - C.x, A.y - C.y), c = Math.hypot(A.x - B.x, A.y - B.y);
+            const per = a + b + c || 1;
+            const ix = (a * A.x + b * B.x + c * C.x) / per, iy = (a * A.y + b * B.y + c * C.y) / per;
+            const s = per / 2, area = Math.abs((B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y)) / 2;
+            const ir = area / s;
+            ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.arc(ix, iy, ir, 0, Math.PI * 2); ctx.stroke();
+            draw2DPoint(ctx, { x: ix, y: iy }, 'I', '#16a34a', 6, -6, isDark);
+          }
+        } else if (pts.length === 4) {
+          const [A, B, C, D] = pts;
+          if (eff >= 2) {
+            ctx.setLineDash([6, 4]); ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.moveTo(B.x, B.y); ctx.lineTo(D.x, D.y); ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          if (eff >= 3 && p2.shape === 'cyclic_quad') {
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+            draw2DPoint(ctx, { x: cx, y: cy }, 'O', '#0ea5e9', 6, -6, isDark);
+          }
+        }
+        ctx.restore();
+      }
+
+      const curIdx = Math.min(eff, stepDesc.length) - 1;
+      document.getElementById('hud-step-desc').innerHTML = `<strong>${stepDesc[curIdx]}</strong>`;
+      renderAllMath(document.getElementById('hud-step-desc'));
+
+      const fBox = document.getElementById('tab3-formulas');
+      if (fBox) {
+        fBox.innerHTML = formulas.map(tex => `<div class="sol-step current"><span class="katex-slot" data-tex="${tex}"></span></div>`).join('');
+        renderKaTeXInBox(fBox);
+      }
+
+      const pBody = document.getElementById('proof-drawer-body');
+      if (pBody) {
+        pBody.innerHTML = `
+          <div class="proof-part"><div class="proof-part-title">Phần 1 • Hình học phẳng 2D</div><div>Phân tích tính chất hình học phẳng, đường cao, trung tuyến và đường tròn liên quan.</div></div>
+          <div class="proof-part"><div class="proof-part-title">Phần 2 • Các bước dựng hình</div><div style="display:flex; flex-direction:column; gap:6px;">${stepDesc.map((d, i) => `<div class="sol-step ${i + 1 === eff ? 'current' : ''}"><span class="sol-badge">B${i + 1}</span><span>${d.replace(/^Bước\s*\d\/\d:\s*/i, '')}</span></div>`).join('')}</div></div>
+          <div class="proof-part"><div class="proof-part-title">Phần 3 • Công thức tổng hợp</div><div style="display:flex; flex-direction:column; gap:4px;">${formulas.map(t => `<div data-tex="${t}"></div>`).join('')}</div></div>
+        `;
+        renderKaTeXInBox(pBody);
+        renderAllMath(pBody);
+      }
     }
 
     window.addEventListener('resize', resize3DStage);

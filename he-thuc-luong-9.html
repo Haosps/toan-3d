@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CƠ SỞ BỒI DƯỠNG VĂN HÓA HÀO HIỆP — Toán 9: Hệ Thức Lượng &amp; Thực Tế</title>
+  <!-- Google Fonts: Be Vietnam Pro, Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <!-- KaTeX CDN + Auto-Render -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --panel-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #1d4ed8;
+      --accent: #ea580c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-app);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Compact 50px Header Bar */
+    header {
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+      color: #fff;
+      padding: 6px 16px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 20;
+      border-bottom: 1.5px solid rgba(245, 158, 11, 0.45);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.24);
+      flex-wrap: wrap;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(245, 158, 11, 0.22));
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .brand h1 { font-size: 13.5px; font-weight: 700; letter-spacing: 0.02em; color: #f8fafc; line-height: 1.2; }
+    .brand p { font-size: 10.5px; color: #bae6fd; font-weight: 500; margin-top: 1px; }
+
+    .main-tabs {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 3px; border-radius: 999px; gap: 4px;
+    }
+    .main-tab {
+      border: none; background: transparent; color: #cbd5e1;
+      padding: 6px 13px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .main-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .main-tab.active {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #fff; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.45);
+    }
+
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .theme-pill {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.1);
+      color: #f8fafc; padding: 5px 11px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;
+    }
+    .theme-pill:hover { background: rgba(14, 165, 233, 0.28); border-color: #38bdf8; }
+
+    /* 2-Column Workspace */
+    .workspace { display: flex; flex: 1; min-height: 0; }
+
+    .left-panel {
+      width: 32%; min-width: 340px; max-width: 440px;
+      background: var(--panel-bg); border-right: 1px solid var(--border);
+      overflow-y: auto; padding: 12px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+    }
+    .right-stage {
+      flex: 1; position: relative; background: #ffffff; overflow: hidden;
+      transition: width 0.25s ease;
+    }
+    .workspace.focus-mode .left-panel {
+      width: 0 !important; min-width: 0 !important; padding: 0 !important;
+      border-right: none !important; overflow: hidden !important; opacity: 0; pointer-events: none;
+    }
+
+    #canvas2d, #drawOverlay {
+      position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    }
+    #canvas2d { z-index: 2; }
+    #drawOverlay { z-index: 5; pointer-events: none; }
+    #drawOverlay.drawing-active { pointer-events: auto; cursor: crosshair; }
+
+    /* Cards & Accordions */
+    .card {
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 11px; background: #fff;
+    }
+    .card-title {
+      font-size: 12.5px; font-weight: 700; color: #334155;
+      margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .acc-group {
+      border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 7px;
+      overflow: hidden; background: #fff;
+    }
+    .acc-summary {
+      list-style: none; cursor: pointer; padding: 8px 11px;
+      font-size: 12.5px; font-weight: 600; color: #1e293b;
+      background: #f8fafc; display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    .acc-summary::-webkit-details-marker { display: none; }
+    .acc-summary::after { content: '▸'; font-size: 11px; color: #64748b; transition: transform 0.2s; }
+    .acc-group[open] > .acc-summary::after { transform: rotate(90deg); }
+    .acc-group[open] > .acc-summary { border-bottom: 1px solid #e2e8f0; background: #f1f5f9; }
+    .acc-body { padding: 6px; }
+
+    .model-list { display: flex; flex-direction: column; gap: 4px; }
+    .model-btn {
+      width: 100%; text-align: left; border: 1px solid var(--border);
+      background: #f8fafc; border-radius: 8px; padding: 6px 10px; min-height: 32px;
+      cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600;
+      color: #1e293b; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      transition: all 0.15s;
+    }
+    .model-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+    .model-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); }
+
+    .sub-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .sub-tab {
+      flex: 1; min-width: 72px; border: 1px solid #cbd5e1; background: #f8fafc;
+      border-radius: 8px; padding: 6px 8px; font-size: 11.5px; font-weight: 600;
+      font-family: inherit; cursor: pointer; color: #334155; text-align: center;
+    }
+    .sub-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .preset-row { display: flex; gap: 5px; flex-wrap: wrap; }
+    .preset-btn {
+      border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 7px;
+      padding: 5px 8px; font-size: 11.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; color: #334155;
+    }
+    .preset-btn:hover, .preset-btn.active { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+
+    .aux-select {
+      width: 100%; border: 1px solid #cbd5e1; border-radius: 7px;
+      padding: 5px 8px; font-size: 12px; font-family: inherit; background: #fff; color: #0f172a;
+    }
+
+    .slider-box {
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 9px; padding: 8px 10px; margin-bottom: 8px;
+    }
+    .slider-head {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: 600; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+    /* Solution Steps */
+    .solution-list { display: flex; flex-direction: column; gap: 6px; }
+    .sol-step {
+      padding: 7px 9px; border-radius: 8px; border: 1px solid var(--border);
+      background: #f8fafc; font-size: 12px; line-height: 1.5; transition: all 0.2s;
+    }
+    .sol-step.current { background: #fff7ed; border-color: #fdba74; }
+    .sol-step.dimmed { opacity: 0.45; }
+    .sol-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 4px; background: #cbd5e1; color: #1e293b; margin-right: 6px;
+    }
+    .sol-step.current .sol-badge { background: var(--primary); color: #fff; }
+
+    /* Stage Toolbars & Floating Dock */
+    .stage-toolbar {
+      position: absolute; top: 12px; left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      pointer-events: none; gap: 8px; flex-wrap: wrap; z-index: 10;
+    }
+    .hud-btn {
+      pointer-events: auto; border: 1px solid #cbd5e1;
+      background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px);
+      color: #0f172a; padding: 6px 11px; border-radius: 9px;
+      font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08); transition: all 0.15s;
+    }
+    .hud-btn:hover { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+    .hud-btn.active-dock { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+
+    .hud-info {
+      pointer-events: auto; background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px); border: 1px solid #cbd5e1;
+      border-radius: 9px; padding: 6px 12px; font-size: 12.5px; color: #0f172a;
+      max-width: 580px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    .right-stage.dark-theme { background: #0b1120; }
+    .right-stage.dark-theme .hud-btn,
+    .right-stage.dark-theme .hud-info {
+      background: rgba(15, 23, 42, 0.86); border-color: rgba(255, 255, 255, 0.2); color: #f8fafc;
+    }
+    .right-stage.dark-theme .katex { color: #f8fafc; }
+
+    /* Step Bar & Dock */
+    .step-pres-bar {
+      position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 999px; background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px); border: 1px solid #cbd5e1;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12); z-index: 12; flex-wrap: wrap; justify-content: center;
+    }
+    .floating-dock {
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 14px; background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px); border: 1px solid #cbd5e1;
+      box-shadow: 0 6px 22px rgba(15, 23, 42, 0.14); z-index: 12; flex-wrap: wrap; justify-content: center;
+    }
+    .right-stage.dark-theme .step-pres-bar,
+    .right-stage.dark-theme .floating-dock {
+      background: rgba(15, 23, 42, 0.85); border-color: rgba(255, 255, 255, 0.18);
+    }
+    .step-dots { display: flex; gap: 4px; }
+    .step-pill {
+      border: 1px solid #cbd5e1; background: #f8fafc; color: #334155;
+      padding: 4px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .step-pill.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .step-pill.done { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+
+    .dock-btn {
+      border: 1px solid transparent; background: transparent; color: #1e293b;
+      padding: 5px 10px; border-radius: 9px; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+      white-space: nowrap;
+    }
+    .dock-btn:hover { background: rgba(14, 165, 233, 0.14); color: #0284c7; }
+    .dock-btn.active-dock { background: #2563eb; color: #fff; }
+    .dock-btn.pen-active { background: #ef4444; color: #fff; }
+    .right-stage.dark-theme .dock-btn { color: #e2e8f0; }
+    .dock-sep { width: 1px; height: 18px; background: #cbd5e1; opacity: 0.6; }
+
+    .step-btn {
+      border: 1px solid #cbd5e1; background: #fff; color: #0f172a;
+      padding: 4px 8px; border-radius: 7px; font-size: 11.5px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .step-btn.active-tool { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    .pen-dot { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .pen-dot.selected { border-color: #0f172a; transform: scale(1.15); }
+
+    .katex { font-size: 1.05em; }
+    .m-badge {
+      font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 5px;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .mb-geo { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .mb-real { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .hud-telemetry {
+      pointer-events: auto;
+      position: absolute; top: 60px; right: 14px;
+      min-width: 195px; max-width: 245px;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(203, 213, 225, 0.9);
+      border-radius: 12px; padding: 9px 12px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      z-index: 9; display: none; flex-direction: column; gap: 4px;
+      font-size: 11.5px; color: #0f172a;
+    }
+    .right-stage.dark-theme .hud-telemetry {
+      background: rgba(15, 23, 42, 0.80);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+    }
+    .hud-tel-title { font-size: 10.5px; font-weight: 700; color: #0284c7; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px; }
+    .hud-tel-row { display: flex; justify-content: space-between; gap: 8px; }
+    .hud-tel-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #ea580c; }
+    .right-stage.dark-theme .hud-tel-val { color: #fbbf24; }
+    .grid-9 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 6px; }
+    .stat-box {
+      border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px 6px;
+      background: #f8fafc; text-align: center;
+    }
+    .stat-lbl { font-size: 10.5px; color: #64748b; font-weight: 600; }
+    .stat-val { font-size: 12.5px; font-weight: 700; color: #1e3a8a; font-family: 'JetBrains Mono', monospace; }
+
+    @media (max-width: 960px) {
+      body { height: auto; overflow: auto; }
+      .workspace { flex-direction: column-reverse; }
+      .left-panel { width: 100%; max-width: none; min-width: 0; }
+      .right-stage { height: 58vh; min-height: 400px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M4 19H20L4 5V19Z" stroke="#F59E0B" stroke-width="2" fill="rgba(14,165,233,0.2)"/>
+          <path d="M4 19L11.5 11.5" stroke="#38BDF8" stroke-width="1.6" stroke-dasharray="2 2"/>
+          <rect x="4" y="15.5" width="3.5" height="3.5" stroke="#22C55E" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <h1>CƠ SỞ BỒI DƯỠNG VĂN HÓA HÀO HIỆP</h1>
+        <p>Trực quan hóa Toán 9: Hệ Thức Lượng &amp; Thực Tế • ThS. Phạm Ngọc Hào</p>
+      </div>
+    </div>
+
+    <div class="main-tabs" role="tablist">
+      <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho Bài Mẫu &amp; Thực Tế (18)</button>
+      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">🧪 Phòng Thí Nghiệm Tam Giác Vuông</button>
+      <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">🤖 Trợ Lý Toán Thực Tế (AI)</button>
+    </div>
+
+    <div class="header-right">
+      <button class="theme-pill" id="btn-theme" onclick="toggleTheme()">🌙 Tối Studio</button>
+      <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Phím tắt: F">◀ Thu gọn bảng bên</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="left-panel">
+      <!-- TAB 1: KHO 12 MÔ HÌNH -->
+      <div id="tab1-panel" style="display:flex; flex-direction:column; gap:8px;">
+        <section class="card">
+          <div class="card-title">
+            <span>📚 Danh mục 18 Mô hình Toán 9</span>
+            <span style="font-size:11px; color:var(--primary);">Lớp 9 • Ôn thi vào 10</span>
+          </div>
+
+          <details class="acc-group" open>
+            <summary class="acc-summary" style="border-left:3px solid #2563eb;">Nhóm A: Hệ thức cạnh &amp; đường cao (3 bài)</summary>
+            <div class="acc-body">
+              <div class="model-list">
+                <button class="model-btn active" id="btn-m-a1" onclick="selectModel('a1')"><span>Bài 1.1: 5 Hệ thức vàng ($\triangle ABC$)</span><span class="m-badge mb-geo">Hình học</span></button>
+                <button class="model-btn" id="btn-m-a2" onclick="selectModel('a2')"><span>Bài 1.2: Tìm cạnh khi biết 2 hình chiếu</span><span class="m-badge mb-geo">Hình học</span></button>
+                <button class="model-btn" id="btn-m-a3" onclick="selectModel('a3')"><span>Bài 1.3: Đường phân giác &amp; trung tuyến</span><span class="m-badge mb-geo">Hình học</span></button>
+              </div>
+            </div>
+          </details>
+
+          <details class="acc-group">
+            <summary class="acc-summary" style="border-left:3px solid #16a34a;">Nhóm B: Tỉ số lượng giác &amp; Giải $\triangle$ vuông (3 bài)</summary>
+            <div class="acc-body">
+              <div class="model-list">
+                <button class="model-btn" id="btn-m-b1" onclick="selectModel('b1')"><span>Bài 2.1: Mô phỏng $\sin, \cos, \tan, \cot$</span><span class="m-badge mb-geo">Hình học</span></button>
+                <button class="model-btn" id="btn-m-b2" onclick="selectModel('b2')"><span>Bài 2.2: Giải tam giác vuông</span><span class="m-badge mb-geo">Hình học</span></button>
+                <button class="model-btn" id="btn-m-b3" onclick="selectModel('b3')"><span>Bài 2.3: Diện tích $S = \frac{1}{2}ab\sin C$</span><span class="m-badge mb-geo">Hình học</span></button>
+              </div>
+            </div>
+          </details>
+
+          <details class="acc-group" style="margin-bottom:0;">
+            <summary class="acc-summary" style="border-left:3px solid #ea580c;">Nhóm C: 12 Bài toán Thực tế &amp; Chuyển động (Thi vào 10)</summary>
+            <div class="acc-body">
+              <div class="model-list">
+                <button class="model-btn" id="btn-m-c1" onclick="selectModel('c1')"><span>Bài 3.1: Đo chiều cao tháp bằng giác kế</span><span class="m-badge mb-real">Thực tế</span></button>
+                <button class="model-btn" id="btn-m-c2" onclick="selectModel('c2')"><span>Bài 3.2: Tàu ngầm lặn / Máy bay cất cánh</span><span class="m-badge mb-real">60fps</span></button>
+                <button class="model-btn" id="btn-m-c3" onclick="selectModel('c3')"><span>Bài 3.3: Thang cứu hỏa tựa tường ($65^\circ$)</span><span class="m-badge mb-real">Thực tế</span></button>
+                <button class="model-btn" id="btn-m-c4" onclick="selectModel('c4')"><span>Bài 3.4: Chiều rộng sông / 2 góc nâng</span><span class="m-badge mb-real">Thực tế</span></button>
+                <button class="model-btn" id="btn-m-c5" onclick="selectModel('c5')"><span>Bài 3.5: Bóng nắng &amp; Góc tia nắng</span><span class="m-badge mb-real">Thực tế</span></button>
+                <button class="model-btn" id="btn-m-c6" onclick="selectModel('c6')"><span>Bài 3.6: Độ dốc cầu vượt / Đường đèo</span><span class="m-badge mb-real">Thực tế</span></button>
+                <button class="model-btn" id="btn-m-c7" onclick="selectModel('c7')"><span>Bài 3.7: Khinh khí cầu &amp; 2 trạm radar</span><span class="m-badge mb-real">60fps</span></button>
+                <button class="model-btn" id="btn-m-c8" onclick="selectModel('c8')"><span>Bài 3.8: Cáp treo vượt núi Hòn Thơm</span><span class="m-badge mb-real">60fps</span></button>
+                <button class="model-btn" id="btn-m-c9" onclick="selectModel('c9')"><span>Bài 3.9: Thuyền vượt sông bị nước đẩy</span><span class="m-badge mb-real">60fps</span></button>
+                <button class="model-btn" id="btn-m-c10" onclick="selectModel('c10')"><span>Bài 3.10: Cần cẩu tháp &amp; Tầm vươn</span><span class="m-badge mb-real">60fps</span></button>
+                <button class="model-btn" id="btn-m-c11" onclick="selectModel('c11')"><span>Bài 3.11: Hải đăng &amp; Tàu biển tiến bờ</span><span class="m-badge mb-real">60fps</span></button>
+                <button class="model-btn" id="btn-m-c12" onclick="selectModel('c12')"><span>Bài 3.12: Flycam khảo sát địa hình</span><span class="m-badge mb-real">60fps</span></button>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>📌 Đề bài &amp; Tương tác thông số</span></div>
+          <div id="tab1-controls"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>📖 Lời giải chi tiết (KaTeX)</span></div>
+          <div class="solution-list" id="tab1-solutions"></div>
+        </section>
+      </div>
+
+      <!-- TAB 2: PHÒNG THÍ NGHIỆM TAM GIÁC VUÔNG -->
+      <div id="tab2-panel" style="display:none; flex-direction:column; gap:8px;">
+        <section class="card">
+          <div class="card-title">
+            <span>🧪 Tam giác vuông tương tác</span>
+            <div class="preset-row" style="gap:3px;">
+              <button class="preset-btn active" id="vpre-ABC" onclick="setLabVertices('A','B','C','H')">$ABC$</button>
+              <button class="preset-btn" id="vpre-MNP" onclick="setLabVertices('M','N','P','H')">$MNP$</button>
+              <button class="preset-btn" id="vpre-DEF" onclick="setLabVertices('D','E','F','K')">$DEF$</button>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:#475569; margin-bottom:8px;">
+            💡 <strong>Mẹo:</strong> Kéo thả trực tiếp đỉnh <strong id="lab-apex-lbl">$A$</strong> trên nửa đường tròn đường kính <strong id="lab-hyp-lbl">$BC$</strong> ngay trên hình vẽ, hoặc nhập số liệu bên dưới!
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">Cạnh góc vuông 1 ($c = AB$):</label>
+              <input type="number" id="lab-ab" class="aux-select" step="0.5" min="1" max="50" value="6" oninput="updateLabFromInputs()" />
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">Cạnh góc vuông 2 ($b = AC$):</label>
+              <input type="number" id="lab-ac" class="aux-select" step="0.5" min="1" max="50" value="8" oninput="updateLabFromInputs()" />
+            </div>
+          </div>
+          <div class="grid-9" id="lab-stats"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>📖 Lời giải tự luận tự động (9 đại lượng)</span></div>
+          <div class="solution-list" id="tab2-solutions"></div>
+        </section>
+      </div>
+
+      <!-- TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 (AI PARSER) -->
+      <div id="tab3-panel" style="display:none; flex-direction:column; gap:8px;">
+        <section class="card" style="border:1.5px solid #818cf8; background:linear-gradient(180deg, #eef2ff 0%, #ffffff 30%);">
+          <div class="card-title" style="color:#3730a3;"><span>🤖 Nhập đề bài Toán 9 bằng chữ</span></div>
+          <textarea id="ai-problem-input" rows="3" style="width:100%; padding:8px; border:1px solid #c7d2fe; border-radius:8px; font-size:12px; font-family:inherit; resize:vertical;" placeholder="Dán đề bài Toán 9 vào đây (VD: Cho tam giác ABC vuông tại A, đường cao AH. Biết AB = 6cm, AC = 8cm...)"></textarea>
+          <div class="preset-row" style="margin:6px 0;">
+            <button class="preset-btn" onclick="loadAISample(1)">Mẫu 1: $\triangle ABC$ vuông</button>
+            <button class="preset-btn" onclick="loadAISample(2)">Mẫu 2: Thang tựa tường</button>
+            <button class="preset-btn" onclick="loadAISample(3)">Mẫu 3: Đo tháp giác kế</button>
+          </div>
+          <button onclick="parseMath9Problem()" style="width:100%; border:none; border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:700; color:#fff; background:linear-gradient(135deg, #2563eb, #7c3aed); cursor:pointer;">
+            ⚡ Phân tích đề &amp; Dựng hình 2D
+          </button>
+          <div id="ai-parse-log" style="display:none; margin-top:8px; padding:8px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac; font-size:12px; color:#166534;"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>📖 Lời giải chi tiết từng bước</span></div>
+          <div class="solution-list" id="tab3-solutions"></div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- RIGHT STAGE -->
+    <section class="right-stage" id="right-stage">
+      <canvas id="canvas2d"></canvas>
+      <canvas id="drawOverlay"></canvas>
+
+      <div class="hud-telemetry" id="hud-telemetry"></div>
+
+      <div class="stage-toolbar">
+        <div style="display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap;">
+          <button class="hud-btn" id="btn-focus-mode" onclick="toggleFocusMode()">◀ Thu gọn bảng bên</button>
+          <div class="hud-info" id="hud-step-desc"></div>
+        </div>
+        <div id="pen-palette" style="display:none; align-items:center; gap:6px; flex-wrap:wrap; background:rgba(255,255,255,0.96); color:#0f172a; padding:6px 10px; border-radius:11px; border:1px solid #cbd5e1; box-shadow:0 6px 20px rgba(15,23,42,0.16); pointer-events:auto;">
+          <span class="pen-dot selected" style="background:#ef4444;" onclick="setPenColor('#ef4444', this)"></span>
+          <span class="pen-dot" style="background:#f59e0b;" onclick="setPenColor('#f59e0b', this)"></span>
+          <span class="pen-dot" style="background:#2563eb;" onclick="setPenColor('#2563eb', this)"></span>
+          <span class="pen-dot" id="pen-dot-contrast" style="background:#0f172a;" onclick="setPenColor('contrast', this)"></span>
+          <span style="width:1px; height:18px; background:#cbd5e1;"></span>
+          <button class="step-btn active-tool" id="pt-free" onclick="setPenTool('free')">✏️ Tự do</button>
+          <button class="step-btn" id="pt-line" onclick="setPenTool('line')">📏 Thẳng</button>
+          <button class="step-btn" id="pt-circle" onclick="setPenTool('circle')">⭕ Khoanh</button>
+          <button class="step-btn" id="pt-rightAngle" onclick="setPenTool('rightAngle')">📐 Góc vuông</button>
+          <button class="step-btn" id="pt-eraser" onclick="setPenTool('eraser')">🧽 Tẩy</button>
+          <span style="width:1px; height:18px; background:#cbd5e1;"></span>
+          <button class="step-btn active-tool" id="pw-2" onclick="setPenWidth(2)">2px</button>
+          <button class="step-btn" id="pw-4" onclick="setPenWidth(4)">4px</button>
+          <button class="step-btn" onclick="undoDrawOverlay()">↩️ Hoàn tác</button>
+          <button class="step-btn" onclick="clearDrawOverlay()" style="color:#dc2626;">🗑️ Xóa</button>
+        </div>
+      </div>
+
+      <!-- 4-Step Presentation Bar -->
+      <div class="step-pres-bar">
+        <div class="step-dots">
+          <button class="step-pill" id="sp-1" onclick="setStep(1)">B1</button>
+          <button class="step-pill" id="sp-2" onclick="setStep(2)">B2</button>
+          <button class="step-pill" id="sp-3" onclick="setStep(3)">B3</button>
+          <button class="step-pill active" id="sp-4" onclick="setStep(4)">B4</button>
+        </div>
+        <span class="dock-sep"></span>
+        <button class="dock-btn" onclick="stepPrev()" title="Mũi tên Trái">◀ Trước</button>
+        <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()">▶ Tự động</button>
+        <button class="dock-btn" onclick="stepNext()" title="Mũi tên Phải">Tiếp ▶</button>
+        <span class="dock-sep"></span>
+        <button class="dock-btn" id="btn-show-all" onclick="toggleShowAllSteps()">⚡ Hiện đủ</button>
+        <button class="dock-btn active-dock" id="btn-anim-toggle" onclick="toggleMotionAnim()" title="Dừng / Chạy chuyển động minh họa">⏸ Dừng chuyển động</button>
+      </div>
+
+      <!-- Floating Bottom Dock -->
+      <div class="floating-dock">
+        <button class="dock-btn" id="btn-pen" onclick="togglePenMode()">✏️ Bút vẽ (B)</button>
+        <span class="dock-sep"></span>
+        <button class="dock-btn" onclick="exportExamPNG()">📷 Tải ảnh đề thi PNG</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. STATE & RENDER HELPERS
+    // =========================================================================
+    const state = {
+      mainTab: 1,
+      modelId: 'a1',
+      step: 4,
+      showAllSteps: false,
+      lightTheme: true,
+      autoPlayTimer: null,
+      animPlaying: true,
+      animTime: 0,
+      // Model parameters
+      a1: { formulaIdx: 0 }, // 0..4
+      a2: { mode: 'proj' },  // 'proj' | 'leg'
+      b1: { deg: 35 },
+      c1: { dist: 20, alpha: 38, eyeH: 1.5 },
+      c2: { mode: 'plane', alpha: 24, dist: 500 },
+      c3: { len: 5, deg: 65 },
+      c4: { d: 30, alpha: 52, beta: 34 },
+      c5: { h: 8, l: 6 },
+      c6: { L: 120, pct: 8 },
+      c7: { side: 'same', ab: 120, alpha: 55, beta: 35 },
+      c8: { L: 600, alpha: 28 },
+      c9: { width: 80, alpha: 32 },
+      c10: { L: 30, alpha: 45, h0: 25 },
+      c11: { H: 40, alpha: 26, beta: 44 },
+      c12: { h: 120, alpha: 30 },
+      // Lab Tab 2
+      lab: {
+        vNames: ['A', 'B', 'C', 'H'],
+        ab: 6,
+        ac: 8,
+        angleRad: Math.atan2(8, 6), // angle at B
+        dragging: false,
+        semiCircle: null
+      },
+      // AI Parser Tab 3
+      ai: {
+        parsed: null
+      },
+      // Pen overlay
+      pen: {
+        active: false, color: '#ef4444', tool: 'free', width: 2,
+        drawing: false, startX: 0, startY: 0, snapshot: null, history: []
+      }
+    };
+
+    const canvas2d = document.getElementById('canvas2d');
+    const drawOverlay = document.getElementById('drawOverlay');
+    const drawCtx = drawOverlay.getContext('2d');
+    const stageEl = document.getElementById('right-stage');
+
+    function renderAllMath(target = document.body) {
+      if (!window.renderMathInElement || !target) return;
+      try {
+        renderMathInElement(target, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false,
+          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        });
+      } catch (e) {}
+    }
+
+    function setupCanvas2D() {
+      const w = stageEl.clientWidth || 800;
+      const h = stageEl.clientHeight || 580;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas2d.width = w * dpr;
+      canvas2d.height = h * dpr;
+      const ctx = canvas2d.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = state.lightTheme ? '#ffffff' : '#0b1120';
+      ctx.fillRect(0, 0, w, h);
+      return { ctx, w, h, isDark: !state.lightTheme };
+    }
+
+    function drawPt(ctx, p, label, color, ox = 8, oy = -8, isDark = false) {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      if (label) {
+        ctx.font = 'italic 600 17px "Times New Roman", Georgia, serif';
+        ctx.fillStyle = isDark ? '#f8fafc' : color;
+        ctx.fillText(label, p.x + ox, p.y + oy);
+      }
+      ctx.restore();
+    }
+
+    function drawSeg(ctx, p1, p2, color, width = 2.4, dashed = false) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      if (dashed) ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawRightAngle(ctx, V, P1, P2, sz = 13, color = '#16a34a') {
+      const d1 = Math.hypot(P1.x - V.x, P1.y - V.y) || 1;
+      const d2 = Math.hypot(P2.x - V.x, P2.y - V.y) || 1;
+      const u = { x: ((P1.x - V.x) / d1) * sz, y: ((P1.y - V.y) / d1) * sz };
+      const v = { x: ((P2.x - V.x) / d2) * sz, y: ((P2.y - V.y) / d2) * sz };
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.7;
+      ctx.beginPath();
+      ctx.moveTo(V.x + u.x, V.y + u.y);
+      ctx.lineTo(V.x + u.x + v.x, V.y + u.y + v.y);
+      ctx.lineTo(V.x + v.x, V.y + v.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawAngleArc(ctx, V, P1, P2, radius = 32, color = '#f59e0b', label = '') {
+      let a1 = Math.atan2(P1.y - V.y, P1.x - V.x);
+      let a2 = Math.atan2(P2.y - V.y, P2.x - V.x);
+      let diff = a2 - a1;
+      while (diff <= -Math.PI) diff += Math.PI * 2;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      const anticlockwise = diff < 0;
+      ctx.save();
+      ctx.fillStyle = color + '33';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(V.x, V.y);
+      ctx.arc(V.x, V.y, radius, a1, a2, anticlockwise);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(V.x, V.y, radius, a1, a2, anticlockwise);
+      ctx.stroke();
+      if (label) {
+        const midA = a1 + diff / 2;
+        ctx.font = '600 13px "Be Vietnam Pro", sans-serif';
+        ctx.fillStyle = color;
+        ctx.fillText(label, V.x + Math.cos(midA) * (radius + 14) - 10, V.y + Math.sin(midA) * (radius + 14) + 4);
+      }
+      ctx.restore();
+    }
+
+    function drawTextLabel(ctx, text, x, y, color = '#334155', font = '600 13px "Be Vietnam Pro", sans-serif') {
+      ctx.save();
+      ctx.font = font;
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    function computeRightTriLayout(w, h, abLen, acLen, vNames = ['A','B','C','H']) {
+      const bcLen = Math.hypot(abLen, acLen);
+      const maxW = Math.min(w * 0.64, 560);
+      const scale = maxW / bcLen;
+      const cy = h * 0.64;
+      const cx = w * 0.5;
+      const B = { x: cx - (bcLen * scale) / 2, y: cy };
+      const C = { x: cx + (bcLen * scale) / 2, y: cy };
+      const bh = (abLen * abLen) / bcLen;
+      const ah = (abLen * acLen) / bcLen;
+      const H = { x: B.x + bh * scale, y: cy };
+      const A = { x: H.x, y: cy - ah * scale };
+      return { A, B, C, H, scale, bcLen, bh, ch: bcLen - bh, ah, cx, cy, rPx: (bcLen * scale) / 2, vNames };
+    }
+
+    // =========================================================================
+    // 2. TAB 1: 12 MODELS (NHÓM A, B, C)
+    // =========================================================================
+    function renderSolutionsList(containerId, steps, eff) {
+      const box = document.getElementById(containerId);
+      if (!box) return;
+      box.innerHTML = steps.map((txt, i) => `
+        <div class="sol-step ${i + 1 === eff ? 'current' : (i + 1 > eff ? 'dimmed' : '')}">
+          <span class="sol-badge">B${i + 1}</span><span>${txt}</span>
+        </div>
+      `).join('');
+      renderAllMath(box);
+    }
+
+    function isAnimatedModel(id) {
+      return ['c2', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12'].includes(id);
+    }
+
+    function updateTelemetryHUD(title, rows) {
+      const el = document.getElementById('hud-telemetry');
+      if (!el) return;
+      if (!rows || rows.length === 0) { el.style.display = 'none'; return; }
+      el.style.display = 'flex';
+      el.innerHTML = `<div class="hud-tel-title">${title}</div>` +
+        rows.map(([k, v]) => `<div class="hud-tel-row"><span>${k}</span><span class="hud-tel-val">${v}</span></div>`).join('');
+    }
+
+    function drawBackdrop(ctx, w, h, kind, t, isDark) {
+      ctx.save();
+      if (kind === 'sky') {
+        const g = ctx.createLinearGradient(0, 0, 0, h * 0.74);
+        if (isDark) { g.addColorStop(0, '#0f172a'); g.addColorStop(1, '#1e293b'); }
+        else { g.addColorStop(0, '#bae6fd'); g.addColorStop(0.65, '#e0f2fe'); g.addColorStop(1, '#fef3c7'); }
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h * 0.74);
+        const gg = ctx.createLinearGradient(0, h * 0.74, 0, h);
+        gg.addColorStop(0, isDark ? '#1e293b' : '#dcfce7');
+        gg.addColorStop(1, isDark ? '#0b1120' : '#bbf7d0');
+        ctx.fillStyle = gg;
+        ctx.fillRect(0, h * 0.74, w, h * 0.26);
+        // Drifting clouds
+        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.72)';
+        for (let i = 0; i < 3; i++) {
+          const cx = ((w * (0.2 + i * 0.35) + t * (12 + i * 5)) % (w + 140)) - 70;
+          const cy = h * (0.14 + i * 0.08);
+          ctx.beginPath();
+          ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+          ctx.arc(cx + 22, cy - 6, 26, 0, Math.PI * 2);
+          ctx.arc(cx + 46, cy, 20, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (kind === 'ocean') {
+        const g = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+        if (isDark) { g.addColorStop(0, '#090d1a'); g.addColorStop(1, '#1e293b'); }
+        else { g.addColorStop(0, '#e0f2fe'); g.addColorStop(1, '#bae6fd'); }
+        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h * 0.55);
+        const og = ctx.createLinearGradient(0, h * 0.55, 0, h);
+        og.addColorStop(0, isDark ? '#0c4a6e' : '#0284c7');
+        og.addColorStop(1, isDark ? '#082f49' : '#0369a1');
+        ctx.fillStyle = og; ctx.fillRect(0, h * 0.55, w, h * 0.45);
+        // Gentle waves
+        ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 1.6;
+        for (let row = 0; row < 3; row++) {
+          ctx.beginPath();
+          const wy = h * (0.60 + row * 0.10);
+          for (let x = 0; x <= w; x += 18) {
+            const y = wy + Math.sin(x * 0.03 + t * 2.2 + row) * 4;
+            if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      } else {
+        // Technical coordinate grid
+        ctx.strokeStyle = isDark ? 'rgba(148,163,184,0.08)' : 'rgba(148,163,184,0.18)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 36) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (let y = 0; y < h; y += 36) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      }
+      ctx.restore();
+    }
+
+    function renderTab1Scene(onlyCanvas = false) {
+      const env = setup2DCanvas();
+      if (!env) return;
+      const { ctx, w, h, isDark } = env;
+      const eff = state.showAllSteps ? 4 : state.step;
+      const id = state.modelId;
+      const t = state.animTime;
+      const bgKind = (id === 'c2' && state.c2.mode === 'sub') || ['c4', 'c9', 'c11'].includes(id)
+        ? 'ocean'
+        : (['c1', 'c2', 'c3', 'c5', 'c6', 'c7', 'c8', 'c10', 'c12'].includes(id) ? 'sky' : 'grid');
+      drawBackdrop(ctx, w, h, bgKind, t, isDark);
+      if (!isAnimatedModel(id)) updateTelemetryHUD('', []);
+      const edgeCol = isDark ? '#38bdf8' : '#1e3a8a';
+      const mutedCol = isDark ? '#94a3b8' : '#475569';
+      let stepDesc = [];
+      let solSteps = [];
+
+      if (id === 'a1') {
+        const lay = computeRightTriLayout(w, h, 6, 8);
+        const { A, B, C, H } = lay;
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5);
+        drawRightAngle(ctx, A, B, C);
+        if (eff >= 2) {
+          drawSeg(ctx, A, H, '#dc2626', 2.2, true);
+          drawRightAngle(ctx, H, A, C, 12, '#dc2626');
+        }
+        const fIdx = state.a1.formulaIdx;
+        if (eff >= 3) {
+          if (fIdx === 0) {
+            drawSeg(ctx, A, B, '#ea580c', 4.5); drawSeg(ctx, B, H, '#16a34a', 4.5); drawSeg(ctx, B, C, '#2563eb', 3.5);
+          } else if (fIdx === 1) {
+            drawSeg(ctx, A, C, '#ea580c', 4.5); drawSeg(ctx, C, H, '#16a34a', 4.5); drawSeg(ctx, B, C, '#2563eb', 3.5);
+          } else if (fIdx === 2) {
+            drawSeg(ctx, A, H, '#ea580c', 4.5); drawSeg(ctx, B, H, '#16a34a', 4.5); drawSeg(ctx, H, C, '#2563eb', 4.5);
+          } else if (fIdx === 3) {
+            drawSeg(ctx, A, B, '#ea580c', 4); drawSeg(ctx, A, C, '#ea580c', 4);
+            drawSeg(ctx, A, H, '#16a34a', 4); drawSeg(ctx, B, C, '#2563eb', 4);
+          } else {
+            drawSeg(ctx, A, H, '#ea580c', 4.5); drawSeg(ctx, A, B, '#16a34a', 4); drawSeg(ctx, A, C, '#2563eb', 4);
+          }
+        }
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark);
+        drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark);
+        drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
+
+        const formulas = [
+          '$AB^2 = BH \\cdot BC$ (Cạnh góc vuông$^2$ = Hình chiếu $\\times$ Cạnh huyền)',
+          '$AC^2 = CH \\cdot BC$ (Cạnh góc vuông$^2$ = Hình chiếu $\\times$ Cạnh huyền)',
+          '$AH^2 = BH \\cdot CH$ (Đường cao$^2$ = Tích 2 hình chiếu)',
+          '$AB \\cdot AC = AH \\cdot BC$ (Tích 2 cạnh góc vuông = Đường cao $\\times$ Cạnh huyền)',
+          '$\\dfrac{1}{AH^2} = \\dfrac{1}{AB^2} + \\dfrac{1}{AC^2}$ (Nghịch đảo bình phương đường cao)'
+        ];
+        stepDesc = [
+          'Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.',
+          'Bước 2/4: Hạ đường cao $AH \\perp BC$ ($H \\in BC$).',
+          `Bước 3/4: Làm nổi bật các đoạn thẳng trong hệ thức ${fIdx + 1}.`,
+          `Bước 4/4: Hệ thức đang chọn: ${formulas[fIdx]}`
+        ];
+        solSteps = [
+          'Xét $\\triangle ABC$ vuông tại $A$, đường cao $AH \\perp BC$.',
+          'Xác định các hình chiếu $BH$ của $AB$ và $CH$ của $AC$ trên cạnh huyền $BC$.',
+          'Áp dụng cặp tam giác đồng dạng: $\\triangle HBA \\sim \\triangle ABC$, $\\triangle HAC \\sim \\triangle ABC$, $\\triangle HBA \\sim \\triangle HAC$.',
+          `Kết luận: ${formulas[fIdx]}`
+        ];
+      } else if (id === 'a2') {
+        const isProj = state.a2.mode === 'proj';
+        const lay = isProj ? computeRightTriLayout(w, h, Math.sqrt(52), Math.sqrt(117)) : computeRightTriLayout(w, h, 6, 8);
+        const { A, B, C, H } = lay;
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5);
+        drawRightAngle(ctx, A, B, C);
+        if (eff >= 2) {
+          drawSeg(ctx, A, H, '#dc2626', 2.3, true);
+          drawRightAngle(ctx, H, A, C, 12, '#dc2626');
+          if (isProj) {
+            drawTextLabel(ctx, '4', (B.x + H.x) / 2 - 4, B.y + 18, '#16a34a');
+            drawTextLabel(ctx, '9', (H.x + C.x) / 2 - 4, C.y + 18, '#2563eb');
+          } else {
+            drawTextLabel(ctx, '6', (A.x + B.x) / 2 - 18, (A.y + B.y) / 2, '#ea580c');
+            drawTextLabel(ctx, '3,6', (B.x + H.x) / 2 - 8, B.y + 18, '#16a34a');
+          }
+        }
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark);
+        drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
+
+        if (isProj) {
+          stepDesc = [
+            'Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.',
+            'Bước 2/4: Gắn số liệu 2 hình chiếu $BH = 4$, $CH = 9$.',
+            'Bước 3/4: Tính cạnh huyền $BC = BH + CH = 13$ và đường cao $AH = \\sqrt{BH \\cdot CH}$.',
+            'Bước 4/4: Suy ra $AH = 6$, $AB = \\sqrt{52} = 2\\sqrt{13}$, $AC = \\sqrt{117} = 3\\sqrt{13}$.'
+          ];
+          solSteps = [
+            'Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $BH = 4$, $CH = 9$.',
+            'Cạnh huyền: $BC = BH + CH = 4 + 9 = 13$.',
+            'Đường cao: $AH^2 = BH \\cdot CH = 4 \\cdot 9 = 36 \\Rightarrow AH = 6$.',
+            'Hai cạnh góc vuông: $AB = \\sqrt{4 \\cdot 13} = 2\\sqrt{13}$; $AC = \\sqrt{9 \\cdot 13} = 3\\sqrt{13}$.'
+          ];
+        } else {
+          stepDesc = [
+            'Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.',
+            'Bước 2/4: Gắn giả thiết $AB = 6$, hình chiếu $BH = 3{,}6$.',
+            'Bước 3/4: Áp dụng $AB^2 = BH \\cdot BC \\Rightarrow BC = 10$.',
+            'Bước 4/4: Tính $AC = 8$, $CH = 6{,}4$, $AH = 4{,}8$.'
+          ];
+          solSteps = [
+            'Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $AB = 6$, $BH = 3{,}6$.',
+            'Ta có $AB^2 = BH \\cdot BC \\Rightarrow BC = \\dfrac{6^2}{3{,}6} = 10$.',
+            'Suy ra $CH = 10 - 3{,}6 = 6{,}4$ và $AC = \\sqrt{BC^2 - AB^2} = 8$.',
+            'Đường cao: $AH = \\dfrac{AB \\cdot AC}{BC} = \\dfrac{6 \\cdot 8}{10} = 4{,}8$.'
+          ];
+        }
+      } else if (id === 'a3') {
+        const lay = computeRightTriLayout(w, h, 6, 8);
+        const { A, B, C, H } = lay;
+        const M = { x: (B.x + C.x) / 2, y: B.y };
+        const tD = 6 / (6 + 8);
+        const D = { x: B.x + tD * (C.x - B.x), y: B.y };
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5);
+        drawRightAngle(ctx, A, B, C);
+        if (eff >= 2) { drawSeg(ctx, A, H, '#dc2626', 2, true); drawRightAngle(ctx, H, A, C, 11, '#dc2626'); }
+        if (eff >= 3) { drawSeg(ctx, A, M, '#16a34a', 2.4); drawSeg(ctx, A, D, '#ea580c', 2.4); }
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark);
+        drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -10, 18, isDark);
+        if (eff >= 3) { drawPt(ctx, D, 'D', '#ea580c', 2, 18, isDark); drawPt(ctx, M, 'M', '#16a34a', 4, 18, isDark); }
+        stepDesc = [
+          'Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$ ($AB = 6, AC = 8$).',
+          'Bước 2/4: Kẻ đường cao $AH \\perp BC$ ($AH = 4{,}8$).',
+          'Bước 3/4: Kẻ trung tuyến $AM = \\frac{1}{2}BC = 5$ và phân giác $AD$.',
+          'Bước 4/4: Tính $BD, DC$ theo tính chất phân giác và $HM$ trong $\\triangle AHM$.'
+        ];
+        solSteps = [
+          'Cạnh huyền $BC = \\sqrt{6^2 + 8^2} = 10$; đường trung tuyến $AM = \\dfrac{BC}{2} = 5$.',
+          'Đường cao $AH = \\dfrac{6 \\cdot 8}{10} = 4{,}8$; hình chiếu $BH = 3{,}6 \\Rightarrow HM = BM - BH = 1{,}4$.',
+          'Phân giác $AD$: $\\dfrac{DB}{DC} = \\dfrac{AB}{AC} = \\dfrac{3}{4} \\Rightarrow BD = \\dfrac{30}{7},\\; DC = \\dfrac{40}{7}$.',
+          'Suy ra $HD = BD - BH = \\dfrac{24}{35}$ và $AD = \\sqrt{AH^2 + HD^2} = \\dfrac{24\\sqrt{2}}{7}$.'
+        ];
+      } else if (id === 'b1') {
+        const deg = state.b1.deg;
+        const rad = (deg * Math.PI) / 180;
+        const bc = 10, ab = bc * Math.sin(rad), ac = bc * Math.cos(rad);
+        const lay = computeRightTriLayout(w, h, ab, ac);
+        const { A, B, C } = lay;
+        drawSeg(ctx, A, B, '#ea580c', 3); drawSeg(ctx, A, C, '#16a34a', 3); drawSeg(ctx, B, C, '#2563eb', 3);
+        drawRightAngle(ctx, A, B, C);
+        if (eff >= 2) drawAngleArc(ctx, C, B, A, 38, '#f59e0b', `${deg}°`);
+        if (eff >= 3) drawAngleArc(ctx, B, A, C, 30, '#0ea5e9', `${90 - deg}°`);
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        drawTextLabel(ctx, 'đối', (A.x + B.x) / 2 - 26, (A.y + B.y) / 2, '#ea580c');
+        drawTextLabel(ctx, 'kề', (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#16a34a');
+        drawTextLabel(ctx, 'huyền', (B.x + C.x) / 2 - 14, B.y + 20, '#2563eb');
+        stepDesc = [
+          `Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$ với góc nhọn $\\alpha = \\widehat{C} = ${deg}^\\circ$.`,
+          'Bước 2/4: Xác định cạnh đối ($AB$), cạnh kề ($AC$), cạnh huyền ($BC$).',
+          `Bước 3/4: Góc phụ $\\widehat{B} = 90^\\circ - ${deg}^\\circ = ${90 - deg}^\\circ$.`,
+          `Bước 4/4: $\\sin${deg}^\\circ \\approx ${Math.sin(rad).toFixed(3)},\\; \\cos${deg}^\\circ \\approx ${Math.cos(rad).toFixed(3)},\\; \\tan${deg}^\\circ \\approx ${Math.tan(rad).toFixed(3)}$.`
+        ];
+        solSteps = [
+          `$\\sin\\alpha = \\dfrac{\\text{đối}}{\\text{huyền}} = \\dfrac{AB}{BC} \\approx ${Math.sin(rad).toFixed(4)}$`,
+          `$\\cos\\alpha = \\dfrac{\\text{kề}}{\\text{huyền}} = \\dfrac{AC}{BC} \\approx ${Math.cos(rad).toFixed(4)}$`,
+          `$\\tan\\alpha = \\dfrac{\\text{đối}}{\\text{kề}} = \\dfrac{AB}{AC} \\approx ${Math.tan(rad).toFixed(4)},\\quad \\cot\\alpha = \\dfrac{1}{\\tan\\alpha} \\approx ${(1 / Math.tan(rad)).toFixed(4)}$`,
+          `Hai góc phụ nhau: $\\sin(${deg}^\\circ) = \\cos(${90 - deg}^\\circ)$ và $\\tan(${deg}^\\circ) = \\cot(${90 - deg}^\\circ)$.`
+        ];
+      } else if (id === 'b2') {
+        const rad = (35 * Math.PI) / 180;
+        const lay = computeRightTriLayout(w, h, 10 * Math.cos(rad), 10 * Math.sin(rad));
+        const { A, B, C } = lay;
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, '#2563eb', 2.8);
+        drawRightAngle(ctx, A, B, C);
+        if (eff >= 2) { drawAngleArc(ctx, B, A, C, 34, '#f59e0b', '35°'); drawTextLabel(ctx, 'BC = 10', (B.x + C.x) / 2 - 22, B.y + 20, '#2563eb'); }
+        if (eff >= 3) { drawTextLabel(ctx, 'AC ≈ 5,74', (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#ea580c'); drawTextLabel(ctx, 'AB ≈ 8,19', (A.x + B.x) / 2 - 58, (A.y + B.y) / 2, '#16a34a'); }
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        stepDesc = [
+          'Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.',
+          'Bước 2/4: Gắn giả thiết cạnh huyền $BC = 10$ và góc $\\widehat{B} = 35^\\circ$.',
+          'Bước 3/4: Tính góc $\\widehat{C} = 90^\\circ - 35^\\circ = 55^\\circ$.',
+          'Bước 4/4: Tính $AC = BC \\cdot \\sin 35^\\circ \\approx 5{,}74$ và $AB = BC \\cdot \\cos 35^\\circ \\approx 8{,}19$.'
+        ];
+        solSteps = [
+          'Giải $\\triangle ABC$ vuông tại $A$, biết $BC = 10$ và $\\widehat{B} = 35^\\circ$.',
+          'Góc nhọn còn lại: $\\widehat{C} = 90^\\circ - \\widehat{B} = 55^\\circ$.',
+          '$AC = BC \\cdot \\sin B = 10 \\cdot \\sin 35^\\circ \\approx 5{,}74$.',
+          '$AB = BC \\cdot \\cos B = 10 \\cdot \\cos 35^\\circ \\approx 8{,}19$.'
+        ];
+      } else if (id === 'b3') {
+        const cy = h * 0.68, cx = w * 0.5;
+        const B = { x: cx - 180, y: cy }, C = { x: cx + 180, y: cy }, A = { x: cx - 30, y: cy - 190 };
+        const H = { x: A.x, y: cy };
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, '#ea580c', 2.8); drawSeg(ctx, B, C, '#2563eb', 2.8);
+        if (eff >= 2) { drawSeg(ctx, A, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, C, 12, '#dc2626'); }
+        if (eff >= 3) drawAngleArc(ctx, C, B, A, 36, '#f59e0b', 'C');
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
+        stepDesc = [
+          'Bước 1/4: Dựng tam giác thường $ABC$ có $BC = a, AC = b$.',
+          'Bước 2/4: Hạ đường cao phụ $AH \\perp BC$.',
+          'Bước 3/4: Trong $\\triangle AHC$ vuông tại $H$, ta có $AH = AC \\cdot \\sin C = b\\sin C$.',
+          'Bước 4/4: Suy ra $S_{\\triangle ABC} = \\frac{1}{2} a \\cdot AH = \\frac{1}{2} ab \\sin C$.'
+        ];
+        solSteps = [
+          'Kẻ đường cao $AH \\perp BC$ ($H \\in BC$).',
+          'Trong $\\triangle AHC$ vuông tại $H$: $AH = AC \\cdot \\sin C = b \\sin C$.',
+          'Diện tích tam giác: $S = \\dfrac{1}{2} BC \\cdot AH$.',
+          'Thay $AH = b\\sin C$ ta được: $S_{\\triangle ABC} = \\dfrac{1}{2} a b \\sin C$.'
+        ];
+      } else if (id === 'c1') {
+        const { dist, alpha, eyeH } = state.c1;
+        const rad = (alpha * Math.PI) / 180;
+        const dh = dist * Math.tan(rad), totalH = dh + eyeH;
+        const gy = h * 0.74, gx1 = w * 0.22, gx2 = w * 0.74;
+        const scale = (gx2 - gx1) / dist;
+        const eyePx = Math.max(22, eyeH * scale);
+        const dhPx = Math.min(h * 0.48, dh * scale);
+        const A = { x: gx1, y: gy }, E = { x: gx1, y: gy - eyePx };
+        const B = { x: gx2, y: gy }, H = { x: gx2, y: gy - eyePx }, S = { x: gx2, y: gy - eyePx - dhPx };
+        drawSeg(ctx, { x: gx1 - 40, y: gy }, { x: gx2 + 50, y: gy }, mutedCol, 2);
+        // Tower silhouette
+        ctx.save(); ctx.fillStyle = 'rgba(59,130,246,0.14)'; ctx.fillRect(gx2 - 14, S.y, 28, gy - S.y); ctx.restore();
+        drawSeg(ctx, B, S, edgeCol, 3);
+        drawSeg(ctx, A, E, '#16a34a', 2.6);
+        if (eff >= 2) { drawSeg(ctx, E, H, '#64748b', 1.8, true); drawTextLabel(ctx, `${dist}m`, (A.x + B.x) / 2 - 14, gy + 18, mutedCol); drawTextLabel(ctx, `${eyeH}m`, A.x - 36, (A.y + E.y) / 2 + 4, '#16a34a'); }
+        if (eff >= 3) { drawSeg(ctx, E, S, '#ea580c', 2.4, true); drawRightAngle(ctx, H, E, S, 12, '#dc2626'); drawAngleArc(ctx, E, H, S, 38, '#f59e0b', `${alpha}°`); }
+        drawPt(ctx, S, 'S', edgeCol, -4, -12, isDark); drawPt(ctx, B, 'B', edgeCol, 8, 16, isDark);
+        drawPt(ctx, E, 'E', '#16a34a', -18, 4, isDark); drawPt(ctx, H, 'H', '#dc2626', 8, 4, isDark);
+        stepDesc = [
+          'Bước 1/4: Mô hình hóa tháp $SB$ và giác kế $AE$ đặt cách chân tháp $d$.',
+          `Bước 2/4: Gắn số liệu $EH = AB = ${dist}\\text{ m}$, $BH = AE = ${eyeH}\\text{ m}$.`,
+          `Bước 3/4: Xét $\\triangle SEH$ vuông tại $H$ có góc nâng $\\widehat{SEH} = ${alpha}^\\circ$.`,
+          `Bước 4/4: Chiều cao tháp $SB = SH + BH \\approx ${totalH.toFixed(2)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Ta có hình chữ nhật $ABHE \\Rightarrow EH = AB = ${dist}\\text{ m},\\; BH = AE = ${eyeH}\\text{ m}$.`,
+          `Trong $\\triangle SEH$ vuông tại $H$: $SH = EH \\cdot \\tan ${alpha}^\\circ = ${dist} \\cdot \\tan ${alpha}^\\circ \\approx ${dh.toFixed(2)}\\text{ m}$.`,
+          `Chiều cao của tháp: $SB = SH + BH \\approx ${dh.toFixed(2)} + ${eyeH} = ${totalH.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c2') {
+        const { mode, alpha, dist } = state.c2;
+        const rad = (alpha * Math.PI) / 180;
+        const depth = dist * Math.sin(rad);
+        const isSub = mode === 'sub';
+        const y0 = isSub ? h * 0.30 : h * 0.72;
+        const dirY = isSub ? 1 : -1;
+        const A = { x: w * 0.20, y: y0 };
+        const dx = Math.min(w * 0.56, 360), dy = dx * Math.tan(rad) * dirY;
+        const B = { x: A.x + dx, y: y0 + dy }, H = { x: B.x, y: y0 };
+        drawSeg(ctx, { x: w * 0.12, y: y0 }, { x: w * 0.86, y: y0 }, '#0ea5e9', 2.5);
+        if (eff >= 2) drawSeg(ctx, A, B, '#ea580c', 3);
+        if (eff >= 3) { drawSeg(ctx, B, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, B, 12, '#dc2626'); drawAngleArc(ctx, A, H, B, 40, '#f59e0b', `${alpha}°`); }
+        drawPt(ctx, A, 'A', edgeCol, -14, isSub ? -10 : 18, isDark);
+        drawPt(ctx, B, isSub ? 'Tàu ngầm' : 'Máy bay', '#ea580c', 8, 4, isDark);
+        if (eff >= 3) drawPt(ctx, H, 'H', '#dc2626', 8, isSub ? -10 : 18, isDark);
+        // Animated vehicle gliding along hypotenuse AB
+        const prog = (t * 0.32) % 1;
+        const vx = A.x + (B.x - A.x) * prog, vy = A.y + (B.y - A.y) * prog;
+        ctx.save(); ctx.translate(vx, vy); ctx.rotate(Math.atan2(B.y - A.y, B.x - A.x));
+        ctx.fillStyle = isSub ? '#0f172a' : '#ef4444';
+        ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(-11, -6); ctx.lineTo(-7, 0); ctx.lineTo(-11, 6); ctx.closePath(); ctx.fill();
+        ctx.restore();
+        updateTelemetryHUD(isSub ? 'Tàu ngầm lặn' : 'Máy bay cất cánh', [
+          ['Quãng đường s(t)', `${(dist * prog).toFixed(1)} m`],
+          [isSub ? 'Độ sâu h(t)' : 'Độ cao h(t)', `${(depth * prog).toFixed(1)} m`],
+          ['Góc nghiêng α', `${alpha}°`]
+        ]);
+        stepDesc = [
+          `Bước 1/4: Vẽ mặt phẳng chuẩn (${isSub ? 'mặt biển' : 'đường băng'}) tại điểm xuất phát $A$.`,
+          `Bước 2/4: ${isSub ? 'Tàu ngầm lặn' : 'Máy bay cất cánh'} theo quãng đường $AB = ${dist}\\text{ m}$.`,
+          `Bước 3/4: Kẻ đường cao $BH$ vuông góc mặt ngang, góc nghiêng $\\alpha = ${alpha}^\\circ$.`,
+          `Bước 4/4: ${isSub ? 'Độ sâu' : 'Độ cao'} đạt được $BH = AB \\cdot \\sin ${alpha}^\\circ \\approx ${depth.toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Xét $\\triangle AHB$ vuông tại $H$, cạnh huyền $AB = ${dist}\\text{ m}$, $\\widehat{BAH} = ${alpha}^\\circ$.`,
+          `Ta có $\\sin\\alpha = \\dfrac{BH}{AB} \\Rightarrow BH = AB \\cdot \\sin ${alpha}^\\circ$.`,
+          `Vậy ${isSub ? 'độ sâu' : 'độ cao'} đạt được là $BH = ${dist} \\cdot \\sin ${alpha}^\\circ \\approx ${depth.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c3') {
+        const { len, deg } = state.c3;
+        const rad = (deg * Math.PI) / 180;
+        const reach = len * Math.sin(rad), foot = len * Math.cos(rad);
+        const O = { x: w * 0.34, y: h * 0.72 };
+        const scale = 230 / len;
+        const A = { x: O.x, y: O.y - reach * scale }, B = { x: O.x + foot * scale, y: O.y };
+        drawSeg(ctx, { x: O.x, y: O.y + 20 }, { x: O.x, y: O.y - len * scale - 20 }, mutedCol, 4);
+        drawSeg(ctx, { x: O.x - 20, y: O.y }, { x: w * 0.80, y: O.y }, mutedCol, 2.5);
+        drawRightAngle(ctx, O, A, B, 13, '#16a34a');
+        if (eff >= 2) drawSeg(ctx, A, B, '#ea580c', 3.5);
+        if (eff >= 3) drawAngleArc(ctx, B, O, A, 32, '#f59e0b', `${deg}°`);
+        drawPt(ctx, O, 'O', edgeCol, -18, 16, isDark); drawPt(ctx, A, 'A', '#ea580c', -18, 4, isDark); drawPt(ctx, B, 'B', '#ea580c', 6, 18, isDark);
+        stepDesc = [
+          'Bước 1/4: Dựng tường thẳng đứng $OA$ vuông góc mặt đất $OB$.',
+          `Bước 2/4: Đặt thang dài $AB = ${len}\\text{ m}$ tựa vào tường.`,
+          `Bước 3/4: Thang tạo với mặt đất góc an toàn $\\widehat{ABO} = ${deg}^\\circ$.`,
+          `Bước 4/4: Tầm với cao nhất $OA = AB \\cdot \\sin ${deg}^\\circ \\approx ${reach.toFixed(2)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Xét $\\triangle AOB$ vuông tại $O$ có cạnh huyền $AB = ${len}\\text{ m}$, $\\widehat{ABO} = ${deg}^\\circ$.`,
+          `Chiều cao thang đạt tới: $OA = AB \\cdot \\sin ${deg}^\\circ \\approx ${reach.toFixed(2)}\\text{ m}$.`,
+          `Khoảng cách chân thang tới tường: $OB = AB \\cdot \\cos ${deg}^\\circ \\approx ${foot.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c4') {
+        const { d, alpha, beta } = state.c4;
+        const rA = (alpha * Math.PI) / 180, rB = (beta * Math.PI) / 180;
+        const cotA = 1 / Math.tan(rA), cotB = 1 / Math.tan(rB);
+        const sh = d / (cotB - cotA), ha = sh * cotA;
+        const gy = h * 0.72, H = { x: w * 0.72, y: gy };
+        const scale = Math.min(260 / (sh * cotB), 200 / sh);
+        const S = { x: H.x, y: gy - sh * scale }, A = { x: H.x - ha * scale, y: gy }, B = { x: H.x - sh * cotB * scale, y: gy };
+        drawSeg(ctx, { x: B.x - 30, y: gy }, { x: H.x + 30, y: gy }, mutedCol, 2.2);
+        drawSeg(ctx, H, S, edgeCol, 3);
+        drawRightAngle(ctx, H, B, S, 12, '#16a34a');
+        if (eff >= 2) { drawSeg(ctx, B, A, '#16a34a', 3.5); drawTextLabel(ctx, `d = ${d}m`, (A.x + B.x) / 2 - 16, gy + 20, '#16a34a'); }
+        if (eff >= 3) {
+          drawSeg(ctx, A, S, '#ea580c', 2.2, true); drawSeg(ctx, B, S, '#2563eb', 2.2, true);
+          drawAngleArc(ctx, A, H, S, 30, '#ea580c', `${alpha}°`); drawAngleArc(ctx, B, H, S, 40, '#2563eb', `${beta}°`);
+        }
+        drawPt(ctx, S, 'S', edgeCol, 6, -8, isDark); drawPt(ctx, H, 'H', edgeCol, 6, 16, isDark);
+        drawPt(ctx, A, 'A', '#ea580c', -4, 18, isDark); drawPt(ctx, B, 'B', '#2563eb', -10, 18, isDark);
+        stepDesc = [
+          'Bước 1/4: Dựng tháp/cây $SH \\perp BH$ tại chân $H$.',
+          `Bước 2/4: Hai điểm quan sát $A, B$ thẳng hàng cách nhau $AB = ${d}\\text{ m}$.`,
+          `Bước 3/4: Biểu diễn $HA = SH \\cdot \\cot ${alpha}^\\circ$ và $HB = SH \\cdot \\cot ${beta}^\\circ$.`,
+          `Bước 4/4: Suy ra $SH = \\frac{${d}}{\\cot ${beta}^\\circ - \\cot ${alpha}^\\circ} \\approx ${sh.toFixed(2)}\\text{ m}$ và bề rộng $HA \\approx ${ha.toFixed(2)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Trong $\\triangle SHA$ vuông tại $H$: $HA = SH \\cdot \\cot ${alpha}^\\circ$.`,
+          `Trong $\\triangle SHB$ vuông tại $H$: $HB = SH \\cdot \\cot ${beta}^\\circ$.`,
+          `Mà $HB - HA = AB = ${d} \\Rightarrow SH(\\cot ${beta}^\\circ - \\cot ${alpha}^\\circ) = ${d} \\Rightarrow SH \\approx ${sh.toFixed(2)}\\text{ m}$.`,
+          `Chiều rộng khúc sông: $HA = SH \\cdot \\cot ${alpha}^\\circ \\approx ${ha.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c5') {
+        const { h: ch, l: cl } = state.c5;
+        const alphaDeg = (Math.atan2(ch, cl) * 180) / Math.PI;
+        const B = { x: w * 0.34, y: h * 0.72 };
+        const scale = 200 / Math.max(ch, cl);
+        const A = { x: B.x, y: B.y - ch * scale }, C = { x: B.x + cl * scale, y: B.y };
+        drawSeg(ctx, { x: B.x - 40, y: B.y }, { x: w * 0.82, y: B.y }, mutedCol, 2);
+        drawSeg(ctx, B, A, edgeCol, 3.2);
+        drawRightAngle(ctx, B, A, C, 12, '#16a34a');
+        if (eff >= 2) { drawSeg(ctx, B, C, '#475569', 4); drawTextLabel(ctx, `Bóng ${cl}m`, (B.x + C.x) / 2 - 20, B.y + 20, mutedCol); }
+        if (eff >= 3) { drawSeg(ctx, A, C, '#f59e0b', 2.4, true); drawAngleArc(ctx, C, B, A, 34, '#f59e0b', `${alphaDeg.toFixed(1)}°`); }
+        drawPt(ctx, A, 'A', edgeCol, -16, 0, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', '#f59e0b', 8, 16, isDark);
+        stepDesc = [
+          `Bước 1/4: Dựng cột cờ $AB = ${ch}\\text{ m}$ vuông góc mặt đất.`,
+          `Bước 2/4: Bóng cột cờ trên mặt đất là $BC = ${cl}\\text{ m}$.`,
+          'Bước 3/4: Tia nắng mặt trời tạo với mặt đất góc $\\widehat{ACB}$.',
+          `Bước 4/4: $\\tan\\widehat{ACB} = \\frac{${ch}}{${cl}} \\Rightarrow \\widehat{ACB} \\approx ${alphaDeg.toFixed(1)}^\\circ$.`
+        ];
+        solSteps = [
+          `Xét $\\triangle ABC$ vuông tại $B$ có $AB = ${ch}\\text{ m}$, $BC = ${cl}\\text{ m}$.`,
+          `Ta có $\\tan\\widehat{ACB} = \\dfrac{AB}{BC} = \\dfrac{${ch}}{${cl}} \\approx ${(ch / cl).toFixed(4)}$.`,
+          `Suy ra góc tạo bởi tia nắng và mặt đất: $\\widehat{ACB} \\approx ${alphaDeg.toFixed(1)}^\\circ$.`
+        ];
+      } else {
+        // c6: Độ dốc cầu vượt
+        const { L, pct } = state.c6;
+        const rad = Math.atan(pct / 100), deg = (rad * 180) / Math.PI;
+        const dh = L * Math.sin(rad);
+        const B = { x: w * 0.22, y: h * 0.72 }, C = { x: w * 0.78, y: h * 0.72 };
+        const visDy = Math.max(45, (C.x - B.x) * Math.tan(Math.max(rad, 0.16)));
+        const A = { x: C.x, y: B.y - visDy };
+        drawSeg(ctx, B, C, mutedCol, 2.2);
+        drawSeg(ctx, A, C, '#dc2626', 2.4, true);
+        drawRightAngle(ctx, C, B, A, 12, '#16a34a');
+        if (eff >= 2) drawSeg(ctx, B, A, '#ea580c', 3.4);
+        if (eff >= 3) drawAngleArc(ctx, B, C, A, 44, '#f59e0b', `${deg.toFixed(2)}°`);
+        drawPt(ctx, A, 'A', edgeCol, 8, -4, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
+        stepDesc = [
+          'Bước 1/4: Mô hình hóa mặt cầu dốc $AB$ dài $L = ' + L + '\\text{ m}$.',
+          `Bước 2/4: Độ dốc $i = \\tan\\alpha = ${pct}\\% = ${(pct / 100).toFixed(2)}$.`,
+          `Bước 3/4: Góc nghiêng $\\alpha = \\arctan(${(pct / 100).toFixed(2)}) \\approx ${deg.toFixed(2)}^\\circ$.`,
+          `Bước 4/4: Độ cao chênh lệch $AC = AB \\cdot \\sin\\alpha \\approx ${dh.toFixed(2)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Độ dốc $i = \\tan\\alpha = \\dfrac{AC}{BC} = ${pct}\\% = ${(pct / 100).toFixed(2)}$.`,
+          `Góc nghiêng mặt cầu: $\\alpha \\approx ${deg.toFixed(2)}^\\circ$.`,
+          `Độ cao đạt được: $AC = AB \\cdot \\sin\\alpha = ${L} \\cdot \\sin(${deg.toFixed(2)}^\\circ) \\approx ${dh.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c7') {
+        // Bài 3.7: Khinh khí cầu & 2 trạm radar mặt đất
+        const { side, ab, alpha, beta } = state.c7;
+        const rA = (alpha * Math.PI) / 180, rB = (beta * Math.PI) / 180;
+        const cotA = 1 / Math.tan(rA), cotB = 1 / Math.tan(rB);
+        const hVal = side === 'same' ? ab / Math.abs(cotB - cotA) : ab / (cotA + cotB);
+        const bob = Math.sin(t * 2.0) * 8;
+        const gy = h * 0.74;
+        const H = side === 'same' ? { x: w * 0.72, y: gy } : { x: w * 0.50, y: gy };
+        const scale = Math.min(250 / (hVal * Math.max(cotA, cotB)), 210 / Math.max(hVal, 10));
+        const K = { x: H.x, y: gy - hVal * scale + bob };
+        const A = side === 'same' ? { x: H.x - hVal * cotA * scale, y: gy } : { x: H.x - hVal * cotA * scale, y: gy };
+        const B = side === 'same' ? { x: H.x - hVal * cotB * scale, y: gy } : { x: H.x + hVal * cotB * scale, y: gy };
+        drawSeg(ctx, { x: w * 0.1, y: gy }, { x: w * 0.9, y: gy }, mutedCol, 2.2);
+        // Balloon graphic
+        ctx.save();
+        ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(K.x, K.y - 20, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.ellipse(K.x, K.y - 20, 10, 22, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#78350f'; ctx.fillRect(K.x - 6, K.y + 4, 12, 8);
+        ctx.restore();
+        if (eff >= 2) { drawSeg(ctx, A, B, '#16a34a', 3); drawTextLabel(ctx, `AB = ${ab}m`, (A.x + B.x) / 2 - 24, gy + 20, '#16a34a'); }
+        if (eff >= 3) {
+          drawSeg(ctx, K, H, '#dc2626', 2, true); drawRightAngle(ctx, H, A, K, 12, '#dc2626');
+          drawSeg(ctx, A, K, '#ea580c', 2.2, true); drawSeg(ctx, B, K, '#2563eb', 2.2, true);
+          drawAngleArc(ctx, A, H, K, 30, '#ea580c', `${alpha}°`);
+          drawAngleArc(ctx, B, H, K, 30, '#2563eb', `${beta}°`);
+        }
+        drawPt(ctx, A, 'A', '#ea580c', -10, 18, isDark); drawPt(ctx, B, 'B', '#2563eb', -4, 18, isDark); drawPt(ctx, H, 'H', '#dc2626', 6, 18, isDark);
+        updateTelemetryHUD('Khinh khí cầu (60fps)', [
+          ['Độ cao h', `${(hVal + bob * 0.1).toFixed(1)} m`],
+          ['Khoảng cách AB', `${ab} m`],
+          ['Góc α / β', `${alpha}° / ${beta}°`]
+        ]);
+        stepDesc = [
+          'Bước 1/4: Khinh khí cầu $K$ bay lơ lửng trên mặt đất, hạ $KH \\perp AB$.',
+          `Bước 2/4: Hai trạm radar $A, B$ cách nhau $AB = ${ab}\\text{ m}$ (${side === 'same' ? 'cùng phía' : 'khác phía'}).`,
+          `Bước 3/4: Biểu diễn $HA = h\\cot ${alpha}^\\circ,\\; HB = h\\cot ${beta}^\\circ$.`,
+          `Bước 4/4: Độ cao $h = \\dfrac{${ab}}{${side === 'same' ? `\\cot ${beta}^\\circ - \\cot ${alpha}^\\circ` : `\\cot ${alpha}^\\circ + \\cot ${beta}^\\circ`}} \\approx ${hVal.toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Trong $\\triangle KHA$ và $\\triangle KHB$ vuông tại $H$: $HA = h\\cot ${alpha}^\\circ$, $HB = h\\cot ${beta}^\\circ$.`,
+          side === 'same' ? `Vì $A, B$ cùng phía so với $H$: $HB - HA = AB = ${ab}$.` : `Vì $A, B$ khác phía so với $H$: $HA + HB = AB = ${ab}$.`,
+          `Suy ra $h \\approx ${hVal.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c8') {
+        // Bài 3.8: Cáp treo vượt núi
+        const { L, alpha } = state.c8;
+        const rad = (alpha * Math.PI) / 180, dh = L * Math.sin(rad);
+        const prog = (Math.sin(t * 0.9 - Math.PI / 2) + 1) / 2;
+        const A = { x: w * 0.20, y: h * 0.72 }, B = { x: w * 0.78, y: h * 0.72 - Math.min(220, w * 0.58 * Math.tan(rad)) };
+        const H = { x: B.x, y: A.y };
+        // Mountain silhouettes
+        ctx.save();
+        ctx.fillStyle = isDark ? 'rgba(51,65,85,0.6)' : 'rgba(16,185,129,0.22)';
+        ctx.beginPath(); ctx.moveTo(w * 0.08, h * 0.74); ctx.lineTo(A.x, A.y - 10); ctx.lineTo(w * 0.36, h * 0.74); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(w * 0.55, h * 0.74); ctx.lineTo(B.x, B.y); ctx.lineTo(w * 0.92, h * 0.74); ctx.fill();
+        ctx.restore();
+        drawSeg(ctx, A, H, mutedCol, 2, true);
+        if (eff >= 2) drawSeg(ctx, A, B, '#ea580c', 3);
+        if (eff >= 3) { drawSeg(ctx, B, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, B, 12, '#dc2626'); drawAngleArc(ctx, A, H, B, 40, '#f59e0b', `${alpha}°`); }
+        // Cable car cabin
+        const cab = { x: A.x + (B.x - A.x) * prog, y: A.y + (B.y - A.y) * prog };
+        ctx.save(); ctx.fillStyle = '#0284c7'; ctx.fillRect(cab.x - 13, cab.y + 4, 26, 16); ctx.fillStyle = '#f8fafc'; ctx.fillRect(cab.x - 9, cab.y + 7, 18, 7); ctx.restore();
+        drawPt(ctx, A, 'A', edgeCol, -14, 16, isDark); drawPt(ctx, B, 'B', edgeCol, 8, -6, isDark); drawPt(ctx, H, 'H', '#dc2626', 8, 16, isDark);
+        updateTelemetryHUD('Cáp treo Hòn Thơm', [
+          ['Quãng đường s(t)', `${(L * prog).toFixed(1)} m`],
+          ['Độ cao tăng Δh(t)', `${(dh * prog).toFixed(1)} m`],
+          ['Góc nghiêng α', `${alpha}°`]
+        ]);
+        stepDesc = [
+          'Bước 1/4: Dựng hai ga cáp treo $A$ (thấp) và $B$ (cao).',
+          `Bước 2/4: Dây cáp $AB = ${L}\\text{ m}$ nghiêng góc $\\alpha = ${alpha}^\\circ$.`,
+          'Bước 3/4: Kẻ $BH \\perp AH$ tạo $\\triangle AHB$ vuông tại $H$.',
+          `Bước 4/4: Độ cao chênh lệch $\\Delta h = AB\\sin ${alpha}^\\circ \\approx ${dh.toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Xét $\\triangle AHB$ vuông tại $H$, cạnh huyền $AB = ${L}\\text{ m}$, $\\widehat{BAH} = ${alpha}^\\circ$.`,
+          `Độ cao chênh lệch hai đỉnh: $BH = AB \\cdot \\sin ${alpha}^\\circ \\approx ${dh.toFixed(2)}\\text{ m}$.`,
+          `Khoảng cách ngang: $AH = AB \\cdot \\cos ${alpha}^\\circ \\approx ${(L * Math.cos(rad)).toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c9') {
+        // Bài 3.9: Thuyền vượt sông bị nước đẩy xiên
+        const { width, alpha } = state.c9;
+        const rad = (alpha * Math.PI) / 180;
+        const ac = width / Math.cos(rad), bc = width * Math.tan(rad);
+        const yTop = h * 0.28, yBot = h * 0.72;
+        const A = { x: w * 0.34, y: yBot }, B = { x: A.x, y: yTop };
+        const C = { x: A.x + (yBot - yTop) * Math.tan(rad), y: yTop };
+        const prog = (t * 0.35) % 1;
+        drawSeg(ctx, { x: w * 0.1, y: yTop }, { x: w * 0.9, y: yTop }, '#16a34a', 3);
+        drawSeg(ctx, { x: w * 0.1, y: yBot }, { x: w * 0.9, y: yBot }, '#16a34a', 3);
+        drawSeg(ctx, A, B, edgeCol, 2.2, true);
+        drawRightAngle(ctx, B, A, C, 12, '#16a34a');
+        if (eff >= 2) drawSeg(ctx, A, C, '#ea580c', 3);
+        if (eff >= 3) { drawSeg(ctx, B, C, '#2563eb', 2.4); drawAngleArc(ctx, A, C, B, 38, '#f59e0b', `${alpha}°`); }
+        // Moving boat
+        const bx = A.x + (C.x - A.x) * prog, by = A.y + (C.y - A.y) * prog;
+        ctx.save(); ctx.translate(bx, by); ctx.rotate(Math.atan2(C.y - A.y, C.x - A.x));
+        ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-10, -7); ctx.lineTo(-10, 7); ctx.closePath(); ctx.fill(); ctx.restore();
+        drawPt(ctx, A, 'A', edgeCol, -16, 16, isDark); drawPt(ctx, B, 'B', edgeCol, -16, -8, isDark); drawPt(ctx, C, 'C', '#ea580c', 8, -8, isDark);
+        updateTelemetryHUD('Thuyền vượt sông', [
+          ['Bề rộng sông AB', `${width} m`],
+          ['Quãng đường AC', `${ac.toFixed(1)} m`],
+          ['Trôi dạt BC', `${bc.toFixed(1)} m`]
+        ]);
+        stepDesc = [
+          `Bước 1/4: Hai bờ sông song song cách nhau bề rộng $AB = ${width}\\text{ m}$.`,
+          `Bước 2/4: Thuyền đi lệch góc $\\alpha = ${alpha}^\\circ$ cập bến tại $C$.`,
+          'Bước 3/4: Xét $\\triangle ABC$ vuông tại $B$.',
+          `Bước 4/4: Quãng đường thực tế $AC = \\dfrac{AB}{\\cos ${alpha}^\\circ} \\approx ${ac.toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Xét $\\triangle ABC$ vuông tại $B$ có $AB = ${width}\\text{ m}$, $\\widehat{BAC} = ${alpha}^\\circ$.`,
+          `Quãng đường thuyền đi: $AC = \\dfrac{AB}{\\cos ${alpha}^\\circ} \\approx ${ac.toFixed(2)}\\text{ m}$.`,
+          `Độ dạt xuôi dòng: $BC = AB \\cdot \\tan ${alpha}^\\circ \\approx ${bc.toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c10') {
+        // Bài 3.10: Cần cẩu tháp xây dựng & Tầm vươn
+        const { L, alpha, h0 } = state.c10;
+        const rad = (alpha * Math.PI) / 180;
+        const reach = L * Math.cos(rad), lift = L * Math.sin(rad);
+        const gy = h * 0.74, O = { x: w * 0.28, y: gy }, P = { x: O.x, y: gy - 120 };
+        const scale = 210 / L;
+        const T = { x: P.x + reach * scale, y: P.y - lift * scale }, H = { x: T.x, y: P.y };
+        const bob = Math.sin(t * 2.2) * 6;
+        drawSeg(ctx, { x: w * 0.1, y: gy }, { x: w * 0.9, y: gy }, mutedCol, 2.5);
+        // Crane tower
+        drawSeg(ctx, O, P, '#eab308', 9); drawSeg(ctx, P, T, '#f59e0b', 5);
+        // Hanging load
+        drawSeg(ctx, T, { x: T.x, y: T.y + 42 + bob }, '#475569', 2);
+        ctx.save(); ctx.fillStyle = '#ea580c'; ctx.fillRect(T.x - 12, T.y + 42 + bob, 24, 16); ctx.restore();
+        if (eff >= 2) { drawSeg(ctx, P, H, mutedCol, 2, true); drawSeg(ctx, T, H, '#dc2626', 2, true); drawRightAngle(ctx, H, P, T, 11, '#dc2626'); }
+        if (eff >= 3) drawAngleArc(ctx, P, H, T, 34, '#f59e0b', `${alpha}°`);
+        drawPt(ctx, P, 'P', edgeCol, -16, 4, isDark); drawPt(ctx, T, 'T', '#ea580c', 8, -6, isDark); drawPt(ctx, H, 'H', '#dc2626', 8, 16, isDark);
+        updateTelemetryHUD('Cần cẩu tháp', [
+          ['Tầm vươn ngang PH', `${reach.toFixed(1)} m`],
+          ['Độ cao tổng', `${(h0 + lift).toFixed(1)} m`],
+          ['Góc nâng α', `${alpha}°`]
+        ]);
+        stepDesc = [
+          `Bước 1/4: Thân cần cẩu cao $h_0 = ${h0}\\text{ m}$, tay cần $PT = ${L}\\text{ m}$.`,
+          `Bước 2/4: Kéo thanh trượt góc nâng tay cần $\\alpha = ${alpha}^\\circ$.`,
+          'Bước 3/4: Xét $\\triangle PTH$ vuông tại $H$.',
+          `Bước 4/4: Tầm vươn $PH = ${reach.toFixed(1)}\\text{ m}$, độ cao móc $h = ${(h0 + lift).toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Tầm vươn ngang: $PH = PT \\cdot \\cos ${alpha}^\\circ = ${L} \\cdot \\cos ${alpha}^\\circ \\approx ${reach.toFixed(2)}\\text{ m}$.`,
+          `Độ cao nâng thêm: $TH = PT \\cdot \\sin ${alpha}^\\circ \\approx ${lift.toFixed(2)}\\text{ m}$.`,
+          `Tổng độ cao so với mặt đất: $h_{\\text{tổng}} = ${h0} + ${lift.toFixed(2)} = ${(h0 + lift).toFixed(2)}\\text{ m}$.`
+        ];
+      } else if (id === 'c11') {
+        // Bài 3.11: Ngọn hải đăng & Tàu biển
+        const { H: cH, alpha, beta } = state.c11;
+        const rA = (alpha * Math.PI) / 180, rB = (beta * Math.PI) / 180;
+        const d1 = cH / Math.tan(rA), d2 = cH / Math.tan(rB), mn = d1 - d2;
+        const sy = h * 0.62, B = { x: w * 0.20, y: sy }, S = { x: B.x, y: sy - 165 };
+        const scale = Math.min(280 / d1, 165 / cH);
+        const M = { x: B.x + d1 * scale, y: sy }, N = { x: B.x + d2 * scale, y: sy };
+        const prog = (Math.sin(t * 0.9 - Math.PI / 2) + 1) / 2;
+        const shipX = M.x + (N.x - M.x) * prog;
+        // Lighthouse
+        ctx.save(); ctx.fillStyle = '#f8fafc'; ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2; ctx.fillRect(B.x - 10, S.y, 20, sy - S.y); ctx.strokeRect(B.x - 10, S.y, 20, sy - S.y); ctx.restore();
+        if (eff >= 2) { drawSeg(ctx, S, { x: w * 0.85, y: S.y }, mutedCol, 1.8, true); drawSeg(ctx, S, M, '#f59e0b', 2, true); drawSeg(ctx, S, N, '#ea580c', 2, true); }
+        if (eff >= 3) { drawRightAngle(ctx, B, S, M, 12, '#16a34a'); drawAngleArc(ctx, M, B, S, 32, '#f59e0b', `${alpha}°`); drawAngleArc(ctx, N, B, S, 28, '#ea580c', `${beta}°`); }
+        // Ship
+        ctx.save(); ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.moveTo(shipX - 16, sy); ctx.lineTo(shipX + 16, sy); ctx.lineTo(shipX + 10, sy + 10); ctx.lineTo(shipX - 10, sy + 10); ctx.closePath(); ctx.fill(); ctx.restore();
+        drawPt(ctx, S, 'S', edgeCol, -16, -6, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark);
+        drawPt(ctx, M, 'M', '#f59e0b', 4, 18, isDark); drawPt(ctx, N, 'N', '#ea580c', -4, 18, isDark);
+        updateTelemetryHUD('Hải đăng & Tàu biển', [
+          ['Cao độ S', `${cH} m`],
+          ['Khoảng cách tàu', `${(d1 - mn * prog).toFixed(1)} m`],
+          ['Quãng đường MN', `${mn.toFixed(1)} m`]
+        ]);
+        stepDesc = [
+          `Bước 1/4: Hải đăng cao $SB = ${cH}\\text{ m}$ so với mực nước biển.`,
+          `Bước 2/4: Tàu tiến từ $M$ (góc hạ $\\alpha = ${alpha}^\\circ$) đến $N$ (góc hạ $\\beta = ${beta}^\\circ$).`,
+          'Bước 3/4: So le trong $\\Rightarrow \\widehat{SMB} = \\alpha,\\; \\widehat{SNB} = \\beta$.',
+          `Bước 4/4: Quãng đường tàu đi $MN = H(\\cot ${alpha}^\\circ - \\cot ${beta}^\\circ) \\approx ${mn.toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Khoảng cách ban đầu: $BM = SB \\cdot \\cot ${alpha}^\\circ \\approx ${d1.toFixed(2)}\\text{ m}$.`,
+          `Khoảng cách lúc sau: $BN = SB \\cdot \\cot ${beta}^\\circ \\approx ${d2.toFixed(2)}\\text{ m}$.`,
+          `Quãng đường tàu di chuyển: $MN = BM - BN \\approx ${mn.toFixed(2)}\\text{ m}$.`
+        ];
+      } else {
+        // c12: Flycam khảo sát địa hình
+        const { h: fh, alpha } = state.c12;
+        const rad = (alpha * Math.PI) / 180, halfL = fh * Math.tan(rad), fullL = 2 * halfL;
+        const gy = h * 0.74, H = { x: w * 0.5, y: gy };
+        const F = { x: w * 0.5 + Math.sin(t * 1.4) * 6, y: gy - 190 };
+        const halfPx = 190 * Math.tan(rad);
+        const A = { x: H.x - halfPx, y: gy }, B = { x: H.x + halfPx, y: gy };
+        drawSeg(ctx, { x: w * 0.1, y: gy }, { x: w * 0.9, y: gy }, mutedCol, 2.2);
+        if (eff >= 2) {
+          ctx.save(); ctx.fillStyle = 'rgba(14,165,233,0.16)';
+          ctx.beginPath(); ctx.moveTo(F.x, F.y); ctx.lineTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.closePath(); ctx.fill(); ctx.restore();
+          drawSeg(ctx, F, A, '#0284c7', 2.2); drawSeg(ctx, F, B, '#0284c7', 2.2);
+          drawSeg(ctx, A, B, '#ea580c', 3.4);
+        }
+        if (eff >= 3) { drawSeg(ctx, F, H, '#dc2626', 2, true); drawRightAngle(ctx, H, F, B, 12, '#dc2626'); drawAngleArc(ctx, F, H, B, 36, '#f59e0b', `${alpha}°`); }
+        // Flycam + spinning rotors
+        ctx.save(); ctx.fillStyle = '#0f172a'; ctx.fillRect(F.x - 16, F.y - 4, 32, 8);
+        const rw = 12 * Math.abs(Math.cos(t * 14));
+        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(F.x - 16 - rw, F.y - 6); ctx.lineTo(F.x - 16 + rw, F.y - 6);
+        ctx.moveTo(F.x + 16 - rw, F.y - 6); ctx.lineTo(F.x + 16 + rw, F.y - 6); ctx.stroke(); ctx.restore();
+        drawPt(ctx, F, 'F', edgeCol, 12, -10, isDark); drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
+        drawPt(ctx, A, 'A', '#ea580c', -12, 18, isDark); drawPt(ctx, B, 'B', '#ea580c', 4, 18, isDark);
+        updateTelemetryHUD('Flycam khảo sát', [
+          ['Độ cao bay h', `${fh} m`],
+          ['Góc mở 2α', `${2 * alpha}°`],
+          ['Bề rộng quét L', `${fullL.toFixed(1)} m`]
+        ]);
+        stepDesc = [
+          `Bước 1/4: Flycam bay ở độ cao $FH = ${fh}\\text{ m}$ so với mặt đất.`,
+          `Bước 2/4: Camera quét góc mở $2\\alpha = ${2 * alpha}^\\circ$ phủ vùng $AB$.`,
+          `Bước 3/4: Xét $\\triangle FHB$ vuông tại $H$ có $\\widehat{HFB} = ${alpha}^\\circ$.`,
+          `Bước 4/4: Bề rộng vùng quét $AB = 2h\\tan ${alpha}^\\circ \\approx ${fullL.toFixed(1)}\\text{ m}$.`
+        ];
+        solSteps = [
+          `Vì $\\triangle FAB$ cân tại $F$ có đường cao $FH$, nên $\\widehat{HFB} = \\alpha = ${alpha}^\\circ$.`,
+          `Nửa bề rộng: $HB = FH \\cdot \\tan ${alpha}^\\circ = ${fh} \\cdot \\tan ${alpha}^\\circ \\approx ${halfL.toFixed(2)}\\text{ m}$.`,
+          `Bề rộng vùng địa hình quan sát được: $L = AB = 2HB \\approx ${fullL.toFixed(2)}\\text{ m}$.`
+        ];
+      }
+
+      if (!onlyCanvas) {
+        const curIdx = Math.min(eff, stepDesc.length) - 1;
+        document.getElementById('hud-step-desc').innerHTML = `<strong>${stepDesc[curIdx]}</strong>`;
+        renderAllMath(document.getElementById('hud-step-desc'));
+        renderSolutionsList('tab1-solutions', solSteps, eff);
+      }
+    }
+
+    function buildTab1Controls() {
+      const box = document.getElementById('tab1-controls');
+      const id = state.modelId;
+      let html = '';
+      if (id === 'a1') {
+        html = `
+          <div style="font-size:12px; color:#334155; margin-bottom:6px;">Chọn 1 trong 5 hệ thức vàng để tô sáng đoạn thẳng:</div>
+          <div class="preset-row">
+            <button class="preset-btn ${state.a1.formulaIdx===0?'active':''}" onclick="state.a1.formulaIdx=0; buildTab1Controls(); rebuildScene();">$AB^2=BH\\cdot BC$</button>
+            <button class="preset-btn ${state.a1.formulaIdx===1?'active':''}" onclick="state.a1.formulaIdx=1; buildTab1Controls(); rebuildScene();">$AC^2=CH\\cdot BC$</button>
+            <button class="preset-btn ${state.a1.formulaIdx===2?'active':''}" onclick="state.a1.formulaIdx=2; buildTab1Controls(); rebuildScene();">$AH^2=BH\\cdot CH$</button>
+            <button class="preset-btn ${state.a1.formulaIdx===3?'active':''}" onclick="state.a1.formulaIdx=3; buildTab1Controls(); rebuildScene();">$AB\\cdot AC=AH\\cdot BC$</button>
+            <button class="preset-btn ${state.a1.formulaIdx===4?'active':''}" onclick="state.a1.formulaIdx=4; buildTab1Controls(); rebuildScene();">$\\frac{1}{AH^2}=\\frac{1}{AB^2}+\\frac{1}{AC^2}$</button>
+          </div>`;
+      } else if (id === 'a2') {
+        html = `
+          <div class="sub-tabs" style="margin:0;">
+            <button class="sub-tab ${state.a2.mode==='proj'?'active':''}" onclick="state.a2.mode='proj'; buildTab1Controls(); rebuildScene();">Biết 2 hình chiếu ($4; 9$)</button>
+            <button class="sub-tab ${state.a2.mode==='leg'?'active':''}" onclick="state.a2.mode='leg'; buildTab1Controls(); rebuildScene();">Biết cạnh &amp; hình chiếu ($6; 3{,}6$)</button>
+          </div>`;
+      } else if (id === 'b1') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc nhọn $\\alpha$</span><span>${state.b1.deg}°</span></div>
+            <input type="range" min="15" max="75" step="1" value="${state.b1.deg}" oninput="state.b1.deg=+this.value; buildTab1Controls(); rebuildScene();" />
+            <div class="preset-row" style="margin-top:6px;">
+              <button class="preset-btn ${state.b1.deg===30?'active':''}" onclick="state.b1.deg=30; buildTab1Controls(); rebuildScene();">$30^\\circ$</button>
+              <button class="preset-btn ${state.b1.deg===45?'active':''}" onclick="state.b1.deg=45; buildTab1Controls(); rebuildScene();">$45^\\circ$</button>
+              <button class="preset-btn ${state.b1.deg===60?'active':''}" onclick="state.b1.deg=60; buildTab1Controls(); rebuildScene();">$60^\\circ$</button>
+            </div>
+          </div>`;
+      } else if (id === 'c1') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc nâng $\\alpha$</span><span>${state.c1.alpha}°</span></div>
+            <input type="range" min="15" max="70" step="1" value="${state.c1.alpha}" oninput="state.c1.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+            <div class="slider-head" style="margin-top:6px;"><span>Khoảng cách $d$</span><span>${state.c1.dist} m</span></div>
+            <input type="range" min="10" max="50" step="1" value="${state.c1.dist}" oninput="state.c1.dist=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c2') {
+        html = `
+          <div class="sub-tabs">
+            <button class="sub-tab ${state.c2.mode==='plane'?'active':''}" onclick="state.c2.mode='plane'; buildTab1Controls(); rebuildScene();">✈️ Máy bay cất cánh</button>
+            <button class="sub-tab ${state.c2.mode==='sub'?'active':''}" onclick="state.c2.mode='sub'; buildTab1Controls(); rebuildScene();">🚤 Tàu ngầm lặn</button>
+          </div>
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc nghiêng $\\alpha$</span><span>${state.c2.alpha}°</span></div>
+            <input type="range" min="10" max="45" step="1" value="${state.c2.alpha}" oninput="state.c2.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c3') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc nghiêng thang</span><span>${state.c3.deg}°</span></div>
+            <input type="range" min="35" max="80" step="1" value="${state.c3.deg}" oninput="state.c3.deg=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c4') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc $\\alpha$ (gần)</span><span>${state.c4.alpha}°</span></div>
+            <input type="range" min="40" max="75" step="1" value="${state.c4.alpha}" oninput="state.c4.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c5') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Chiều dài bóng $l$</span><span>${state.c5.l} m</span></div>
+            <input type="range" min="2" max="15" step="0.5" value="${state.c5.l}" oninput="state.c5.l=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c6') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Độ dốc $i$ (%)</span><span>${state.c6.pct}%</span></div>
+            <input type="range" min="4" max="25" step="1" value="${state.c6.pct}" oninput="state.c6.pct=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c7') {
+        html = `
+          <div class="sub-tabs">
+            <button class="sub-tab ${state.c7.side==='same'?'active':''}" onclick="state.c7.side='same'; buildTab1Controls(); rebuildScene();">Cùng phía</button>
+            <button class="sub-tab ${state.c7.side==='opp'?'active':''}" onclick="state.c7.side='opp'; buildTab1Controls(); rebuildScene();">Khác phía</button>
+          </div>
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc $\\alpha$ (trạm $A$)</span><span>${state.c7.alpha}°</span></div>
+            <input type="range" min="42" max="72" step="1" value="${state.c7.alpha}" oninput="state.c7.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c8') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc nghiêng cáp $\\alpha$</span><span>${state.c8.alpha}°</span></div>
+            <input type="range" min="15" max="45" step="1" value="${state.c8.alpha}" oninput="state.c8.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c9') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc lệch dòng nước $\\alpha$</span><span>${state.c9.alpha}°</span></div>
+            <input type="range" min="15" max="55" step="1" value="${state.c9.alpha}" oninput="state.c9.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c10') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc nâng tay cần $\\alpha$</span><span>${state.c10.alpha}°</span></div>
+            <input type="range" min="20" max="70" step="1" value="${state.c10.alpha}" oninput="state.c10.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c11') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Góc hạ ban đầu $\\alpha$</span><span>${state.c11.alpha}°</span></div>
+            <input type="range" min="18" max="36" step="1" value="${state.c11.alpha}" oninput="state.c11.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else if (id === 'c12') {
+        html = `
+          <div class="slider-box" style="margin:0;">
+            <div class="slider-head"><span>Nửa góc mở $\\alpha$</span><span>${state.c12.alpha}°</span></div>
+            <input type="range" min="18" max="48" step="1" value="${state.c12.alpha}" oninput="state.c12.alpha=+this.value; buildTab1Controls(); rebuildScene();" />
+          </div>`;
+      } else {
+        html = `<div style="font-size:12px; color:#475569;">Sử dụng thanh trình chiếu <strong>B1 → B4</strong> ở cạnh dưới để giảng từng bước.</div>`;
+      }
+      box.innerHTML = html;
+      renderAllMath(box);
+    }
+
+    // =========================================================================
+    // 3. TAB 2: PHÒNG THÍ NGHIỆM TAM GIÁC VUÔNG TƯƠNG TÁC (KÉO THẢ + 9 ĐẠI LƯỢNG)
+    // =========================================================================
+    function setLabVertices(a, b, c, h) {
+      state.lab.vNames = [a, b, c, h];
+      ['ABC', 'MNP', 'DEF'].forEach(k => {
+        const btn = document.getElementById(`vpre-${k}`);
+        if (btn) btn.classList.toggle('active', k === (a + b + c));
+      });
+      document.getElementById('lab-apex-lbl').textContent = `$${a}$`;
+      document.getElementById('lab-hyp-lbl').textContent = `$${b}${c}$`;
+      renderAllMath(document.getElementById('tab2-panel'));
+      rebuildScene();
+    }
+
+    function updateLabFromInputs() {
+      const ab = Math.max(0.5, +document.getElementById('lab-ab').value || 6);
+      const ac = Math.max(0.5, +document.getElementById('lab-ac').value || 8);
+      state.lab.ab = ab;
+      state.lab.ac = ac;
+      state.lab.angleRad = Math.atan2(ac, ab);
+      rebuildScene();
+    }
+
+    function renderLabScene() {
+      const env = setup2DCanvas();
+      if (!env) return;
+      const { ctx, w, h, isDark } = env;
+      const eff = state.showAllSteps ? 4 : state.step;
+      const { ab, ac, vNames } = state.lab;
+      const [nA, nB, nC, nH] = vNames;
+      const lay = computeRightTriLayout(w, h, ab, ac, vNames);
+      const { A, B, C, H, bcLen, bh, ch, ah, cx, cy, rPx } = lay;
+      state.lab.semiCircle = { cx, cy, rPx, A, B, C, bcLen };
+
+      const edgeCol = isDark ? '#38bdf8' : '#1e3a8a';
+      // Dashed semicircle for dragging A
+      ctx.save();
+      ctx.setLineDash([5, 5]); ctx.strokeStyle = isDark ? 'rgba(148,163,184,0.35)' : 'rgba(148,163,184,0.6)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, cy, rPx, Math.PI, 0, false); ctx.stroke();
+      ctx.restore();
+
+      drawSeg(ctx, A, B, edgeCol, 2.6); drawSeg(ctx, A, C, edgeCol, 2.6); drawSeg(ctx, B, C, edgeCol, 2.6);
+      drawRightAngle(ctx, A, B, C);
+      if (eff >= 2) {
+        drawSeg(ctx, A, H, '#dc2626', 2.2, true);
+        drawRightAngle(ctx, H, A, C, 12, '#dc2626');
+      }
+      const degB = (Math.atan2(ac, ab) * 180) / Math.PI;
+      const degC = 90 - degB;
+      if (eff >= 3) {
+        drawAngleArc(ctx, B, A, C, 30, '#f59e0b', `${degB.toFixed(1)}°`);
+        drawAngleArc(ctx, C, B, A, 30, '#0ea5e9', `${degC.toFixed(1)}°`);
+      }
+
+      drawPt(ctx, A, nA, '#ea580c', -6, -12, isDark);
+      drawPt(ctx, B, nB, edgeCol, -16, 16, isDark);
+      drawPt(ctx, C, nC, edgeCol, 8, 16, isDark);
+      if (eff >= 2) drawPt(ctx, H, nH, '#dc2626', -4, 18, isDark);
+
+      const area = 0.5 * ab * ac;
+      document.getElementById('lab-stats').innerHTML = [
+        [`${nA}${nB}`, ab.toFixed(2)], [`${nA}${nC}`, ac.toFixed(2)], [`${nB}${nC}`, bcLen.toFixed(2)],
+        [`${nA}${nH}`, ah.toFixed(2)], [`${nB}${nH}`, bh.toFixed(2)], [`${nC}${nH}`, ch.toFixed(2)],
+        [`$\\widehat{${nB}}$`, `${degB.toFixed(1)}°`], [`$\\widehat{${nC}}$`, `${degC.toFixed(1)}°`], [`$S$`, area.toFixed(2)]
+      ].map(([l, v]) => `<div class="stat-box"><div class="stat-lbl">${l}</div><div class="stat-val">${v}</div></div>`).join('');
+      renderAllMath(document.getElementById('lab-stats'));
+
+      const solSteps = [
+        `Cạnh huyền (Pytago): $${nB}${nC} = \\sqrt{${nA}${nB}^2 + ${nA}${nC}^2} = \\sqrt{${ab.toFixed(2)}^2 + ${ac.toFixed(2)}^2} \\approx ${bcLen.toFixed(2)}$`,
+        `Đường cao: $${nA}${nH} = \\dfrac{${nA}${nB} \\cdot ${nA}${nC}}{${nB}${nC}} \\approx ${ah.toFixed(2)}$`,
+        `Hình chiếu: $${nB}${nH} = \\dfrac{${nA}${nB}^2}{${nB}${nC}} \\approx ${bh.toFixed(2)},\\quad ${nC}${nH} = ${nB}${nC} - ${nB}${nH} \\approx ${ch.toFixed(2)}$`,
+        `Góc &amp; Diện tích: $\\widehat{${nB}} \\approx ${degB.toFixed(1)}^\\circ,\\; \\widehat{${nC}} \\approx ${degC.toFixed(1)}^\\circ,\\; S = \\dfrac{1}{2}${nA}${nB}\\cdot${nA}${nC} = ${area.toFixed(2)}$`
+      ];
+      renderSolutionsList('tab2-solutions', solSteps, eff);
+      document.getElementById('hud-step-desc').innerHTML = `<strong>Kéo đỉnh $${nA}$ trên nửa đường tròn để thay đổi hình dạng $\\triangle ${nA}${nB}${nC}$!</strong>`;
+      renderAllMath(document.getElementById('hud-step-desc'));
+    }
+
+    // Drag apex A on semicircle in Tab 2
+    canvas2d.addEventListener('pointerdown', e => {
+      if (state.mainTab !== 2 || state.pen.active || !state.lab.semiCircle) return;
+      const rect = canvas2d.getBoundingClientRect();
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      const { A } = state.lab.semiCircle;
+      if (Math.hypot(x - A.x, y - A.y) < 28) {
+        state.lab.dragging = true;
+        canvas2d.setPointerCapture(e.pointerId);
+      }
+    });
+    canvas2d.addEventListener('pointermove', e => {
+      if (!state.lab.dragging || !state.lab.semiCircle) return;
+      const rect = canvas2d.getBoundingClientRect();
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      const { cx, cy, bcLen } = state.lab.semiCircle;
+      let theta = Math.atan2(cy - y, x - cx);
+      theta = Math.max(0.24, Math.min(Math.PI - 0.24, theta));
+      // angle at B is (PI - theta) / 2? Wait: in semicircle, central angle from C(+x) is theta, so angle at B = theta/2!
+      const angB = theta / 2;
+      const ab = +(bcLen * Math.cos(angB)).toFixed(2);
+      const ac = +(bcLen * Math.sin(angB)).toFixed(2);
+      state.lab.ab = ab;
+      state.lab.ac = ac;
+      document.getElementById('lab-ab').value = ab;
+      document.getElementById('lab-ac').value = ac;
+      rebuildScene();
+    });
+    canvas2d.addEventListener('pointerup', e => {
+      if (state.lab.dragging) {
+        state.lab.dragging = false;
+        canvas2d.releasePointerCapture(e.pointerId);
+      }
+    });
+
+    // =========================================================================
+    // 4. TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 BẰNG CHỮ (AI PARSER)
+    // =========================================================================
+    const AI_SAMPLES_9 = {
+      1: 'Cho tam giác ABC vuông tại A, đường cao AH. Biết AB = 6cm, AC = 8cm. Tính BC, AH, BH, CH và góc B.',
+      2: 'Một chiếc thang dài 5m tựa vào tường tạo với mặt đất góc 60 độ. Tính chiều cao mà thang chạm tới tường.',
+      3: 'Để đo chiều cao một tòa tháp, người ta đặt giác kế cao 1,5m cách chân tháp 24m và đo được góc nâng 42 độ. Tính chiều cao tòa tháp.'
+    };
+
+    function loadAISample(idx) {
+      document.getElementById('ai-problem-input').value = AI_SAMPLES_9[idx] || '';
+      parseMath9Problem();
+    }
+
+    function parseMath9Problem() {
+      const raw = (document.getElementById('ai-problem-input').value || '').trim();
+      const logEl = document.getElementById('ai-parse-log');
+      if (!raw) {
+        logEl.style.display = 'block';
+        logEl.innerHTML = '⚠️ Vui lòng nhập đề bài Toán 9 vào ô trên.';
+        return;
+      }
+      const lower = raw.toLowerCase().replace(/,/g, '.');
+      let parsed = null;
+
+      // Detect ladder
+      if (/thang/.test(lower)) {
+        const lenM = lower.match(/(?:dài|thang)\s*(\d+(?:\.\d+)?)\s*m/);
+        const degM = lower.match(/(\d+(?:\.\d+)?)\s*(?:độ|°)/);
+        const len = lenM ? +lenM[1] : 5;
+        const deg = degM ? +degM[1] : 60;
+        parsed = { type: 'ladder', len, deg };
+        logEl.innerHTML = `✓ Nhận diện: <strong>Thang tựa tường</strong> ($l = ${len}\\text{ m},\\; \\alpha = ${deg}^\\circ$)`;
+      } else if (/tháp|cây|cột\s*cờ|giác\s*kế/.test(lower)) {
+        const dM = lower.match(/cách[^0-9]*(\d+(?:\.\d+)?)\s*m/);
+        const eyeM = lower.match(/(?:cao|giác\s*kế)[^0-9]*(\d+(?:\.\d+)?)\s*m/);
+        const degM = lower.match(/(\d+(?:\.\d+)?)\s*(?:độ|°)/);
+        const dist = dM ? +dM[1] : 24;
+        const eyeH = (eyeM && +eyeM[1] < 4) ? +eyeM[1] : 1.5;
+        const alpha = degM ? +degM[1] : 42;
+        parsed = { type: 'tower', dist, eyeH, alpha };
+        logEl.innerHTML = `✓ Nhận diện: <strong>Đo chiều cao bằng giác kế</strong> ($d = ${dist}\\text{ m},\\; \\alpha = ${alpha}^\\circ$)`;
+      } else {
+        // Right triangle with AB, AC or MNP
+        const vM = raw.match(/tam\s*giác\s*([A-Z])([A-Z])([A-Z])/);
+        const vA = vM ? vM[1] : 'A', vB = vM ? vM[2] : 'B', vC = vM ? vM[3] : 'C';
+        const nums = [...lower.matchAll(/([a-z]{2})\s*=\s*(\d+(?:\.\d+)?)/g)];
+        let ab = 6, ac = 8;
+        if (nums.length >= 2) { ab = +nums[0][2]; ac = +nums[1][2]; }
+        parsed = { type: 'tri', vNames: [vA, vB, vC, 'H'], ab, ac };
+        logEl.innerHTML = `✓ Nhận diện: <strong>$\\triangle ${vA}${vB}${vC}$ vuông tại $${vA}$</strong> ($${vA}${vB} = ${ab},\\; ${vA}${vC} = ${ac}$)`;
+      }
+
+      state.ai.parsed = parsed;
+      logEl.style.display = 'block';
+      renderAllMath(logEl);
+      rebuildScene();
+    }
+
+    function renderAIScene() {
+      const p = state.ai.parsed;
+      if (!p) {
+        const env = setup2DCanvas();
+        if (!env) return;
+        document.getElementById('hud-step-desc').innerHTML = '<strong>Dán đề bài Toán 9 ở cột trái rồi bấm Phân tích để AI dựng hình!</strong>';
+        document.getElementById('tab3-solutions').innerHTML = '<div style="font-size:12px; color:#64748b;">Chưa có đề bài được phân tích.</div>';
+        return;
+      }
+      if (p.type === 'ladder') {
+        const bak = { ...state.c3 };
+        state.c3 = { len: p.len, deg: p.deg };
+        const bakId = state.modelId; state.modelId = 'c3';
+        renderTab1Scene();
+        document.getElementById('tab3-solutions').innerHTML = document.getElementById('tab1-solutions').innerHTML;
+        state.modelId = bakId; state.c3 = bak;
+      } else if (p.type === 'tower') {
+        const bak = { ...state.c1 };
+        state.c1 = { dist: p.dist, alpha: p.alpha, eyeH: p.eyeH };
+        const bakId = state.modelId; state.modelId = 'c1';
+        renderTab1Scene();
+        document.getElementById('tab3-solutions').innerHTML = document.getElementById('tab1-solutions').innerHTML;
+        state.modelId = bakId; state.c1 = bak;
+      } else {
+        state.lab.vNames = p.vNames;
+        state.lab.ab = p.ab;
+        state.lab.ac = p.ac;
+        renderLabScene();
+        document.getElementById('tab3-solutions').innerHTML = document.getElementById('tab2-solutions').innerHTML;
+      }
+    }
+
+    // =========================================================================
+    // 5. NAVIGATION, STEP PRESENTATION, PEN & EXPORT
+    // =========================================================================
+    function rebuildScene() {
+      if (state.mainTab === 1) renderTab1Scene();
+      else {
+        updateTelemetryHUD('', []);
+        if (state.mainTab === 2) renderLabScene();
+        else renderAIScene();
+      }
+    }
+
+    function switchMainTab(tab) {
+      stopAutoPlay();
+      state.mainTab = tab;
+      [1, 2, 3].forEach(i => {
+        document.getElementById(`main-tab-${i}`).classList.toggle('active', tab === i);
+        document.getElementById(`tab${i}-panel`).style.display = tab === i ? 'flex' : 'none';
+      });
+      rebuildScene();
+    }
+
+    function selectModel(id) {
+      stopAutoPlay();
+      state.modelId = id;
+      document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById(`btn-m-${id}`);
+      if (btn) {
+        btn.classList.add('active');
+        const parentAcc = btn.closest('.acc-group');
+        document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => { acc.open = (acc === parentAcc); });
+      }
+      buildTab1Controls();
+      setStep(4);
+    }
+
+    function setStep(s) {
+      stopAutoPlay();
+      state.showAllSteps = false;
+      state.step = Math.max(1, Math.min(4, s));
+      updateStepBar();
+      rebuildScene();
+    }
+    function stepPrev() { setStep(state.step > 1 ? state.step - 1 : 4); }
+    function stepNext() { setStep(state.step < 4 ? state.step + 1 : 1); }
+    function toggleShowAllSteps() {
+      stopAutoPlay();
+      state.showAllSteps = !state.showAllSteps;
+      updateStepBar();
+      rebuildScene();
+    }
+    function updateStepBar() {
+      const eff = state.showAllSteps ? 4 : state.step;
+      for (let i = 1; i <= 4; i++) {
+        const pill = document.getElementById(`sp-${i}`);
+        if (!pill) continue;
+        pill.classList.toggle('active', i === eff);
+        pill.classList.toggle('done', i < eff);
+      }
+      const allBtn = document.getElementById('btn-show-all');
+      if (allBtn) allBtn.classList.toggle('active-dock', state.showAllSteps);
+    }
+    function stopAutoPlay() {
+      if (state.autoPlayTimer) { clearInterval(state.autoPlayTimer); state.autoPlayTimer = null; }
+      const b = document.getElementById('btn-stage-play');
+      if (b) b.textContent = '▶ Tự động';
+    }
+    function toggleAutoPlay() {
+      if (state.autoPlayTimer) { stopAutoPlay(); return; }
+      state.showAllSteps = false;
+      document.getElementById('btn-stage-play').textContent = '⏸ Tạm dừng';
+      state.autoPlayTimer = setInterval(() => {
+        state.step = state.step < 4 ? state.step + 1 : 1;
+        updateStepBar();
+        rebuildScene();
+      }, 2200);
+    }
+
+    function toggleTheme() {
+      state.lightTheme = !state.lightTheme;
+      stageEl.classList.toggle('dark-theme', !state.lightTheme);
+      document.getElementById('btn-theme').textContent = state.lightTheme ? '🌙 Tối Studio' : '☀️ Sáng Màn Chiếu';
+      document.getElementById('pen-dot-contrast').style.background = state.lightTheme ? '#0f172a' : '#f8fafc';
+      rebuildScene();
+    }
+
+    function toggleFocusMode() {
+      const ws = document.querySelector('.workspace');
+      const isFocus = ws.classList.toggle('focus-mode');
+      const txt = isFocus ? '▶ Mở bảng điều khiển' : '◀ Thu gọn bảng bên';
+      document.getElementById('btn-focus-mode').textContent = txt;
+      document.getElementById('btn-hdr-focus').textContent = txt;
+      resizeStage();
+      setTimeout(resizeStage, 270);
+    }
+
+    // Pen Overlay
+    function resizeStage() {
+      drawOverlay.width = stageEl.clientWidth;
+      drawOverlay.height = stageEl.clientHeight;
+      rebuildScene();
+    }
+    function togglePenMode() {
+      state.pen.active = !state.pen.active;
+      drawOverlay.classList.toggle('drawing-active', state.pen.active);
+      document.getElementById('pen-palette').style.display = state.pen.active ? 'flex' : 'none';
+      document.getElementById('btn-pen').classList.toggle('pen-active', state.pen.active);
+    }
+    function setPenColor(c, el) {
+      state.pen.color = c;
+      document.querySelectorAll('.pen-dot').forEach(d => d.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+    }
+    function setPenTool(t) {
+      state.pen.tool = t;
+      ['free', 'line', 'circle', 'rightAngle', 'eraser'].forEach(k => {
+        const b = document.getElementById(`pt-${k}`);
+        if (b) b.classList.toggle('active-tool', k === t);
+      });
+    }
+    function setPenWidth(w) {
+      state.pen.width = w;
+      document.getElementById('pw-2').classList.toggle('active-tool', w === 2);
+      document.getElementById('pw-4').classList.toggle('active-tool', w === 4);
+    }
+    function undoDrawOverlay() {
+      if (state.pen.history.length > 0) drawCtx.putImageData(state.pen.history.pop(), 0, 0);
+    }
+    function clearDrawOverlay() {
+      state.pen.history.push(drawCtx.getImageData(0, 0, drawOverlay.width, drawOverlay.height));
+      drawCtx.clearRect(0, 0, drawOverlay.width, drawOverlay.height);
+    }
+    function getPenColor() {
+      return state.pen.color === 'contrast' ? (state.lightTheme ? '#0f172a' : '#f8fafc') : state.pen.color;
+    }
+    drawOverlay.addEventListener('pointerdown', e => {
+      if (!state.pen.active) return;
+      const r = drawOverlay.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      state.pen.history.push(drawCtx.getImageData(0, 0, drawOverlay.width, drawOverlay.height));
+      if (state.pen.history.length > 20) state.pen.history.shift();
+      if (state.pen.tool === 'rightAngle') {
+        drawCtx.save(); drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width;
+        drawCtx.beginPath(); drawCtx.moveTo(x, y - 16); drawCtx.lineTo(x + 16, y - 16); drawCtx.lineTo(x + 16, y); drawCtx.stroke(); drawCtx.restore();
+        return;
+      }
+      state.pen.drawing = true; state.pen.startX = x; state.pen.startY = y;
+      if (state.pen.tool === 'line' || state.pen.tool === 'circle') {
+        state.pen.snapshot = drawCtx.getImageData(0, 0, drawOverlay.width, drawOverlay.height);
+      } else {
+        drawCtx.beginPath(); drawCtx.moveTo(x, y);
+      }
+      drawOverlay.setPointerCapture(e.pointerId);
+    });
+    drawOverlay.addEventListener('pointermove', e => {
+      if (!state.pen.active || !state.pen.drawing) return;
+      const r = drawOverlay.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      if (state.pen.tool === 'line' || state.pen.tool === 'circle') {
+        if (state.pen.snapshot) drawCtx.putImageData(state.pen.snapshot, 0, 0);
+        drawCtx.save(); drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width;
+        drawCtx.beginPath();
+        if (state.pen.tool === 'line') { drawCtx.moveTo(state.pen.startX, state.pen.startY); drawCtx.lineTo(x, y); }
+        else { const rad = Math.hypot(x - state.pen.startX, y - state.pen.startY); drawCtx.arc(state.pen.startX, state.pen.startY, rad, 0, Math.PI * 2); }
+        drawCtx.stroke(); drawCtx.restore();
+      } else {
+        drawCtx.save();
+        if (state.pen.tool === 'eraser') { drawCtx.globalCompositeOperation = 'destination-out'; drawCtx.lineWidth = 20; }
+        else { drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width; }
+        drawCtx.lineCap = 'round'; drawCtx.lineTo(x, y); drawCtx.stroke(); drawCtx.restore();
+      }
+    });
+    drawOverlay.addEventListener('pointerup', e => {
+      if (state.pen.drawing) { state.pen.drawing = false; state.pen.snapshot = null; drawOverlay.releasePointerCapture(e.pointerId); }
+    });
+
+    function exportExamPNG() {
+      const link = document.createElement('a');
+      link.download = `toan9-he-thuc-luong-${state.mainTab}-${state.modelId}.png`;
+      link.href = canvas2d.toDataURL('image/png');
+      link.click();
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.key === 'b' || e.key === 'B') togglePenMode();
+      else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFocusMode(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); stepPrev(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); stepNext(); }
+    });
+
+    function toggleMotionAnim() {
+      state.animPlaying = !state.animPlaying;
+      const btn = document.getElementById('btn-anim-toggle');
+      if (btn) {
+        btn.textContent = state.animPlaying ? '⏸ Dừng chuyển động' : '▶ Chạy chuyển động';
+        btn.classList.toggle('active-dock', state.animPlaying);
+      }
+    }
+
+    let _lastAnimTs = performance.now();
+    function animateLoop(now) {
+      const dt = Math.min(0.05, (now - _lastAnimTs) / 1000);
+      _lastAnimTs = now;
+      if (state.animPlaying && state.mainTab === 1 && isAnimatedModel(state.modelId)) {
+        state.animTime += dt;
+        renderTab1Scene(true);
+      }
+      requestAnimationFrame(animateLoop);
+    }
+
+    window.addEventListener('resize', resizeStage);
+    window.addEventListener('load', () => {
+      document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => {
+        acc.addEventListener('toggle', () => {
+          if (acc.open) document.querySelectorAll('#tab1-panel .acc-group').forEach(o => { if (o !== acc) o.open = false; });
+        });
+      });
+      resizeStage();
+      selectModel('a1');
+      renderAllMath(document.body);
+      requestAnimationFrame(animateLoop);
+    });
+  </script>
+</body>
+</html>
