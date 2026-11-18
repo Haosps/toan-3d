@@ -195,8 +195,26 @@
     }
     .problem-stmt-box {
       background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
-      padding: 8px 10px; font-size: 12px; line-height: 1.5; color: #1e3a8a;
-      margin-bottom: 8px;
+      padding: 7px 9px; font-size: 11.8px; line-height: 1.48; color: #1e3a8a;
+      margin-bottom: 7px;
+    }
+    .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+    .param-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px;
+      padding: 5px 7px; display: flex; flex-direction: column; gap: 3px;
+    }
+    .param-lbl { font-size: 10.5px; font-weight: 700; color: #334155; display: flex; justify-content: space-between; }
+    .param-stepper { display: flex; align-items: center; gap: 3px; }
+    .param-btn {
+      width: 22px; height: 24px; border: 1px solid #cbd5e1; background: #fff; color: #0f172a;
+      border-radius: 5px; font-weight: 700; font-size: 13px; cursor: pointer; flex-shrink: 0;
+      display: grid; place-items: center;
+    }
+    .param-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
+    .param-num {
+      width: 100%; min-width: 0; height: 24px; border: 1px solid #cbd5e1; border-radius: 5px;
+      padding: 0 4px; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+      text-align: center; color: #0f172a; background: #fff;
     }
     .acc-summary::-webkit-details-marker { display: none; }
     .acc-summary::after { content: '▸'; font-size: 11px; color: #64748b; transition: transform 0.2s; }
@@ -553,7 +571,13 @@
         </section>
 
         <section class="card" id="tab1-ctrl-card">
-          <div class="card-title"><span>📌 Đề bài &amp; Tương tác thông số</span></div>
+          <div class="card-title">
+            <span>📌 Đề bài &amp; Thông số</span>
+            <div style="display:flex; gap:4px;">
+              <button class="step-btn" onclick="randomizeModelParams()" title="Đổi bộ số đẹp ngẫu nhiên" style="background:#fff7ed; color:#c2410c; border-color:#fdba74;">🎲 Đổi số</button>
+              <button class="step-btn" onclick="resetModelParams()" title="Khôi phục số mặc định">↺ Mặc định</button>
+            </div>
+          </div>
           <div id="tab1-controls"></div>
         </section>
       </div>
@@ -788,11 +812,14 @@
       animPlaying: true,
       animTime: 0,
       // Tab 1 Model Parameters (24 models)
-      a1: { formulaIdx: 0 },
-      a2: { mode: 'proj' },
+      a1: { ab: 6, ac: 8, formulaIdx: 0 },
+      a2: { mode: 'proj', bh: 4, ch: 9, ab: 6, bh2: 3.6 },
+      a3: { ab: 6, ac: 8 },
+      a4: { ab: 6, ac: 8 },
       b1: { deg: 35 },
-      b2: { variant: 'hyp' },
-      b4: { obtuse: false },
+      b2: { variant: 'hyp', bc: 10, degB: 35, ab: 8, degC: 50 },
+      b3: { ab: 6, ac: 8 },
+      b4: { obtuse: false, ab: 7, ac: 10, degA: 55, degAObt: 120 },
       c1: { len: 3, deg: 65 },
       c2: { dist: 15, alpha: 50 },
       c3: { alpha: 63, shadow: 120 },
@@ -1060,59 +1087,82 @@
     function getModelEssay(id, solSteps) {
       const map = {
         a1: {
-          hypothesis: '$\\triangle ABC$ vuông tại $A$, đường cao $AH \\perp BC$ ($H \\in BC$).',
+          hypothesis: `$\\triangle ABC$ vuông tại $A$ ($AB=${state.a1.ab},\\; AC=${state.a1.ac}$), đường cao $AH \\perp BC$.`,
           method: 'Vận dụng các cặp tam giác vuông đồng dạng ($\\triangle HBA \\sim \\triangle ABC$, $\\triangle HAC \\sim \\triangle ABC$) để suy ra 5 hệ thức vàng.',
           summary: 'Ghi nhớ $5$ hệ thức: $b^2=ab\'$, $c^2=ac\'$, $h^2=b\'c\'$, $ah=bc$, $\\frac{1}{h^2}=\\frac{1}{b^2}+\\frac{1}{c^2}$.',
           tip: 'Luôn kiểm tra điều kiện tam giác vuông và đường cao ứng với cạnh huyền trước khi viết hệ thức.'
         },
-        a2: {
-          hypothesis: state.a2.mode === 'proj' ? '$\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $BH=4,\\; CH=9$.' : '$\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $AB=6,\\; BH=3{,}6$.',
-          method: 'Tính cạnh huyền $BC$, sau đó dùng hệ thức $AH^2 = BH \\cdot CH$ và $AB^2 = BH \\cdot BC$.',
-          summary: state.a2.mode === 'proj' ? 'Kết quả: $BC = 13,\\; AH = 6,\\; AB = 2\\sqrt{13},\\; AC = 3\\sqrt{13}$.' : 'Kết quả: $BC = 10,\\; CH = 6{,}4,\\; AC = 8,\\; AH = 4{,}8$.',
-          tip: 'Khi biết $2$ hình chiếu $BH, CH$, luôn cộng lại để ra $BC$ trước rồi mới tính $AB, AC$.'
-        },
-        a3: {
-          hypothesis: '$\\triangle ABC$ vuông tại $A$, $AB=6,\\; AC=8$, đường cao $AH$, trung tuyến $AM$, phân giác $AD$.',
-          method: 'Kết hợp định lý Pytago, tính chất trung tuyến ứng với cạnh huyền ($AM = \\frac{BC}{2}$) và tính chất đường phân giác.',
-          summary: '$BC=10,\\; AM=5,\\; AH=4{,}8,\\; AD = \\frac{24\\sqrt{2}}{7}$.',
-          tip: 'Trong tam giác vuông, độ dài đường trung tuyến ứng với cạnh huyền luôn bằng nửa cạnh huyền.'
-        },
-        a4: {
-          hypothesis: '$\\triangle ABC$ vuông tại $A$, đường cao $AH$, hình vuông $MNPQ$ nội tiếp ($M \\in AB, N \\in AC, P, Q \\in BC$).',
-          method: 'Dùng định lý Ta-lét cho $MN \\parallel BC$ và $MQ \\parallel AH$ để biểu diễn cạnh hình vuông $x$ theo $AH$ và $BC$.',
-          summary: 'Cạnh hình vuông nội tiếp: $x = \\dfrac{AH \\cdot BC}{AH + BC}$.',
-          tip: 'Công thức nhanh $x = \\frac{h \\cdot a}{h + a}$ đúng với mọi tam giác có đáy $a$ và chiều cao $h$.'
-        },
+        a2: (() => {
+          const isP = state.a2.mode === 'proj';
+          const bcP = +(state.a2.bh + state.a2.ch).toFixed(2), ahP = Math.sqrt(state.a2.bh * state.a2.ch);
+          const abP = Math.sqrt(state.a2.bh * bcP), acP = Math.sqrt(state.a2.ch * bcP);
+          const bcL = (state.a2.ab * state.a2.ab) / state.a2.bh2, chL = bcL - state.a2.bh2;
+          const acL = Math.sqrt(Math.max(0.01, bcL * bcL - state.a2.ab * state.a2.ab)), ahL = (state.a2.ab * acL) / bcL;
+          return {
+            hypothesis: isP ? `$\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $BH=${state.a2.bh},\\; CH=${state.a2.ch}$.` : `$\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $AB=${state.a2.ab},\\; BH=${state.a2.bh2}$.`,
+            method: 'Tính cạnh huyền $BC$, sau đó dùng hệ thức $AH^2 = BH \\cdot CH$ và $AB^2 = BH \\cdot BC$.',
+            summary: isP ? `Kết quả: $BC = ${bcP},\\; AH \\approx ${ahP.toFixed(2)},\\; AB \\approx ${abP.toFixed(2)},\\; AC \\approx ${acP.toFixed(2)}$.` : `Kết quả: $BC \\approx ${bcL.toFixed(2)},\\; CH \\approx ${chL.toFixed(2)},\\; AC \\approx ${acL.toFixed(2)},\\; AH \\approx ${ahL.toFixed(2)}$.`,
+            tip: 'Khi biết $2$ hình chiếu $BH, CH$, luôn cộng lại để ra $BC$ trước rồi mới tính $AB, AC$.'
+          };
+        })(),
+        a3: (() => {
+          const { ab, ac } = state.a3, bc = Math.hypot(ab, ac), am = bc / 2, ah = (ab * ac) / bc, bh = (ab * ab) / bc;
+          const bd = (bc * ab) / (ab + ac), hd = Math.abs(bd - bh), ad = Math.hypot(ah, hd);
+          return {
+            hypothesis: `$\\triangle ABC$ vuông tại $A$, $AB=${ab},\\; AC=${ac}$, đường cao $AH$, trung tuyến $AM$, phân giác $AD$.`,
+            method: 'Kết hợp định lý Pytago, tính chất trung tuyến ứng với cạnh huyền ($AM = \\frac{BC}{2}$) và tính chất đường phân giác.',
+            summary: `$BC=${bc.toFixed(2)},\\; AM=${am.toFixed(2)},\\; AH=${ah.toFixed(2)},\\; AD \\approx ${ad.toFixed(2)}$.`,
+            tip: 'Trong tam giác vuông, độ dài đường trung tuyến ứng với cạnh huyền luôn bằng nửa cạnh huyền.'
+          };
+        })(),
+        a4: (() => {
+          const { ab, ac } = state.a4, bc = Math.hypot(ab, ac), ah = (ab * ac) / bc, x = (ah * bc) / (ah + bc);
+          return {
+            hypothesis: `$\\triangle ABC$ vuông tại $A$ ($AB=${ab},\\; AC=${ac}$), đường cao $AH$, hình vuông $MNPQ$ nội tiếp ($M \\in AB, N \\in AC, P, Q \\in BC$).`,
+            method: 'Dùng định lý Ta-lét cho $MN \\parallel BC$ và $MQ \\parallel AH$ để biểu diễn cạnh hình vuông $x$ theo $AH$ và $BC$.',
+            summary: `Cạnh hình vuông nội tiếp: $x = \\dfrac{AH \\cdot BC}{AH + BC} \\approx ${x.toFixed(2)}$.`,
+            tip: 'Công thức nhanh $x = \\frac{h \\cdot a}{h + a}$ đúng với mọi tam giác có đáy $a$ và chiều cao $h$.'
+          };
+        })(),
         b1: {
           hypothesis: `$\\triangle ABC$ vuông tại $A$, góc nhọn $\\alpha = ${state.b1.deg}^\\circ$.`,
           method: 'Dùng định nghĩa tỉ số lượng giác: $\\sin = \\frac{\\text{đối}}{\\text{huyền}}$, $\\cos = \\frac{\\text{kề}}{\\text{huyền}}$, $\\tan = \\frac{\\text{đối}}{\\text{kề}}$.',
           summary: `$\\sin ${state.b1.deg}^\\circ \\approx ${Math.sin(state.b1.deg*Math.PI/180).toFixed(4)},\\; \\cos ${state.b1.deg}^\\circ \\approx ${Math.cos(state.b1.deg*Math.PI/180).toFixed(4)}$.`,
           tip: 'Nhớ câu thần chú: "Sin đi học - Cos không hư - Tan đoàn kết - Cot kết đoàn".'
         },
-        b2: {
-          hypothesis: state.b2.variant === 'hyp'
-            ? '$\\triangle ABC$ vuông tại $A$, biết cạnh huyền $BC = 10$ và $\\widehat{B} = 35^\\circ$.'
-            : '$\\triangle ABC$ vuông tại $A$, biết cạnh góc vuông $AB = 8$ và $\\widehat{C} = 50^\\circ$.',
-          method: 'Tính góc nhọn còn lại bằng $90^\\circ - \\widehat{B}$ (hoặc $90^\\circ - \\widehat{C}$), sau đó dùng hệ thức cạnh và góc trong tam giác vuông.',
-          summary: state.b2.variant === 'hyp'
-            ? '$\\widehat{C} = 55^\\circ,\\; AC \\approx 5{,}74,\\; AB \\approx 8{,}19$.'
-            : '$\\widehat{B} = 40^\\circ,\\; AC = 8\\cot 50^\\circ \\approx 6{,}71,\\; BC = \\frac{8}{\\sin 50^\\circ} \\approx 10{,}44$.',
-          tip: 'Chuyển máy tính cầm tay sang chế độ Degree (chữ D) trước khi bấm $\\sin, \\cos, \\tan$.'
-        },
+        b2: (() => {
+          const isH = state.b2.variant === 'hyp';
+          const rB = state.b2.degB * Math.PI / 180, rC = state.b2.degC * Math.PI / 180;
+          return {
+            hypothesis: isH
+              ? `$\\triangle ABC$ vuông tại $A$, biết cạnh huyền $BC = ${state.b2.bc}$ và $\\widehat{B} = ${state.b2.degB}^\\circ$.`
+              : `$\\triangle ABC$ vuông tại $A$, biết cạnh góc vuông $AB = ${state.b2.ab}$ và $\\widehat{C} = ${state.b2.degC}^\\circ$.`,
+            method: 'Tính góc nhọn còn lại bằng $90^\\circ - \\widehat{B}$ (hoặc $90^\\circ - \\widehat{C}$), sau đó dùng hệ thức cạnh và góc trong tam giác vuông.',
+            summary: isH
+              ? `$\\widehat{C} = ${90 - state.b2.degB}^\\circ,\\; AC \\approx ${(state.b2.bc * Math.sin(rB)).toFixed(2)},\\; AB \\approx ${(state.b2.bc * Math.cos(rB)).toFixed(2)}$.`
+              : `$\\widehat{B} = ${90 - state.b2.degC}^\\circ,\\; AC \\approx ${(state.b2.ab / Math.tan(rC)).toFixed(2)},\\; BC \\approx ${(state.b2.ab / Math.sin(rC)).toFixed(2)}$.`,
+            tip: 'Chuyển máy tính cầm tay sang chế độ Degree (chữ D) trước khi bấm $\\sin, \\cos, \\tan$.'
+          };
+        })(),
         b3: {
-          hypothesis: '$\\triangle ABC$ vuông tại $A$, góc nhọn $\\widehat{C} = \\alpha$.',
+          hypothesis: `$\\triangle ABC$ vuông tại $A$ ($AB=${state.b3.ab},\\; AC=${state.b3.ac}$), góc nhọn $\\widehat{C} = \\alpha$.`,
           method: 'Biểu diễn $\\sin\\alpha, \\cos\\alpha$ theo các cạnh của tam giác vuông rồi áp dụng định lý Pytago.',
           summary: '$\\sin^2\\alpha + \\cos^2\\alpha = 1$ và $\\tan\\alpha = \\dfrac{\\sin\\alpha}{\\cos\\alpha}$.',
           tip: 'Đây là 2 hằng đẳng thức lượng giác cơ bản dùng để rút gọn biểu thức.'
         },
-        b4: {
-          hypothesis: `$\\triangle ABC$ có $AB = 7,\\; AC = 10,\\; \\widehat{A} = ${state.b4.obtuse ? '120^\\circ' : '55^\\circ'}$.`,
-          method: 'Kẻ đường cao phụ $BH \\perp AC$ ($H \\in AC$) để quy về tam giác vuông $\\triangle ABH$ và $\\triangle BHC$.',
-          summary: state.b4.obtuse
-            ? '$BH = 7\\sin 60^\\circ \\approx 6{,}06,\\; BC \\approx 14{,}79,\\; S \\approx 30{,}31$.'
-            : '$BH = 7\\sin 55^\\circ \\approx 5{,}73,\\; BC \\approx 8{,}33,\\; S \\approx 28{,}67$.',
-          tip: 'Khi góc $A$ tù ($120^\\circ$), chân đường cao $H$ nằm ngoài đoạn $AC$, dùng góc kề bù $180^\\circ - 120^\\circ = 60^\\circ$.'
-        },
+        b4: (() => {
+          const { obtuse, ab, ac, degA, degAObt } = state.b4;
+          const ang = obtuse ? degAObt : degA, rad = (ang * Math.PI) / 180;
+          const bh = ab * Math.sin(obtuse ? Math.PI - rad : rad);
+          const bc = Math.sqrt(ab * ab + ac * ac - 2 * ab * ac * Math.cos(rad));
+          const area = 0.5 * ac * bh;
+          return {
+            hypothesis: `$\\triangle ABC$ có $AB = ${ab},\\; AC = ${ac},\\; \\widehat{A} = ${ang}^\\circ$.`,
+            method: 'Kẻ đường cao phụ $BH \\perp AC$ ($H \\in AC$) để quy về tam giác vuông $\\triangle ABH$ và $\\triangle BHC$.',
+            summary: `$BH \\approx ${bh.toFixed(2)},\\; BC \\approx ${bc.toFixed(2)},\\; S_{\\triangle ABC} \\approx ${area.toFixed(2)}$.`,
+            tip: 'Khi góc $A$ tù, chân đường cao $H$ nằm ngoài đoạn $AC$, dùng góc kề bù $180^\\circ - \\widehat{A}$.'
+          };
+        })(),
         c1: {
           hypothesis: `Mô hình hóa: Tường gạch $OA \\perp$ mặt đất $OB$, thang $AB = ${state.c1.len}\\text{ m}$ tạo với mặt đất góc $\\widehat{ABO} = ${state.c1.deg}^\\circ$.`,
           method: 'Xét $\\triangle AOB$ vuông tại $O$, tính tầm cao $OA = AB\\sin B$ và khoảng cách chân thang $OB = AB\\cos B$.',
@@ -1303,7 +1353,8 @@
 
       try {
         if (id === 'a1') {
-          const { A, B, C, H } = computeRightTriLayout(w, h, 6, 8);
+          const { ab, ac } = state.a1;
+          const { A, B, C, H, bcLen, bh, ch, ah } = computeRightTriLayout(w, h, ab, ac);
           drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5);
           drawRightAngle(ctx, A, B, C);
           if (eff >= 2) { drawSeg(ctx, A, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, C, 12, '#dc2626'); }
@@ -1315,42 +1366,49 @@
             else if (fIdx === 3) { drawSeg(ctx, A, B, '#ea580c', 4); drawSeg(ctx, A, C, '#ea580c', 4); drawSeg(ctx, A, H, '#16a34a', 4); drawSeg(ctx, B, C, '#2563eb', 4); }
             else { drawSeg(ctx, A, H, '#ea580c', 4.5); drawSeg(ctx, A, B, '#16a34a', 4); drawSeg(ctx, A, C, '#2563eb', 4); }
           }
+          drawTextLabel(ctx, `${ab}`, (A.x + B.x) / 2 - 20, (A.y + B.y) / 2, '#ea580c');
+          drawTextLabel(ctx, `${ac}`, (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#16a34a');
           drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
           if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
           const fTex = ['$AB^2 = BH \\cdot BC$', '$AC^2 = CH \\cdot BC$', '$AH^2 = BH \\cdot CH$', '$AB \\cdot AC = AH \\cdot BC$', '$\\dfrac{1}{AH^2} = \\dfrac{1}{AB^2} + \\dfrac{1}{AC^2}$'];
           stepDesc = [
-            'Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.',
+            `Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$ ($AB=${ab},\\; AC=${ac}$).`,
             'Bước 2/4: Hạ đường cao $AH \\perp BC$ ($H \\in BC$).',
             `Bước 3/4: Tô màu cặp đoạn thẳng tỉ lệ trong hệ thức ${fIdx + 1}.`,
-            `Bước 4/4: Hệ thức vàng: ${fTex[fIdx]}`
+            `Bước 4/4: Hệ thức vàng: ${fTex[fIdx]} ($AH \\approx ${ah.toFixed(2)}$)`
           ];
           solSteps = [
-            'Xét $\\triangle ABC$ vuông tại $A$, đường cao $AH \\perp BC$.',
-            'Hình chiếu của $AB, AC$ lên $BC$ lần lượt là $BH, CH$.',
-            'Từ $\\triangle HBA \\sim \\triangle ABC$, $\\triangle HAC \\sim \\triangle ABC$, $\\triangle HBA \\sim \\triangle HAC$.',
-            `Suy ra ${fTex[fIdx]}.`
+            `Xét $\\triangle ABC$ vuông tại $A$ ($AB=${ab},\\; AC=${ac}$), tính $BC = \\sqrt{${ab}^2 + ${ac}^2} \\approx ${bcLen.toFixed(2)}$.`,
+            `Đường cao $AH \\perp BC$: $AH = \\dfrac{AB\\cdot AC}{BC} \\approx ${ah.toFixed(2)}$.`,
+            `Hình chiếu trên $BC$: $BH = \\dfrac{AB^2}{BC} \\approx ${bh.toFixed(2)},\\; CH \\approx ${ch.toFixed(2)}$.`,
+            `Kiểm nghiệm hệ thức vàng: ${fTex[fIdx]}.`
           ];
         } else if (id === 'a2') {
           const isProj = state.a2.mode === 'proj';
-          const { A, B, C, H } = isProj ? computeRightTriLayout(w, h, Math.sqrt(52), Math.sqrt(117)) : computeRightTriLayout(w, h, 6, 8);
+          const { bh, ch, ab, bh2 } = state.a2;
+          const bcP = bh + ch, ahP = Math.sqrt(bh * ch), abP = Math.sqrt(bh * bcP), acP = Math.sqrt(ch * bcP);
+          const bcL = (ab * ab) / bh2, chL = bcL - bh2, acL = Math.sqrt(Math.max(0.01, bcL * bcL - ab * ab)), ahL = (ab * acL) / bcL;
+          const { A, B, C, H } = isProj ? computeRightTriLayout(w, h, abP, acP) : computeRightTriLayout(w, h, ab, acL);
           drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5);
           drawRightAngle(ctx, A, B, C);
           if (eff >= 2) {
             drawSeg(ctx, A, H, '#dc2626', 2.3, true); drawRightAngle(ctx, H, A, C, 12, '#dc2626');
-            if (isProj) { drawTextLabel(ctx, '4', (B.x + H.x) / 2 - 4, B.y + 18, '#16a34a'); drawTextLabel(ctx, '9', (H.x + C.x) / 2 - 4, C.y + 18, '#2563eb'); }
-            else { drawTextLabel(ctx, '6', (A.x + B.x) / 2 - 18, (A.y + B.y) / 2, '#ea580c'); drawTextLabel(ctx, '3,6', (B.x + H.x) / 2 - 8, B.y + 18, '#16a34a'); }
+            if (isProj) { drawTextLabel(ctx, `${bh}`, (B.x + H.x) / 2 - 6, B.y + 18, '#16a34a'); drawTextLabel(ctx, `${ch}`, (H.x + C.x) / 2 - 6, C.y + 18, '#2563eb'); }
+            else { drawTextLabel(ctx, `${ab}`, (A.x + B.x) / 2 - 22, (A.y + B.y) / 2, '#ea580c'); drawTextLabel(ctx, `${bh2}`, (B.x + H.x) / 2 - 8, B.y + 18, '#16a34a'); }
           }
           drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
           if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
           stepDesc = isProj
-            ? ['Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.', 'Bước 2/4: Biết $BH = 4,\\; CH = 9$.', 'Bước 3/4: $BC = 13$, $AH = \\sqrt{4\\cdot 9} = 6$.', 'Bước 4/4: $AB = 2\\sqrt{13},\\; AC = 3\\sqrt{13}$.']
-            : ['Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.', 'Bước 2/4: Biết $AB = 6,\\; BH = 3{,}6$.', 'Bước 3/4: $BC = \\frac{AB^2}{BH} = 10$.', 'Bước 4/4: $AC = 8,\\; CH = 6{,}4,\\; AH = 4{,}8$.'];
+            ? ['Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.', `Bước 2/4: Biết $BH = ${bh},\\; CH = ${ch}$.`, `Bước 3/4: $BC = ${bcP.toFixed(2)},\\; AH \\approx ${ahP.toFixed(2)}$.`, `Bước 4/4: $AB \\approx ${abP.toFixed(2)},\\; AC \\approx ${acP.toFixed(2)}$.`]
+            : ['Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$.', `Bước 2/4: Biết $AB = ${ab},\\; BH = ${bh2}$.`, `Bước 3/4: $BC = \\frac{${ab}^2}{${bh2}} \\approx ${bcL.toFixed(2)}$.`, `Bước 4/4: $AC \\approx ${acL.toFixed(2)},\\; CH \\approx ${chL.toFixed(2)},\\; AH \\approx ${ahL.toFixed(2)}$.`];
           solSteps = isProj
-            ? ['$BC = BH + CH = 4 + 9 = 13$.', '$AH = \\sqrt{BH \\cdot CH} = \\sqrt{36} = 6$.', '$AB = \\sqrt{BH\\cdot BC} = 2\\sqrt{13}$.', '$AC = \\sqrt{CH\\cdot BC} = 3\\sqrt{13}$.']
-            : ['$AB^2 = BH \\cdot BC \\Rightarrow BC = \\dfrac{36}{3{,}6} = 10$.', '$CH = 10 - 3{,}6 = 6{,}4$.', '$AC = \\sqrt{10^2 - 6^2} = 8$.', '$AH = \\dfrac{6 \\cdot 8}{10} = 4{,}8$.'];
+            ? [`$BC = BH + CH = ${bh} + ${ch} = ${bcP.toFixed(2)}$.`, `$AH = \\sqrt{BH \\cdot CH} = \\sqrt{${(bh*ch).toFixed(2)}} \\approx ${ahP.toFixed(2)}$.`, `$AB = \\sqrt{BH\\cdot BC} = \\sqrt{${(bh*bcP).toFixed(2)}} \\approx ${abP.toFixed(2)}$.`, `$AC = \\sqrt{CH\\cdot BC} = \\sqrt{${(ch*bcP).toFixed(2)}} \\approx ${acP.toFixed(2)}$.`]
+            : [`$AB^2 = BH \\cdot BC \\Rightarrow BC = \\dfrac{${ab}^2}{${bh2}} \\approx ${bcL.toFixed(2)}$.`, `$CH = BC - BH = ${bcL.toFixed(2)} - ${bh2} \\approx ${chL.toFixed(2)}$.`, `$AC = \\sqrt{BC^2 - AB^2} \\approx ${acL.toFixed(2)}$.`, `$AH = \\dfrac{AB \\cdot AC}{BC} \\approx ${ahL.toFixed(2)}$.`];
         } else if (id === 'a3') {
-          const { A, B, C, H } = computeRightTriLayout(w, h, 6, 8);
-          const M = { x: (B.x + C.x) / 2, y: B.y }, D = { x: B.x + (6 / 14) * (C.x - B.x), y: B.y };
+          const { ab, ac } = state.a3;
+          const { A, B, C, H, bcLen, bh, ah } = computeRightTriLayout(w, h, ab, ac);
+          const am = bcLen / 2, bd = (bcLen * ab) / (ab + ac), dc = bcLen - bd, hm = Math.abs(bcLen / 2 - bh), hd = Math.abs(bd - bh), ad = Math.hypot(ah, hd);
+          const M = { x: (B.x + C.x) / 2, y: B.y }, D = { x: B.x + (ab / (ab + ac)) * (C.x - B.x), y: B.y };
           drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5);
           drawRightAngle(ctx, A, B, C);
           if (eff >= 2) { drawSeg(ctx, A, H, '#dc2626', 2, true); drawRightAngle(ctx, H, A, C, 11, '#dc2626'); }
@@ -1358,12 +1416,17 @@
           drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
           if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -10, 18, isDark);
           if (eff >= 3) { drawPt(ctx, D, 'D', '#ea580c', 2, 18, isDark); drawPt(ctx, M, 'M', '#16a34a', 4, 18, isDark); }
-          stepDesc = ['Bước 1/4: $\\triangle ABC$ vuông tại $A$ ($AB=6, AC=8$).', 'Bước 2/4: Đường cao $AH = 4{,}8$.', 'Bước 3/4: Trung tuyến $AM = 5$, phân giác $AD$.', 'Bước 4/4: Tính $BD, DC, HM, AD$.'];
-          solSteps = ['$BC = 10$, trung tuyến $AM = \\dfrac{BC}{2} = 5$.', '$AH = 4{,}8,\\; BH = 3{,}6 \\Rightarrow HM = 1{,}4$.', 'Phân giác $AD$: $\\dfrac{DB}{DC} = \\dfrac{3}{4} \\Rightarrow BD = \\dfrac{30}{7},\\; DC = \\dfrac{40}{7}$.', '$AD = \\sqrt{AH^2 + HD^2} = \\dfrac{24\\sqrt{2}}{7}$.'];
+          stepDesc = [`Bước 1/4: $\\triangle ABC$ vuông tại $A$ ($AB=${ab}, AC=${ac}$).`, `Bước 2/4: Đường cao $AH \\approx ${ah.toFixed(2)}$.`, `Bước 3/4: Trung tuyến $AM \\approx ${am.toFixed(2)}$, phân giác $AD$.`, `Bước 4/4: $HD \\approx ${hd.toFixed(2)},\\; AD \\approx ${ad.toFixed(2)}$.`];
+          solSteps = [
+            `$BC = \\sqrt{${ab}^2 + ${ac}^2} \\approx ${bcLen.toFixed(2)}$, trung tuyến $AM = \\dfrac{BC}{2} \\approx ${am.toFixed(2)}$.`,
+            `$AH = \\dfrac{${ab}\\cdot ${ac}}{${bcLen.toFixed(2)}} \\approx ${ah.toFixed(2)},\\; BH = \\dfrac{${ab}^2}{${bcLen.toFixed(2)}} \\approx ${bh.toFixed(2)} \\Rightarrow HM \\approx ${hm.toFixed(2)}$.`,
+            `Phân giác $AD$: $\\dfrac{DB}{DC} = \\dfrac{${ab}}{${ac}} \\Rightarrow BD \\approx ${bd.toFixed(2)},\\; DC \\approx ${dc.toFixed(2)},\\; HD \\approx ${hd.toFixed(2)}$.`,
+            `$AD = \\sqrt{AH^2 + HD^2} \\approx ${ad.toFixed(2)}$.`
+          ];
         } else if (id === 'a4') {
-          // Bài 1.4: Hình vuông MNPQ nội tiếp tam giác vuông ABC (M in AB, N in AC, P,Q in BC)
-          const { A, B, C, H, bcLen, ah } = computeRightTriLayout(w, h, 6, 8);
-          const xRatio = bcLen / (ah + bcLen); // side / BC = AH / (AH + BC)
+          const { ab, ac } = state.a4;
+          const { A, B, C, H, bcLen, ah } = computeRightTriLayout(w, h, ab, ac);
+          const xVal = (ah * bcLen) / (ah + bcLen);
           const tH = ah / (ah + bcLen);
           const M = { x: A.x + tH * (B.x - A.x), y: A.y + tH * (B.y - A.y) };
           const N = { x: A.x + tH * (C.x - A.x), y: A.y + tH * (C.y - A.y) };
@@ -1383,12 +1446,12 @@
             drawPt(ctx, M, 'M', '#ea580c', -18, 0, isDark); drawPt(ctx, N, 'N', '#ea580c', 8, 0, isDark);
             drawPt(ctx, Q, 'Q', '#ea580c', -6, 18, isDark); drawPt(ctx, P, 'P', '#ea580c', 2, 18, isDark);
           }
-          stepDesc = ['Bước 1/4: Dựng $\\triangle ABC$ vuông tại $A$, đường cao $AH$.', 'Bước 2/4: Dựng hình vuông $MNPQ$ nội tiếp ($M\\in AB, N\\in AC, P,Q\\in BC$).', 'Bước 3/4: Vì $MN \\parallel BC \\Rightarrow \\frac{MN}{BC} = \\frac{AH - x}{AH}$.', 'Bước 4/4: Suy ra cạnh hình vuông $x = \\frac{AH \\cdot BC}{AH + BC}$.'];
+          stepDesc = [`Bước 1/4: $\\triangle ABC$ vuông tại $A$ ($AB=${ab}, AC=${ac}$).`, 'Bước 2/4: Dựng hình vuông $MNPQ$ nội tiếp.', 'Bước 3/4: Ta-lét $\\frac{x}{BC} = \\frac{AH - x}{AH}$.', `Bước 4/4: Cạnh hình vuông $x \\approx ${xVal.toFixed(2)}$.`];
           solSteps = [
-            'Gọi cạnh hình vuông $MNPQ$ là $x$ ($x > 0$), $K = AH \\cap MN$.',
-            'Ta có $MN \\parallel BC$ và $KH = MQ = x \\Rightarrow AK = AH - x$.',
-            'Theo hệ quả định lý Ta-lét: $\\dfrac{MN}{BC} = \\dfrac{AK}{AH} \\Leftrightarrow \\dfrac{x}{BC} = \\dfrac{AH - x}{AH}$.',
-            'Giải phương trình: $x \\cdot AH = AH \\cdot BC - x \\cdot BC \\Rightarrow x = \\dfrac{AH \\cdot BC}{AH + BC}$.'
+            `Tính $BC = \\sqrt{${ab}^2 + ${ac}^2} \\approx ${bcLen.toFixed(2)},\\; AH = \\dfrac{${ab}\\cdot ${ac}}{${bcLen.toFixed(2)}} \\approx ${ah.toFixed(2)}$.`,
+            'Gọi cạnh hình vuông $MNPQ$ là $x$, $K = AH \\cap MN \\Rightarrow AK = AH - x$.',
+            'Theo hệ quả Ta-lét ($MN \\parallel BC$): $\\dfrac{x}{BC} = \\dfrac{AH - x}{AH}$.',
+            `Suy ra $x = \\dfrac{AH \\cdot BC}{AH + BC} \\approx ${xVal.toFixed(2)}$.`
           ];
         } else if (id === 'b1') {
           const deg = state.b1.deg, rad = (deg * Math.PI) / 180;
@@ -1407,57 +1470,68 @@
           ];
         } else if (id === 'b2') {
           const isHyp = state.b2.variant === 'hyp';
-          const rad = isHyp ? (35 * Math.PI) / 180 : (40 * Math.PI) / 180;
-          const { A, B, C } = computeRightTriLayout(w, h, 10 * Math.cos(rad), 10 * Math.sin(rad));
+          const { bc, degB, ab, degC } = state.b2;
+          const rad = isHyp ? (degB * Math.PI) / 180 : ((90 - degC) * Math.PI) / 180;
+          const abV = isHyp ? bc * Math.cos(rad) : ab;
+          const acV = isHyp ? bc * Math.sin(rad) : ab / Math.tan((degC * Math.PI) / 180);
+          const bcV = isHyp ? bc : ab / Math.sin((degC * Math.PI) / 180);
+          const { A, B, C } = computeRightTriLayout(w, h, abV, acV);
           drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, '#2563eb', 2.8);
           drawRightAngle(ctx, A, B, C);
           if (isHyp) {
-            if (eff >= 2) { drawAngleArc(ctx, B, A, C, 34, '#f59e0b', '35°'); drawTextLabel(ctx, 'BC = 10', (B.x + C.x) / 2 - 22, B.y + 20, '#2563eb'); }
-            if (eff >= 3) { drawTextLabel(ctx, 'AC ≈ 5,74', (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#ea580c'); drawTextLabel(ctx, 'AB ≈ 8,19', (A.x + B.x) / 2 - 58, (A.y + B.y) / 2, '#16a34a'); }
-            stepDesc = ['Bước 1/4: $\\triangle ABC$ vuông tại $A$.', 'Bước 2/4: Biết $BC=10, \\widehat{B}=35^\\circ$.', 'Bước 3/4: $\\widehat{C}=55^\\circ$.', 'Bước 4/4: $AC\\approx 5{,}74,\\; AB\\approx 8{,}19$.'];
-            solSteps = ['Xét $\\triangle ABC$ vuông tại $A$ biết $BC = 10,\\; \\widehat{B} = 35^\\circ$.', 'Ta có $\\widehat{C} = 90^\\circ - 35^\\circ = 55^\\circ$.', '$AC = BC \\cdot \\sin 35^\\circ = 10\\sin 35^\\circ \\approx 5{,}74$.', '$AB = BC \\cdot \\cos 35^\\circ = 10\\cos 35^\\circ \\approx 8{,}19$.'];
+            if (eff >= 2) { drawAngleArc(ctx, B, A, C, 34, '#f59e0b', `${degB}°`); drawTextLabel(ctx, `BC = ${bc}`, (B.x + C.x) / 2 - 22, B.y + 20, '#2563eb'); }
+            if (eff >= 3) { drawTextLabel(ctx, `AC ≈ ${acV.toFixed(2)}`, (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#ea580c'); drawTextLabel(ctx, `AB ≈ ${abV.toFixed(2)}`, (A.x + B.x) / 2 - 64, (A.y + B.y) / 2, '#16a34a'); }
+            stepDesc = ['Bước 1/4: $\\triangle ABC$ vuông tại $A$.', `Bước 2/4: Biết $BC=${bc},\\; \\widehat{B}=${degB}^\\circ$.`, `Bước 3/4: $\\widehat{C}=${90 - degB}^\\circ$.`, `Bước 4/4: $AC\\approx ${acV.toFixed(2)},\\; AB\\approx ${abV.toFixed(2)}$.`];
+            solSteps = [`Xét $\\triangle ABC$ vuông tại $A$ biết $BC = ${bc},\\; \\widehat{B} = ${degB}^\\circ$.`, `Ta có $\\widehat{C} = 90^\\circ - ${degB}^\\circ = ${90 - degB}^\\circ$.`, `$AC = BC \\cdot \\sin ${degB}^\\circ = ${bc}\\sin ${degB}^\\circ \\approx ${acV.toFixed(2)}$.`, `$AB = BC \\cdot \\cos ${degB}^\\circ = ${bc}\\cos ${degB}^\\circ \\approx ${abV.toFixed(2)}$.`];
           } else {
-            if (eff >= 2) { drawAngleArc(ctx, C, B, A, 34, '#f59e0b', '50°'); drawTextLabel(ctx, 'AB = 8', (A.x + B.x) / 2 - 48, (A.y + B.y) / 2, '#16a34a'); }
-            if (eff >= 3) { drawTextLabel(ctx, 'AC ≈ 6,71', (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#ea580c'); drawTextLabel(ctx, 'BC ≈ 10,44', (B.x + C.x) / 2 - 22, B.y + 20, '#2563eb'); }
-            stepDesc = ['Bước 1/4: $\\triangle ABC$ vuông tại $A$.', 'Bước 2/4: Biết $AB=8, \\widehat{C}=50^\\circ$.', 'Bước 3/4: $\\widehat{B}=40^\\circ$.', 'Bước 4/4: $AC\\approx 6{,}71,\\; BC\\approx 10{,}44$.'];
-            solSteps = ['Xét $\\triangle ABC$ vuông tại $A$ biết $AB = 8,\\; \\widehat{C} = 50^\\circ$.', 'Ta có $\\widehat{B} = 90^\\circ - 50^\\circ = 40^\\circ$.', '$AC = AB \\cdot \\cot 50^\\circ = 8\\cot 50^\\circ \\approx 6{,}71$.', '$BC = \\dfrac{AB}{\\sin 50^\\circ} = \\dfrac{8}{\\sin 50^\\circ} \\approx 10{,}44$.'];
+            if (eff >= 2) { drawAngleArc(ctx, C, B, A, 34, '#f59e0b', `${degC}°`); drawTextLabel(ctx, `AB = ${ab}`, (A.x + B.x) / 2 - 52, (A.y + B.y) / 2, '#16a34a'); }
+            if (eff >= 3) { drawTextLabel(ctx, `AC ≈ ${acV.toFixed(2)}`, (A.x + C.x) / 2 + 12, (A.y + C.y) / 2, '#ea580c'); drawTextLabel(ctx, `BC ≈ ${bcV.toFixed(2)}`, (B.x + C.x) / 2 - 22, B.y + 20, '#2563eb'); }
+            stepDesc = ['Bước 1/4: $\\triangle ABC$ vuông tại $A$.', `Bước 2/4: Biết $AB=${ab},\\; \\widehat{C}=${degC}^\\circ$.`, `Bước 3/4: $\\widehat{B}=${90 - degC}^\\circ$.`, `Bước 4/4: $AC\\approx ${acV.toFixed(2)},\\; BC\\approx ${bcV.toFixed(2)}$.`];
+            solSteps = [`Xét $\\triangle ABC$ vuông tại $A$ biết $AB = ${ab},\\; \\widehat{C} = ${degC}^\\circ$.`, `Ta có $\\widehat{B} = 90^\\circ - ${degC}^\\circ = ${90 - degC}^\\circ$.`, `$AC = AB \\cdot \\cot ${degC}^\\circ = ${ab}\\cot ${degC}^\\circ \\approx ${acV.toFixed(2)}$.`, `$BC = \\dfrac{AB}{\\sin ${degC}^\\circ} = \\dfrac{${ab}}{\\sin ${degC}^\\circ} \\approx ${bcV.toFixed(2)}$.`];
           }
           drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
         } else if (id === 'b3') {
-          const { A, B, C } = computeRightTriLayout(w, h, 6, 8);
+          const { ab, ac } = state.b3;
+          const { A, B, C, bcLen } = computeRightTriLayout(w, h, ab, ac);
           drawSeg(ctx, A, B, '#ea580c', 3); drawSeg(ctx, A, C, '#16a34a', 3); drawSeg(ctx, B, C, '#2563eb', 3);
           drawRightAngle(ctx, A, B, C);
           if (eff >= 2) drawAngleArc(ctx, C, B, A, 36, '#f59e0b', 'α');
           drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
-          stepDesc = ['Bước 1/4: $\\triangle ABC$ vuông tại $A$, $\\widehat{C} = \\alpha$.', 'Bước 2/4: $\\sin\\alpha = \\frac{AB}{BC},\\; \\cos\\alpha = \\frac{AC}{BC}$.', 'Bước 3/4: $\\sin^2\\alpha + \\cos^2\\alpha = \\frac{AB^2+AC^2}{BC^2}$.', 'Bước 4/4: Theo Pytago $AB^2+AC^2=BC^2 \\Rightarrow \\sin^2\\alpha+\\cos^2\\alpha=1$.'];
+          stepDesc = [`Bước 1/4: $\\triangle ABC$ vuông tại $A$ ($AB=${ab}, AC=${ac}$), $\\widehat{C} = \\alpha$.`, 'Bước 2/4: $\\sin\\alpha = \\frac{AB}{BC},\\; \\cos\\alpha = \\frac{AC}{BC}$.', 'Bước 3/4: $\\sin^2\\alpha + \\cos^2\\alpha = \\frac{AB^2+AC^2}{BC^2}$.', 'Bước 4/4: Theo Pytago $AB^2+AC^2=BC^2 \\Rightarrow \\sin^2\\alpha+\\cos^2\\alpha=1$.'];
           solSteps = [
-            'Xét $\\triangle ABC$ vuông tại $A$ có $\\widehat{C} = \\alpha$.',
-            'Ta có $\\sin\\alpha = \\dfrac{AB}{BC},\\; \\cos\\alpha = \\dfrac{AC}{BC}$.',
-            'Do đó $\\sin^2\\alpha + \\cos^2\\alpha = \\dfrac{AB^2 + AC^2}{BC^2} = \\dfrac{BC^2}{BC^2} = 1$.',
-            'Ngoài ra $\\dfrac{\\sin\\alpha}{\\cos\\alpha} = \\dfrac{AB/BC}{AC/BC} = \\dfrac{AB}{AC} = \\tan\\alpha$.'
+            `Xét $\\triangle ABC$ vuông tại $A$ ($AB=${ab},\\; AC=${ac}$) $\\Rightarrow BC = \\sqrt{${ab}^2+${ac}^2} \\approx ${bcLen.toFixed(2)}$.`,
+            `Ta có $\\sin\\alpha = \\dfrac{${ab}}{${bcLen.toFixed(2)}},\\; \\cos\\alpha = \\dfrac{${ac}}{${bcLen.toFixed(2)}}$.`,
+            `Do đó $\\sin^2\\alpha + \\cos^2\\alpha = \\dfrac{AB^2 + AC^2}{BC^2} = \\dfrac{BC^2}{BC^2} = 1$.`,
+            `Ngoài ra $\\dfrac{\\sin\\alpha}{\\cos\\alpha} = \\dfrac{AB/BC}{AC/BC} = \\dfrac{AB}{AC} = \\tan\\alpha \\approx ${(ab/ac).toFixed(3)}$.`
           ];
         } else if (id === 'b4') {
-          const isObt = state.b4.obtuse, cy = h * 0.68, cx = w * 0.5;
-          const A = { x: cx - 100, y: cy }, C = { x: cx + 150, y: cy };
-          const B = isObt ? { x: cx - 185, y: cy - 160 } : { x: cx - 10, y: cy - 170 };
+          const { obtuse: isObt, ab, ac, degA, degAObt } = state.b4;
+          const ang = isObt ? degAObt : degA, rad = (ang * Math.PI) / 180;
+          const bh = ab * Math.sin(isObt ? Math.PI - rad : rad);
+          const ah = ab * Math.cos(isObt ? Math.PI - rad : rad);
+          const hc = isObt ? ac + ah : Math.abs(ac - ah);
+          const bc = Math.hypot(bh, hc), area = 0.5 * ac * bh;
+          const cy = h * 0.68, cx = w * 0.5, sc = 230 / Math.max(ac + (isObt ? ah : 0), 8);
+          const A = { x: cx - (ac * sc) / 2 + (isObt ? 30 : 0), y: cy }, C = { x: A.x + ac * sc, y: cy };
+          const B = { x: A.x + (isObt ? -ah : ah) * sc, y: cy - bh * sc };
           const H = { x: B.x, y: cy };
           drawSeg(ctx, A, B, '#ea580c', 2.8); drawSeg(ctx, A, C, '#2563eb', 2.8); drawSeg(ctx, B, C, edgeCol, 2.5);
           if (isObt && eff >= 2) drawSeg(ctx, H, A, mutedCol, 1.8, true);
           if (eff >= 2) { drawSeg(ctx, B, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, B, C, 12, '#dc2626'); }
-          if (eff >= 3) drawAngleArc(ctx, A, B, C, 34, '#f59e0b', isObt ? '120°' : '55°');
+          if (eff >= 3) drawAngleArc(ctx, A, B, C, 34, '#f59e0b', `${ang}°`);
           drawPt(ctx, B, 'B', edgeCol, -6, -12, isDark); drawPt(ctx, A, 'A', edgeCol, -12, 18, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 18, isDark);
           if (eff >= 2) drawPt(ctx, H, 'H', '#dc2626', -6, 18, isDark);
-          stepDesc = [`Bước 1/4: Dựng $\\triangle ABC$ có $AB=7, AC=10, \\widehat{A}=${isObt ? '120^\\circ' : '55^\\circ'}$.`, 'Bước 2/4: Kẻ đường cao phụ $BH \\perp AC$.', 'Bước 3/4: Giải $\\triangle ABH$ tìm $BH, AH$, suy ra $HC$.', `Bước 4/4: Pytago trong $\\triangle BHC$ tìm $BC$ và $S = \\frac{1}{2}AC\\cdot BH$.`];
+          stepDesc = [`Bước 1/4: $\\triangle ABC$ có $AB=${ab}, AC=${ac}, \\widehat{A}=${ang}^\\circ$.`, 'Bước 2/4: Kẻ đường cao phụ $BH \\perp AC$.', `Bước 3/4: $BH \\approx ${bh.toFixed(2)},\\; HC \\approx ${hc.toFixed(2)}$.`, `Bước 4/4: $BC \\approx ${bc.toFixed(2)},\\; S \\approx ${area.toFixed(2)}$.`];
           solSteps = isObt ? [
-            'Kẻ đường cao $BH \\perp AC$ ($H$ nằm trên tia đối tia $AC$), suy ra $\\widehat{BAH} = 180^\\circ - 120^\\circ = 60^\\circ$.',
-            'Xét $\\triangle ABH$ vuông tại $H$: $BH = 7\\sin 60^\\circ \\approx 6{,}06,\\; AH = 7\\cos 60^\\circ = 3{,}5$.',
-            'Do $H$ ngoài $AC$ nên $HC = HA + AC = 13{,}5 \\Rightarrow BC = \\sqrt{BH^2 + HC^2} \\approx 14{,}79$.',
-            'Diện tích: $S_{\\triangle ABC} = \\dfrac{1}{2} \\cdot AC \\cdot BH \\approx 30{,}31$ (đvdt).'
+            `Kẻ đường cao $BH \\perp AC$ ($H$ nằm ngoài $AC$), suy ra $\\widehat{BAH} = 180^\\circ - ${ang}^\\circ = ${180 - ang}^\\circ$.`,
+            `Xét $\\triangle ABH$ vuông tại $H$: $BH = ${ab}\\sin ${180 - ang}^\\circ \\approx ${bh.toFixed(2)},\\; AH = ${ab}\\cos ${180 - ang}^\\circ \\approx ${ah.toFixed(2)}$.`,
+            `Do $H$ ngoài $AC$ nên $HC = HA + AC \\approx ${hc.toFixed(2)} \\Rightarrow BC = \\sqrt{BH^2 + HC^2} \\approx ${bc.toFixed(2)}$.`,
+            `Diện tích: $S_{\\triangle ABC} = \\dfrac{1}{2} \\cdot ${ac} \\cdot ${bh.toFixed(2)} \\approx ${area.toFixed(2)}$ (đvdt).`
           ] : [
             'Kẻ đường cao $BH \\perp AC$ ($H \\in AC$).',
-            'Xét $\\triangle ABH$ vuông tại $H$: $BH = 7\\sin 55^\\circ \\approx 5{,}73,\\; AH = 7\\cos 55^\\circ \\approx 4{,}02$.',
-            'Ta có $HC = AC - AH \\approx 5{,}98 \\Rightarrow BC = \\sqrt{BH^2 + HC^2} \\approx 8{,}33$.',
-            'Diện tích: $S_{\\triangle ABC} = \\dfrac{1}{2} \\cdot AC \\cdot BH \\approx 28{,}67$ (đvdt).'
+            `Xét $\\triangle ABH$ vuông tại $H$: $BH = ${ab}\\sin ${ang}^\\circ \\approx ${bh.toFixed(2)},\\; AH = ${ab}\\cos ${ang}^\\circ \\approx ${ah.toFixed(2)}$.`,
+            `Ta có $HC = |AC - AH| \\approx ${hc.toFixed(2)} \\Rightarrow BC = \\sqrt{BH^2 + HC^2} \\approx ${bc.toFixed(2)}$.`,
+            `Diện tích: $S_{\\triangle ABC} = \\dfrac{1}{2} \\cdot ${ac} \\cdot ${bh.toFixed(2)} \\approx ${area.toFixed(2)}$ (đvdt).`
           ];
         } else if (id === 'c1') {
           // Bài 3.1: Thang tựa tường gạch 3D (thang 3m, góc 65 độ)
@@ -1799,25 +1873,50 @@
       }
     }
 
-    function buildTab1Controls() {
-      const box = document.getElementById('tab1-controls');
-      const id = state.modelId;
+    const DEFAULT_MODEL_PARAMS = {
+      a1: { ab: 6, ac: 8, formulaIdx: 0 },
+      a2: { mode: 'proj', bh: 4, ch: 9, ab: 6, bh2: 3.6 },
+      a3: { ab: 6, ac: 8 },
+      a4: { ab: 6, ac: 8 },
+      b1: { deg: 35 },
+      b2: { variant: 'hyp', bc: 10, degB: 35, ab: 8, degC: 50 },
+      b3: { ab: 6, ac: 8 },
+      b4: { obtuse: false, ab: 7, ac: 10, degA: 55, degAObt: 120 },
+      c1: { len: 3, deg: 65 },
+      c2: { dist: 15, alpha: 50 },
+      c3: { alpha: 63, shadow: 120 },
+      c4: { mode: 'takeoff', alpha: 22, dist: 2500 },
+      c5: { alpha: 18, dist: 400 },
+      c6: { L: 120, h: 15 },
+      c7: { L: 1800, alpha: 28 },
+      c8: { width: 80, alpha: 32 },
+      d1: { side: 'same', ab: 200, alpha: 42, beta: 58 },
+      d2: { H: 45, alpha: 25, beta: 40 },
+      d3: { dist: 40, alpha: 35, beta: 28 },
+      d4: { L: 24, alpha: 45, h0: 25 },
+      d5: { h: 120, alpha: 35 },
+      d6: { hLamp: 6.8, hPerson: 1.7, d: 5 },
+      d7: { v1: 20, v2: 25, alpha: 60, hours: 2 },
+      d8: { totalH: 9, baseDist: 3 }
+    };
+
+    function getModelProblemStmt(id) {
       const stmts = {
-        a1: 'Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH \\perp BC$. Chọn hệ thức bên dưới để tô màu cặp đoạn thẳng tỉ lệ:',
+        a1: `Cho $\\triangle ABC$ vuông tại $A$ ($AB = ${state.a1.ab},\\; AC = ${state.a1.ac}$), đường cao $AH \\perp BC$. Chọn hệ thức để tô màu đoạn thẳng tỉ lệ:`,
         a2: state.a2.mode === 'proj'
-          ? 'Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $BH = 4,\\; CH = 9$. Tính $BC, AH, AB, AC$.'
-          : 'Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $AB = 6,\\; BH = 3{,}6$. Tính $BC, CH, AC, AH$.',
-        a3: 'Cho $\\triangle ABC$ vuông tại $A$ ($AB = 6,\\; AC = 8$), đường cao $AH$, trung tuyến $AM$ và phân giác trong $AD$. Tính $AM, AD, HD$.',
-        a4: 'Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$. Hình vuông $MNPQ$ nội tiếp $\\triangle ABC$ ($M \\in AB, N \\in AC, P, Q \\in BC$). Tính cạnh hình vuông theo $AH$ và $BC$.',
-        b1: `Cho $\\triangle ABC$ vuông tại $A$ có $\\widehat{C} = \\alpha = ${state.b1.deg}^\\circ$. Quan sát tỉ số lượng giác $\\sin\\alpha, \\cos\\alpha, \\tan\\alpha, \\cot\\alpha$.`,
+          ? `Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $BH = ${state.a2.bh},\\; CH = ${state.a2.ch}$. Tính $BC, AH, AB, AC$.`
+          : `Cho $\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $AB = ${state.a2.ab},\\; BH = ${state.a2.bh2}$. Tính $BC, CH, AC, AH$.`,
+        a3: `Cho $\\triangle ABC$ vuông tại $A$ ($AB = ${state.a3.ab},\\; AC = ${state.a3.ac}$), đường cao $AH$, trung tuyến $AM$ và phân giác $AD$. Tính $AM, AD, HD$.`,
+        a4: `Cho $\\triangle ABC$ vuông tại $A$ ($AB = ${state.a4.ab},\\; AC = ${state.a4.ac}$), đường cao $AH$. Hình vuông $MNPQ$ nội tiếp $\\triangle ABC$. Tính cạnh hình vuông.`,
+        b1: `Cho $\\triangle ABC$ vuông tại $A$ có $\\widehat{C} = \\alpha = ${state.b1.deg}^\\circ$. Tính $\\sin\\alpha, \\cos\\alpha, \\tan\\alpha, \\cot\\alpha$.`,
         b2: state.b2.variant === 'hyp'
-          ? 'Giải $\\triangle ABC$ vuông tại $A$, biết cạnh huyền $BC = 10$ và $\\widehat{B} = 35^\\circ$.'
-          : 'Giải $\\triangle ABC$ vuông tại $A$, biết cạnh góc vuông $AB = 8$ và $\\widehat{C} = 50^\\circ$.',
-        b3: 'Cho $\\triangle ABC$ vuông tại $A$, $\\widehat{C} = \\alpha$. Chứng minh $\\sin^2\\alpha + \\cos^2\\alpha = 1$ và $\\tan\\alpha = \\dfrac{\\sin\\alpha}{\\cos\\alpha}$.',
-        b4: `Cho $\\triangle ABC$ có $AB = 7,\\; AC = 10$ và $\\widehat{A} = ${state.b4.obtuse ? '120^\\circ' : '55^\\circ'}$. Kẻ đường cao phụ $BH \\perp AC$, tính $BC$ và $S_{\\triangle ABC}$.`,
+          ? `Giải $\\triangle ABC$ vuông tại $A$, biết cạnh huyền $BC = ${state.b2.bc}$ và $\\widehat{B} = ${state.b2.degB}^\\circ$.`
+          : `Giải $\\triangle ABC$ vuông tại $A$, biết cạnh góc vuông $AB = ${state.b2.ab}$ và $\\widehat{C} = ${state.b2.degC}^\\circ$.`,
+        b3: `Cho $\\triangle ABC$ vuông tại $A$ ($AB = ${state.b3.ab},\\; AC = ${state.b3.ac}$), $\\widehat{C} = \\alpha$. Chứng minh $\\sin^2\\alpha + \\cos^2\\alpha = 1$.`,
+        b4: `Cho $\\triangle ABC$ có $AB = ${state.b4.ab},\\; AC = ${state.b4.ac}$ và $\\widehat{A} = ${state.b4.obtuse ? state.b4.degAObt : state.b4.degA}^\\circ$. Kẻ đường cao phụ $BH \\perp AC$, tính $BC$ và $S_{\\triangle ABC}$.`,
         c1: `Một chiếc thang dài $${state.c1.len}\\text{ m}$ tựa vào tường gạch, tạo với mặt đất góc $${state.c1.deg}^\\circ$. Tính chiều cao đầu thang chạm tường.`,
         c2: `Để đo chiều cao cây bên kia sông, người ta đứng cách gốc cây $AC = ${state.c2.dist}\\text{ m}$ và đo được góc nâng $${state.c2.alpha}^\\circ$. Tính chiều cao cây.`,
-        c3: `Tia nắng mặt trời tạo với mặt đất góc $${state.c3.alpha}^\\circ$, bóng của tháp Landmark 81 dài $AB = ${state.c3.shadow}\\text{ m}$. Tính chiều cao tháp.`,
+        c3: `Tia nắng mặt trời tạo với mặt đất góc $${state.c3.alpha}^\\circ$, bóng tháp Landmark 81 dài $AB = ${state.c3.shadow}\\text{ m}$. Tính chiều cao tháp.`,
         c4: `Một máy bay cất cánh nghiêng góc $${state.c4.alpha}^\\circ$ so với mặt đất. Sau khi bay được $L = ${state.c4.dist}\\text{ m}$, máy bay đạt độ cao bao nhiêu?`,
         c5: `Một tàu ngầm lặn xuống theo phương nghiêng góc $${state.c5.alpha}^\\circ$ so với mặt biển. Sau quãng đường $${state.c5.dist}\\text{ m}$, tàu ở độ sâu bao nhiêu?`,
         c6: `Ô tô leo dốc cầu vượt dài $L = ${state.c6.L}\\text{ m}$, đạt độ cao $h = ${state.c6.h}\\text{ m}$. Tính góc dốc $\\alpha$ và độ dốc $i\\%$.`,
@@ -1832,9 +1931,116 @@
         d7: `Hai tàu rời cảng $O$ theo $2$ hướng tạo góc $${state.d7.alpha}^\\circ$ với vận tốc $${state.d7.v1}\\text{ km/h}$ và $${state.d7.v2}\\text{ km/h}$. Tính khoảng cách sau $${state.d7.hours}$ giờ.`,
         d8: `Một cây cao $${state.d8.totalH}\\text{ m}$ bị bão thổi gãy gập, ngọn chạm đất cách gốc $${state.d8.baseDist}\\text{ m}$. Tính độ cao chỗ gãy.`
       };
-      let html = `<div class="problem-stmt-box">${stmts[id] || ''}</div>`;
+      return stmts[id] || '';
+    }
+
+    function paramInputHtml(id, key, label, val, min, max, step = 1, unit = '') {
+      const unitTxt = unit ? `<span style="color:#64748b;font-weight:600;">${unit}</span>` : '';
+      return `<div class="param-box">
+        <div class="param-lbl"><span>${label}</span>${unitTxt}</div>
+        <div class="param-stepper">
+          <button type="button" class="param-btn" onclick="stepModelParam('${id}','${key}',-${step},${min},${max},${step})">−</button>
+          <input type="number" class="param-num" value="${val}" min="${min}" max="${max}" step="${step}"
+            oninput="setModelParam('${id}','${key}',this.value,${min},${max},true)"
+            onchange="setModelParam('${id}','${key}',this.value,${min},${max},false)" />
+          <button type="button" class="param-btn" onclick="stepModelParam('${id}','${key}',${step},${min},${max},${step})">+</button>
+        </div>
+      </div>`;
+    }
+
+    function clampParamConstraints(id) {
+      if (id === 'a2') {
+        if (state.a2.bh2 >= state.a2.ab) state.a2.bh2 = +(Math.max(0.5, state.a2.ab - 0.5)).toFixed(1);
+      } else if (id === 'c6') {
+        if (state.c6.h >= state.c6.L) state.c6.h = Math.max(1, state.c6.L - 5);
+      } else if (id === 'd1') {
+        if (state.d1.alpha === state.d1.beta) state.d1.beta = Math.min(82, state.d1.alpha + 5);
+      } else if (id === 'd2') {
+        if (state.d2.alpha >= state.d2.beta) state.d2.beta = Math.min(82, state.d2.alpha + 5);
+      } else if (id === 'd6') {
+        if (state.d6.hLamp <= state.d6.hPerson + 0.5) state.d6.hLamp = +(state.d6.hPerson + 1).toFixed(1);
+      } else if (id === 'd8') {
+        if (state.d8.baseDist >= state.d8.totalH - 0.5) state.d8.baseDist = +(Math.max(1, state.d8.totalH - 1)).toFixed(1);
+      }
+    }
+
+    function setModelParam(id, key, rawVal, min, max, isTyping) {
+      const v = parseFloat(rawVal);
+      if (Number.isNaN(v)) return;
+      state[id][key] = Math.max(min, Math.min(max, v));
+      clampParamConstraints(id);
+      const stmtEl = document.getElementById('tab1-problem-stmt');
+      if (stmtEl) { stmtEl.innerHTML = getModelProblemStmt(id); renderAllMath(stmtEl); }
+      if (!isTyping) buildTab1Controls();
+      rebuildScene();
+    }
+
+    function stepModelParam(id, key, delta, min, max, step) {
+      const dec = String(step).includes('.') ? String(step).split('.')[1].length : 0;
+      const next = +Math.max(min, Math.min(max, (state[id][key] || 0) + delta)).toFixed(dec);
+      state[id][key] = next;
+      clampParamConstraints(id);
+      buildTab1Controls();
+      rebuildScene();
+    }
+
+    function resetModelParams() {
+      const id = state.modelId;
+      if (DEFAULT_MODEL_PARAMS[id]) state[id] = { ...DEFAULT_MODEL_PARAMS[id] };
+      buildTab1Controls();
+      rebuildScene();
+    }
+
+    function randomizeModelParams() {
+      const id = state.modelId;
+      const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+      const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+      if (id === 'a1' || id === 'a3' || id === 'a4' || id === 'b3') {
+        const pairs = [[3, 4], [5, 12], [6, 8], [8, 15], [9, 12], [7, 24]];
+        const [ab, ac] = pick(pairs);
+        state[id].ab = ab; state[id].ac = ac;
+      } else if (id === 'a2') {
+        if (state.a2.mode === 'proj') { const p = pick([[2, 8], [4, 9], [3, 12], [9, 16]]); state.a2.bh = p[0]; state.a2.ch = p[1]; }
+        else { const p = pick([[6, 3.6], [10, 6], [12, 7.2], [15, 9]]); state.a2.ab = p[0]; state.a2.bh2 = p[1]; }
+      } else if (id === 'b1') { state.b1.deg = randInt(20, 70); }
+      else if (id === 'b2') {
+        if (state.b2.variant === 'hyp') { state.b2.bc = randInt(8, 24); state.b2.degB = randInt(25, 65); }
+        else { state.b2.ab = randInt(5, 18); state.b2.degC = randInt(25, 65); }
+      } else if (id === 'b4') {
+        state.b4.ab = randInt(5, 12); state.b4.ac = randInt(8, 16);
+        if (state.b4.obtuse) state.b4.degAObt = randInt(105, 135); else state.b4.degA = randInt(35, 75);
+      } else if (id === 'c1') { state.c1.len = pick([3, 4, 5, 6, 8, 10]); state.c1.deg = randInt(50, 75); }
+      else if (id === 'c2') { state.c2.dist = randInt(12, 40); state.c2.alpha = randInt(30, 65); }
+      else if (id === 'c3') { state.c3.shadow = randInt(40, 180); state.c3.alpha = randInt(35, 70); }
+      else if (id === 'c4') { state.c4.dist = pick([1200, 1800, 2500, 3200]); state.c4.alpha = randInt(15, 35); }
+      else if (id === 'c5') { state.c5.dist = pick([250, 400, 600, 800]); state.c5.alpha = randInt(14, 35); }
+      else if (id === 'c6') { state.c6.L = pick([100, 120, 150, 200]); state.c6.h = randInt(10, 30); }
+      else if (id === 'c7') { state.c7.L = pick([1200, 1500, 1800, 2400]); state.c7.alpha = randInt(20, 40); }
+      else if (id === 'c8') { state.c8.width = pick([50, 80, 100, 120]); state.c8.alpha = randInt(20, 48); }
+      else if (id === 'd1') { state.d1.ab = pick([120, 150, 200, 250]); state.d1.alpha = randInt(28, 45); state.d1.beta = state.d1.alpha + randInt(12, 24); }
+      else if (id === 'd2') { state.d2.H = pick([35, 45, 55, 60]); state.d2.alpha = randInt(20, 32); state.d2.beta = state.d2.alpha + randInt(12, 22); }
+      else if (id === 'd3') { state.d3.dist = pick([25, 30, 40, 50]); state.d3.alpha = randInt(28, 48); state.d3.beta = randInt(20, 38); }
+      else if (id === 'd4') { state.d4.L = pick([18, 24, 30, 36]); state.d4.alpha = randInt(28, 62); }
+      else if (id === 'd5') { state.d5.h = pick([80, 100, 120, 150]); state.d5.alpha = randInt(22, 42); }
+      else if (id === 'd6') { state.d6.hPerson = pick([1.6, 1.7, 1.8]); state.d6.hLamp = pick([5.1, 6.8, 8.5]); }
+      else if (id === 'd7') { state.d7.v1 = randInt(18, 32); state.d7.v2 = randInt(22, 40); state.d7.alpha = pick([45, 60, 75]); }
+      else if (id === 'd8') { state.d8.totalH = pick([8, 9, 10, 12, 16]); state.d8.baseDist = randInt(3, 5); }
+      clampParamConstraints(id);
+      buildTab1Controls();
+      rebuildScene();
+    }
+
+    function buildTab1Controls() {
+      const box = document.getElementById('tab1-controls');
+      const id = state.modelId;
+      let html = `<div class="problem-stmt-box" id="tab1-problem-stmt">${getModelProblemStmt(id)}</div>`;
+
       if (id === 'a1') {
-        html += `<div class="preset-row">
+        html += `<div class="param-grid">
+          ${paramInputHtml('a1', 'ab', 'Cạnh $AB$', state.a1.ab, 2, 30, 1)}
+          ${paramInputHtml('a1', 'ac', 'Cạnh $AC$', state.a1.ac, 2, 30, 1)}
+        </div>
+        <div class="preset-row">
           <button class="preset-btn ${state.a1.formulaIdx===0?'active':''}" onclick="state.a1.formulaIdx=0;buildTab1Controls();rebuildScene();">$AB^2=BH\\cdot BC$</button>
           <button class="preset-btn ${state.a1.formulaIdx===1?'active':''}" onclick="state.a1.formulaIdx=1;buildTab1Controls();rebuildScene();">$AC^2=CH\\cdot BC$</button>
           <button class="preset-btn ${state.a1.formulaIdx===2?'active':''}" onclick="state.a1.formulaIdx=2;buildTab1Controls();rebuildScene();">$AH^2=BH\\cdot CH$</button>
@@ -1842,43 +2048,79 @@
           <button class="preset-btn ${state.a1.formulaIdx===4?'active':''}" onclick="state.a1.formulaIdx=4;buildTab1Controls();rebuildScene();">$\\frac{1}{AH^2}=\\frac{1}{AB^2}+\\frac{1}{AC^2}$</button>
         </div>`;
       } else if (id === 'a2') {
-        html += `<div class="sub-tabs" style="margin:0;">
-          <button class="sub-tab ${state.a2.mode==='proj'?'active':''}" onclick="state.a2.mode='proj';buildTab1Controls();rebuildScene();">2 hình chiếu ($4; 9$)</button>
-          <button class="sub-tab ${state.a2.mode==='leg'?'active':''}" onclick="state.a2.mode='leg';buildTab1Controls();rebuildScene();">Cạnh &amp; chiếu ($6; 3{,}6$)</button>
+        html += `<div class="sub-tabs" style="margin-bottom:6px;">
+          <button class="sub-tab ${state.a2.mode==='proj'?'active':''}" onclick="state.a2.mode='proj';buildTab1Controls();rebuildScene();">2 hình chiếu</button>
+          <button class="sub-tab ${state.a2.mode==='leg'?'active':''}" onclick="state.a2.mode='leg';buildTab1Controls();rebuildScene();">Cạnh &amp; chiếu</button>
+        </div>`;
+        html += state.a2.mode === 'proj'
+          ? `<div class="param-grid">${paramInputHtml('a2', 'bh', 'Chiếu $BH$', state.a2.bh, 1, 30, 1)}${paramInputHtml('a2', 'ch', 'Chiếu $CH$', state.a2.ch, 1, 30, 1)}</div>`
+          : `<div class="param-grid">${paramInputHtml('a2', 'ab', 'Cạnh $AB$', state.a2.ab, 2, 30, 1)}${paramInputHtml('a2', 'bh2', 'Chiếu $BH$', state.a2.bh2, 0.5, 29, 0.2)}</div>`;
+      } else if (id === 'a3' || id === 'a4' || id === 'b3') {
+        html += `<div class="param-grid">
+          ${paramInputHtml(id, 'ab', 'Cạnh $AB$', state[id].ab, 2, 30, 1)}
+          ${paramInputHtml(id, 'ac', 'Cạnh $AC$', state[id].ac, 2, 30, 1)}
         </div>`;
       } else if (id === 'b1') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc $\\alpha$</span><span>${state.b1.deg}°</span></div><input type="range" min="15" max="75" value="${state.b1.deg}" oninput="state.b1.deg=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid" style="grid-template-columns:1fr;">${paramInputHtml('b1', 'deg', 'Góc nhọn $\\alpha$', state.b1.deg, 5, 85, 1, '°')}</div>
+        <div class="slider-box" style="margin:0;"><input type="range" min="10" max="80" value="${state.b1.deg}" oninput="setModelParam('b1','deg',this.value,5,85,false)" /></div>`;
       } else if (id === 'b2') {
-        html += `<div class="sub-tabs" style="margin:0;">
-          <button class="sub-tab ${state.b2.variant==='hyp'?'active':''}" onclick="state.b2.variant='hyp';buildTab1Controls();rebuildScene();">$BC=10,\\;\\widehat{B}=35^\\circ$</button>
-          <button class="sub-tab ${state.b2.variant==='leg'?'active':''}" onclick="state.b2.variant='leg';buildTab1Controls();rebuildScene();">$AB=8,\\;\\widehat{C}=50^\\circ$</button>
+        html += `<div class="sub-tabs" style="margin-bottom:6px;">
+          <button class="sub-tab ${state.b2.variant==='hyp'?'active':''}" onclick="state.b2.variant='hyp';buildTab1Controls();rebuildScene();">Biết $BC$ &amp; $\\widehat{B}$</button>
+          <button class="sub-tab ${state.b2.variant==='leg'?'active':''}" onclick="state.b2.variant='leg';buildTab1Controls();rebuildScene();">Biết $AB$ &amp; $\\widehat{C}$</button>
         </div>`;
+        html += state.b2.variant === 'hyp'
+          ? `<div class="param-grid">${paramInputHtml('b2', 'bc', 'Huyền $BC$', state.b2.bc, 2, 50, 1)}${paramInputHtml('b2', 'degB', 'Góc $\\widehat{B}$', state.b2.degB, 5, 85, 1, '°')}</div>`
+          : `<div class="param-grid">${paramInputHtml('b2', 'ab', 'Cạnh $AB$', state.b2.ab, 2, 50, 1)}${paramInputHtml('b2', 'degC', 'Góc $\\widehat{C}$', state.b2.degC, 5, 85, 1, '°')}</div>`;
       } else if (id === 'b4') {
-        html += `<div class="sub-tabs" style="margin:0;"><button class="sub-tab ${!state.b4.obtuse?'active':''}" onclick="state.b4.obtuse=false;buildTab1Controls();rebuildScene();">Góc nhọn ($55^\\circ$)</button><button class="sub-tab ${state.b4.obtuse?'active':''}" onclick="state.b4.obtuse=true;buildTab1Controls();rebuildScene();">Góc tù ($120^\\circ$)</button></div>`;
+        html += `<div class="sub-tabs" style="margin-bottom:6px;"><button class="sub-tab ${!state.b4.obtuse?'active':''}" onclick="state.b4.obtuse=false;buildTab1Controls();rebuildScene();">Góc nhọn</button><button class="sub-tab ${state.b4.obtuse?'active':''}" onclick="state.b4.obtuse=true;buildTab1Controls();rebuildScene();">Góc tù</button></div>
+        <div class="param-grid">
+          ${paramInputHtml('b4', 'ab', 'Cạnh $AB$', state.b4.ab, 2, 30, 1)}
+          ${paramInputHtml('b4', 'ac', 'Cạnh $AC$', state.b4.ac, 2, 30, 1)}
+        </div>
+        <div class="param-grid" style="grid-template-columns:1fr;">
+          ${state.b4.obtuse
+            ? paramInputHtml('b4', 'degAObt', 'Góc tù $\\widehat{A}$', state.b4.degAObt, 95, 160, 1, '°')
+            : paramInputHtml('b4', 'degA', 'Góc nhọn $\\widehat{A}$', state.b4.degA, 15, 85, 1, '°')}
+        </div>`;
       } else if (id === 'c1') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc thang</span><span>${state.c1.deg}°</span></div><input type="range" min="35" max="80" value="${state.c1.deg}" oninput="state.c1.deg=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c1', 'len', 'Dài thang', state.c1.len, 1.5, 20, 0.5, 'm')}${paramInputHtml('c1', 'deg', 'Góc nghiêng', state.c1.deg, 20, 85, 1, '°')}</div>`;
       } else if (id === 'c2') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc nâng $\\alpha$</span><span>${state.c2.alpha}°</span></div><input type="range" min="20" max="70" value="${state.c2.alpha}" oninput="state.c2.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c2', 'dist', 'Cạnh $AC$', state.c2.dist, 5, 100, 1, 'm')}${paramInputHtml('c2', 'alpha', 'Góc nâng', state.c2.alpha, 15, 75, 1, '°')}</div>`;
       } else if (id === 'c3') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc tia nắng $\\alpha$</span><span>${state.c3.alpha}°</span></div><input type="range" min="25" max="75" value="${state.c3.alpha}" oninput="state.c3.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c3', 'shadow', 'Bóng $AB$', state.c3.shadow, 10, 300, 5, 'm')}${paramInputHtml('c3', 'alpha', 'Góc nắng', state.c3.alpha, 15, 80, 1, '°')}</div>`;
       } else if (id === 'c4') {
-        html += `<div class="sub-tabs"><button class="sub-tab ${state.c4.mode==='takeoff'?'active':''}" onclick="state.c4.mode='takeoff';buildTab1Controls();rebuildScene();">Cất cánh</button><button class="sub-tab ${state.c4.mode==='land'?'active':''}" onclick="state.c4.mode='land';buildTab1Controls();rebuildScene();">Hạ cánh</button></div><div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc $\\alpha$</span><span>${state.c4.alpha}°</span></div><input type="range" min="10" max="45" value="${state.c4.alpha}" oninput="state.c4.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="sub-tabs" style="margin-bottom:6px;"><button class="sub-tab ${state.c4.mode==='takeoff'?'active':''}" onclick="state.c4.mode='takeoff';buildTab1Controls();rebuildScene();">Cất cánh</button><button class="sub-tab ${state.c4.mode==='land'?'active':''}" onclick="state.c4.mode='land';buildTab1Controls();rebuildScene();">Hạ cánh</button></div>
+        <div class="param-grid">${paramInputHtml('c4', 'dist', 'Đoạn bay $L$', state.c4.dist, 200, 8000, 100, 'm')}${paramInputHtml('c4', 'alpha', 'Góc bay', state.c4.alpha, 8, 45, 1, '°')}</div>`;
       } else if (id === 'c5') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc lặn $\\alpha$</span><span>${state.c5.alpha}°</span></div><input type="range" min="10" max="45" value="${state.c5.alpha}" oninput="state.c5.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c5', 'dist', 'Đoạn lặn', state.c5.dist, 50, 2000, 50, 'm')}${paramInputHtml('c5', 'alpha', 'Góc lặn', state.c5.alpha, 8, 45, 1, '°')}</div>`;
       } else if (id === 'c6') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Độ cao dốc $h$</span><span>${state.c6.h} m</span></div><input type="range" min="6" max="35" value="${state.c6.h}" oninput="state.c6.h=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c6', 'L', 'Dài dốc $L$', state.c6.L, 20, 500, 10, 'm')}${paramInputHtml('c6', 'h', 'Độ cao $h$', state.c6.h, 3, 100, 1, 'm')}</div>`;
       } else if (id === 'c7') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc cáp $\\alpha$</span><span>${state.c7.alpha}°</span></div><input type="range" min="15" max="45" value="${state.c7.alpha}" oninput="state.c7.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c7', 'L', 'Dài cáp $L$', state.c7.L, 200, 5000, 100, 'm')}${paramInputHtml('c7', 'alpha', 'Góc cáp', state.c7.alpha, 10, 50, 1, '°')}</div>`;
       } else if (id === 'c8') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc lệch dòng nước</span><span>${state.c8.alpha}°</span></div><input type="range" min="15" max="55" value="${state.c8.alpha}" oninput="state.c8.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('c8', 'width', 'Rộng sông', state.c8.width, 20, 400, 5, 'm')}${paramInputHtml('c8', 'alpha', 'Góc lệch', state.c8.alpha, 10, 60, 1, '°')}</div>`;
       } else if (id === 'd1') {
-        html += `<div class="sub-tabs" style="margin:0;"><button class="sub-tab ${state.d1.side==='same'?'active':''}" onclick="state.d1.side='same';buildTab1Controls();rebuildScene();">Cùng phía</button><button class="sub-tab ${state.d1.side==='opp'?'active':''}" onclick="state.d1.side='opp';buildTab1Controls();rebuildScene();">Khác phía</button></div>`;
+        html += `<div class="sub-tabs" style="margin-bottom:6px;"><button class="sub-tab ${state.d1.side==='same'?'active':''}" onclick="state.d1.side='same';buildTab1Controls();rebuildScene();">Cùng phía</button><button class="sub-tab ${state.d1.side==='opp'?'active':''}" onclick="state.d1.side='opp';buildTab1Controls();rebuildScene();">Khác phía</button></div>
+        <div class="param-grid" style="grid-template-columns:1fr;">${paramInputHtml('d1', 'ab', 'Khoảng cách $AB$', state.d1.ab, 50, 1000, 10, 'm')}</div>
+        <div class="param-grid">${paramInputHtml('d1', 'alpha', 'Góc $\\alpha$', state.d1.alpha, 15, 75, 1, '°')}${paramInputHtml('d1', 'beta', 'Góc $\\beta$', state.d1.beta, 20, 82, 1, '°')}</div>`;
+      } else if (id === 'd2') {
+        html += `<div class="param-grid" style="grid-template-columns:1fr;">${paramInputHtml('d2', 'H', 'Cao hải đăng', state.d2.H, 15, 120, 5, 'm')}</div>
+        <div class="param-grid">${paramInputHtml('d2', 'alpha', 'Góc hạ $\\alpha$', state.d2.alpha, 10, 60, 1, '°')}${paramInputHtml('d2', 'beta', 'Góc hạ $\\beta$', state.d2.beta, 15, 75, 1, '°')}</div>`;
+      } else if (id === 'd3') {
+        html += `<div class="param-grid" style="grid-template-columns:1fr;">${paramInputHtml('d3', 'dist', 'Khoảng cách', state.d3.dist, 10, 150, 5, 'm')}</div>
+        <div class="param-grid">${paramInputHtml('d3', 'alpha', 'Góc nâng $\\alpha$', state.d3.alpha, 10, 70, 1, '°')}${paramInputHtml('d3', 'beta', 'Góc hạ $\\beta$', state.d3.beta, 10, 70, 1, '°')}</div>`;
       } else if (id === 'd4') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Góc tay cần $\\alpha$</span><span>${state.d4.alpha}°</span></div><input type="range" min="25" max="65" value="${state.d4.alpha}" oninput="state.d4.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('d4', 'L', 'Tay cần', state.d4.L, 10, 60, 2, 'm')}${paramInputHtml('d4', 'alpha', 'Góc nâng', state.d4.alpha, 20, 70, 1, '°')}</div>
+        <div class="slider-box" style="margin:0;"><input type="range" min="25" max="65" value="${state.d4.alpha}" oninput="setModelParam('d4','alpha',this.value,20,70,false)" /></div>`;
       } else if (id === 'd5') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Nửa góc mở $\\alpha$</span><span>${state.d5.alpha}°</span></div><input type="range" min="18" max="48" value="${state.d5.alpha}" oninput="state.d5.alpha=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('d5', 'h', 'Độ cao $h$', state.d5.h, 30, 400, 10, 'm')}${paramInputHtml('d5', 'alpha', 'Nửa góc $\\alpha$', state.d5.alpha, 15, 50, 1, '°')}</div>`;
+      } else if (id === 'd6') {
+        html += `<div class="param-grid">${paramInputHtml('d6', 'hLamp', 'Cao đèn', state.d6.hLamp, 3, 15, 0.2, 'm')}${paramInputHtml('d6', 'hPerson', 'Cao người', state.d6.hPerson, 1.0, 2.2, 0.1, 'm')}</div>`;
+      } else if (id === 'd7') {
+        html += `<div class="param-grid">${paramInputHtml('d7', 'v1', 'Vận tốc $v_1$', state.d7.v1, 5, 80, 1, 'km/h')}${paramInputHtml('d7', 'v2', 'Vận tốc $v_2$', state.d7.v2, 5, 80, 1, 'km/h')}</div>
+        <div class="param-grid">${paramInputHtml('d7', 'alpha', 'Góc rẽ $\\alpha$', state.d7.alpha, 20, 120, 5, '°')}${paramInputHtml('d7', 'hours', 'Thời gian', state.d7.hours, 1, 10, 0.5, 'h')}</div>`;
       } else if (id === 'd8') {
-        html += `<div class="slider-box" style="margin:0;"><div class="slider-head"><span>Khoảng cách gốc $BC$</span><span>${state.d8.baseDist} m</span></div><input type="range" min="2" max="6" step="0.5" value="${state.d8.baseDist}" oninput="state.d8.baseDist=+this.value;buildTab1Controls();rebuildScene();" /></div>`;
+        html += `<div class="param-grid">${paramInputHtml('d8', 'totalH', 'Cao cây $H$', state.d8.totalH, 4, 30, 1, 'm')}${paramInputHtml('d8', 'baseDist', 'Cách gốc $BC$', state.d8.baseDist, 1, 15, 0.5, 'm')}</div>`;
       }
       box.innerHTML = html;
       renderAllMath(box);
