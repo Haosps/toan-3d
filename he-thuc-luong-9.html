@@ -363,7 +363,7 @@
 
     <div class="main-tabs" role="tablist">
       <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho 24 Mô Hình Toán 9</button>
-      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">📐 Xưởng Vẽ Hình Phẳng Tự Do</button>
+      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">📐 Kho Hình Phẳng (8 Mẫu)</button>
       <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">🤖 Trợ Lý Đọc Đề (AI Parser)</button>
     </div>
 
@@ -454,61 +454,56 @@
         </section>
       </div>
 
-      <!-- TAB 2: XƯỞNG VẼ HÌNH HỌC PHẲNG TỰ DO & TƯƠNG TÁC -->
+      <!-- TAB 2: KHO 8 HÌNH PHẲNG KÉO THẢ & BẬT/TẮT 1-CLICK -->
       <div id="tab2-panel" style="display:none; flex-direction:column; gap:8px;">
         <section class="card">
           <div class="card-title">
-            <span>📐 Công cụ Dựng hình Phẳng Tự do</span>
-            <button class="step-btn" onclick="loadBoardTemplate()" style="background:#eff6ff; color:#1d4ed8; border-color:#93c5fd;">+ Mẫu $\triangle ABC$</button>
+            <span>1. Chọn nhanh 8 Khung hình chuẩn Toán 9</span>
+            <span style="font-size:11px; color:#ea580c; font-weight:700;">Kéo thả đỉnh cam</span>
           </div>
-          <div class="tool-grid" id="board-tools">
-            <button class="tool-btn active" id="bt-move" onclick="setBoardTool('move')">✋ Di chuyển / Kéo</button>
-            <button class="tool-btn" id="bt-point" onclick="setBoardTool('point')">⚫ Điểm tự do</button>
-            <button class="tool-btn" id="bt-seg" onclick="setBoardTool('seg')">📏 Đoạn thẳng</button>
-            <button class="tool-btn" id="bt-line" onclick="setBoardTool('line')">↔️ Đường thẳng</button>
-            <button class="tool-btn" id="bt-ray" onclick="setBoardTool('ray')">➡️ Tia</button>
-            <button class="tool-btn" id="bt-circle" onclick="setBoardTool('circle')">⭕ Đường tròn (Tâm)</button>
-            <button class="tool-btn" id="bt-circle3" onclick="setBoardTool('circle3')">🔵 Đ.tròn qua 3đ</button>
-            <button class="tool-btn" id="bt-mid" onclick="setBoardTool('mid')">📍 Trung điểm</button>
-            <button class="tool-btn" id="bt-perp" onclick="setBoardTool('perp')">📐 Vuông góc / Đ.cao</button>
-            <button class="tool-btn" id="bt-para" onclick="setBoardTool('para')">∥ Song song</button>
-            <button class="tool-btn" id="bt-bisector" onclick="setBoardTool('bisector')">📐 Phân giác góc</button>
-            <button class="tool-btn" id="bt-inter" onclick="setBoardTool('inter')">✕ Giao điểm 2 đt</button>
-            <button class="tool-btn" id="bt-dist" onclick="setBoardTool('dist')">📏 Đo độ dài</button>
-            <button class="tool-btn" id="bt-angle" onclick="setBoardTool('angle')">📐 Đo góc (độ)</button>
-          </div>
-          <div id="board-hint" style="margin-top:7px; padding:6px 8px; border-radius:7px; background:#f0f9ff; border:1px solid #bae6fd; font-size:11.5px; color:#0369a1;">
-            Chế độ Kéo thả: Kéo bất kỳ đỉnh nào để các đường phụ thuộc tự biến thiên.
+          <div class="tool-grid" id="geo-templates">
+            <button class="tool-btn active" id="gt-rt_tri" onclick="selectGeoTemplate('rt_tri')">📐 $\triangle$ Vuông &amp; Đường cao</button>
+            <button class="tool-btn" id="gt-tri_orth" onclick="selectGeoTemplate('tri_orth')">🔺 $\triangle$ Thường &amp; Trực tâm</button>
+            <button class="tool-btn" id="gt-cir_tan" onclick="selectGeoTemplate('cir_tan')">⭕ Đường tròn &amp; Tiếp tuyến</button>
+            <button class="tool-btn" id="gt-cir_ang" onclick="selectGeoTemplate('cir_ang')">◔ Góc ở tâm &amp; Nội tiếp</button>
+            <button class="tool-btn" id="gt-cyc_quad" onclick="selectGeoTemplate('cyc_quad')">🔷 Tứ giác nội tiếp $(O)$</button>
+            <button class="tool-btn" id="gt-diam_chord" onclick="selectGeoTemplate('diam_chord')">⊘ Đường kính $\perp$ Dây cung</button>
+            <button class="tool-btn" id="gt-rt_bis_med" onclick="selectGeoTemplate('rt_bis_med')">📏 $\triangle$ Vuông: P.giác &amp; T.tuyến</button>
+            <button class="tool-btn" id="gt-trap_rect" onclick="selectGeoTemplate('trap_rect')">⏢ Hình thang vuông / HCN</button>
           </div>
         </section>
 
         <section class="card">
-          <div class="card-title"><span>🎨 Kiểu nét, Đổi tên &amp; Thao tác</span></div>
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:7px;">
-            <span class="pen-dot selected" style="background:#1e3a8a;" onclick="setBoardColor('#1e3a8a', this)"></span>
-            <span class="pen-dot" style="background:#ea580c;" onclick="setBoardColor('#ea580c', this)"></span>
-            <span class="pen-dot" style="background:#16a34a;" onclick="setBoardColor('#16a34a', this)"></span>
-            <span class="pen-dot" style="background:#dc2626;" onclick="setBoardColor('#dc2626', this)"></span>
-            <span class="pen-dot" style="background:#7c3aed;" onclick="setBoardColor('#7c3aed', this)"></span>
-            <span style="width:1px; height:16px; background:#cbd5e1;"></span>
-            <button class="step-btn active-tool" id="bd-solid" onclick="state.board.dashed=false; updateBoardStyleBtns();">Nét liền</button>
-            <button class="step-btn" id="bd-dashed" onclick="state.board.dashed=true; updateBoardStyleBtns();">Nét đứt</button>
-          </div>
-          <div style="display:flex; gap:6px; margin-bottom:7px;">
-            <input type="text" id="board-rename-input" class="aux-select" placeholder="Tên điểm mới (VD: M)..." maxlength="4" />
-            <button class="step-btn" onclick="renameLastBoardPoint()">✏️ Đổi tên điểm cuối</button>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button class="step-btn" style="flex:1;" onclick="boardUndo()">↩️ Hoàn tác</button>
-            <button class="step-btn" style="flex:1; color:#dc2626;" onclick="boardClear()">🗑️ Xóa bảng</button>
+          <div class="card-title"><span>2. Bật / Tắt nhanh yếu tố phụ (1-Click)</span></div>
+          <div style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#1e293b;">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="chk-alt" checked onchange="state.geo.showAlt=this.checked; rebuildScene();" /> Hiện đường cao &amp; Ký hiệu góc vuông</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="chk-med" onchange="state.geo.showMed=this.checked; rebuildScene();" /> Hiện đường trung tuyến</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="chk-bis" onchange="state.geo.showBis=this.checked; rebuildScene();" /> Hiện đường phân giác</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="chk-cir" onchange="state.geo.showCir=this.checked; rebuildScene();" /> Hiện đường tròn ngoại tiếp / nội tiếp</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="chk-meas" checked onchange="state.geo.showMeas=this.checked; rebuildScene();" /> Hiện số đo cạnh &amp; số đo góc trên hình</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="chk-sol" checked onchange="state.geo.showGridAndSol=this.checked; toggleGeoSolBox(); rebuildScene();" /> Hiện lưới tọa độ &amp; Lời giải tự luận (KaTeX)</label>
           </div>
         </section>
 
         <section class="card">
-          <div class="card-title"><span>📏 Kết quả đo đạc trên bảng</span></div>
-          <div id="board-measures" style="font-size:12px; color:#334155; display:flex; flex-direction:column; gap:4px;">
-            Chưa có phép đo. Chọn "Đo độ dài" hoặc "Đo góc" rồi bấm các điểm.
+          <div class="card-title"><span>3. Đổi tên đỉnh 1-Click &amp; Xuất ảnh</span></div>
+          <div class="preset-row" style="margin-bottom:7px;">
+            <button class="preset-btn active" id="gp-ABC" onclick="setGeoPreset('ABC')">$ABC(D)$</button>
+            <button class="preset-btn" id="gp-MNP" onclick="setGeoPreset('MNP')">$MNP(Q)$</button>
+            <button class="preset-btn" id="gp-DEF" onclick="setGeoPreset('DEF')">$DEF(G)$</button>
+            <button class="preset-btn" id="gp-IKH" onclick="setGeoPreset('IKH')">$IKH(L)$</button>
           </div>
+          <button onclick="exportExamPNG()" style="width:100%; border:none; border-radius:8px; padding:7px 10px; font-size:12px; font-weight:700; color:#fff; background:linear-gradient(135deg, #0284c7, #2563eb); cursor:pointer;">
+            📷 Tải ảnh PNG nền trắng (Chèn Word/LaTeX)
+          </button>
+        </section>
+
+        <section class="card" id="tab2-sol-card">
+          <div class="card-title">
+            <span>📖 Lời giải &amp; Tính chất tự động (KaTeX)</span>
+            <button class="step-btn" onclick="toggleWideSolution()">⤢ Xem rộng</button>
+          </div>
+          <div class="solution-list" id="tab2-solutions"></div>
         </section>
       </div>
 
@@ -630,20 +625,26 @@
       d6: { hLamp: 6, hPerson: 1.7, d: 5 },
       d7: { v1: 30, v2: 40, alpha: 60, hours: 2 },
       d8: { hRemain: 3, lenBroken: 5 },
-      // Tab 2 Interactive Geometry Board
-      board: {
-        tool: 'move',
-        color: '#1e3a8a',
-        dashed: false,
-        points: [],
-        shapes: [],
-        measures: [],
-        selPts: [],
-        dragId: null,
-        hoverPtId: null,
-        hoverMid: null,
-        nextCharIdx: 0,
-        history: []
+      // Tab 2: 8 Kho hình phẳng kéo thả & bật/tắt 1-Click
+      geo: {
+        template: 'rt_tri',
+        preset: 'ABC',
+        showAlt: true,
+        showMed: false,
+        showBis: false,
+        showCir: false,
+        showMeas: true,
+        showGridAndSol: true,
+        // Normalized / interactive parameters per template
+        rtAngle: 1.05, // angle for apex A on semicircle (0.25 .. PI-0.25)
+        triPts: [{ x: 0.44, y: 0.24 }, { x: 0.25, y: 0.68 }, { x: 0.75, y: 0.68 }], // A, B, C normalized
+        tanM: { x: 0.76, y: 0.46 },
+        cirAngM: -1.1, // angle on circle for M
+        quadAngs: [-2.25, -0.75, 0.55, 2.20], // A, B, C, D on circle
+        chordY: 0.36, // offset ratio for chord CD
+        trapTopW: 0.22, // normalized top width
+        dragHandle: null,
+        handles: []
       },
       // Tab 3 AI Parser
       ai: { parsed: null },
@@ -1455,342 +1456,365 @@
     }
 
     // =========================================================================
-    // 3. TAB 2: XƯỞNG VẼ HÌNH HỌC PHẲNG TỰ DO & TƯƠNG TÁC
+    // 3. TAB 2: KHO 8 HÌNH PHẲNG KÉO THẢ & BẬT/TẮT 1-CLICK
     // =========================================================================
-    const BOARD_HINTS = {
-      move: 'Chế độ Kéo thả: Kéo bất kỳ đỉnh gốc nào để toàn bộ hình biến thiên.',
-      point: 'Nhấp chuột lên bảng để đặt điểm tự do.',
-      seg: 'Chọn 2 điểm để vẽ đoạn thẳng.',
-      line: 'Chọn 2 điểm để vẽ đường thẳng kéo dài.',
-      ray: 'Chọn điểm gốc rồi chọn điểm hướng để vẽ tia.',
-      circle: 'Chọn tâm đường tròn rồi chọn 1 điểm trên đường tròn.',
-      circle3: 'Chọn 3 điểm không thẳng hàng để dựng đường tròn ngoại tiếp.',
-      mid: 'Chọn 2 điểm để dựng trung điểm.',
-      perp: 'Chọn 1 điểm rồi chọn 2 điểm tạo đường thẳng để dựng đường vuông góc & chân đường cao.',
-      para: 'Chọn 1 điểm rồi chọn 2 điểm tạo phương để dựng đường song song.',
-      bisector: 'Chọn 3 điểm (A, đỉnh V, B) để dựng tia phân giác góc AVB.',
-      inter: 'Chọn 4 điểm (cặp 1-2 và cặp 3-4) để tìm giao điểm 2 đường thẳng.',
-      dist: 'Chọn 2 điểm để đo độ dài đoạn thẳng.',
-      angle: 'Chọn 3 điểm (A, đỉnh V, B) để đo số đo góc (tự đóng dấu góc vuông 90°).'
+    const GEO_PRESETS = {
+      ABC: ['A', 'B', 'C', 'D', 'H', 'M', 'O'],
+      MNP: ['M', 'N', 'P', 'Q', 'H', 'K', 'O'],
+      DEF: ['D', 'E', 'F', 'G', 'H', 'K', 'O'],
+      IKH: ['I', 'K', 'H', 'L', 'E', 'M', 'O']
     };
 
-    function nextBoardName() {
-      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const idx = state.board.nextCharIdx++;
-      return letters[idx % 26] + (idx >= 26 ? Math.floor(idx / 26) : '');
-    }
-
-    function setBoardTool(tool) {
-      state.board.tool = tool;
-      state.board.selPts = [];
-      document.querySelectorAll('#board-tools .tool-btn').forEach(b => b.classList.remove('active'));
-      const btn = document.getElementById(`bt-${tool}`);
+    function selectGeoTemplate(tpl) {
+      state.geo.template = tpl;
+      if (tpl === 'rt_bis_med') {
+        state.geo.showAlt = true; state.geo.showMed = true; state.geo.showBis = true;
+        document.getElementById('chk-alt').checked = true;
+        document.getElementById('chk-med').checked = true;
+        document.getElementById('chk-bis').checked = true;
+      }
+      document.querySelectorAll('#geo-templates .tool-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById(`gt-${tpl}`);
       if (btn) btn.classList.add('active');
-      document.getElementById('board-hint').textContent = BOARD_HINTS[tool] || '';
       rebuildScene();
     }
 
-    function setBoardColor(c, el) {
-      state.board.color = c;
-      document.querySelectorAll('#tab2-panel .pen-dot').forEach(d => d.classList.remove('selected'));
-      if (el) el.classList.add('selected');
-    }
-
-    function updateBoardStyleBtns() {
-      document.getElementById('bd-solid').classList.toggle('active-tool', !state.board.dashed);
-      document.getElementById('bd-dashed').classList.toggle('active-tool', state.board.dashed);
-    }
-
-    function pushBoardHistory() {
-      const b = state.board;
-      b.history.push(JSON.stringify({ points: b.points, shapes: b.shapes, measures: b.measures, nextCharIdx: b.nextCharIdx }));
-      if (b.history.length > 25) b.history.shift();
-    }
-
-    function boardUndo() {
-      const b = state.board;
-      if (b.history.length === 0) return;
-      const snap = JSON.parse(b.history.pop());
-      b.points = snap.points; b.shapes = snap.shapes; b.measures = snap.measures; b.nextCharIdx = snap.nextCharIdx;
-      b.selPts = [];
+    function setGeoPreset(key) {
+      state.geo.preset = key;
+      ['ABC', 'MNP', 'DEF', 'IKH'].forEach(k => {
+        const b = document.getElementById(`gp-${k}`);
+        if (b) b.classList.toggle('active', k === key);
+      });
       rebuildScene();
     }
 
-    function boardClear() {
-      pushBoardHistory();
-      const b = state.board;
-      b.points = []; b.shapes = []; b.measures = []; b.selPts = []; b.nextCharIdx = 0;
-      rebuildScene();
+    function toggleGeoSolBox() {
+      const card = document.getElementById('tab2-sol-card');
+      if (card) card.style.display = state.geo.showGridAndSol ? 'block' : 'none';
     }
 
-    function renameLastBoardPoint() {
-      const val = (document.getElementById('board-rename-input').value || '').trim();
-      if (!val || state.board.points.length === 0) return;
-      pushBoardHistory();
-      state.board.points[state.board.points.length - 1].name = val;
-      document.getElementById('board-rename-input').value = '';
-      rebuildScene();
+    function drawDragHandle(ctx, p, label, color, ox, oy, isDark) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(234, 88, 12, 0.20)';
+      ctx.beginPath(); ctx.arc(p.x, p.y, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 7.5, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      drawPt(ctx, p, label, '#ea580c', ox, oy, isDark, 5);
     }
 
-    function loadBoardTemplate() {
-      pushBoardHistory();
-      const b = state.board;
-      const rect = stageEl.getBoundingClientRect();
-      const w = rect.width || 800, h = rect.height || 550;
-      const idA = 'p_' + Date.now() + '_1', idB = 'p_' + Date.now() + '_2', idC = 'p_' + Date.now() + '_3', idH = 'p_' + Date.now() + '_4';
-      b.points = [
-        { id: idA, name: 'A', x: w * 0.44, y: h * 0.24, type: 'free', color: '#1e3a8a' },
-        { id: idB, name: 'B', x: w * 0.26, y: h * 0.68, type: 'free', color: '#1e3a8a' },
-        { id: idC, name: 'C', x: w * 0.72, y: h * 0.68, type: 'free', color: '#1e3a8a' },
-        { id: idH, name: 'H', x: w * 0.44, y: h * 0.68, type: 'foot', deps: { pt: idA, a: idB, b: idC }, color: '#dc2626' }
-      ];
-      b.shapes = [
-        { type: 'seg', p1: idA, p2: idB, color: '#1e3a8a', dashed: false },
-        { type: 'seg', p1: idB, p2: idC, color: '#1e3a8a', dashed: false },
-        { type: 'seg', p1: idC, p2: idA, color: '#1e3a8a', dashed: false },
-        { type: 'perp', pt: idA, a: idB, b: idC, foot: idH, color: '#dc2626', dashed: true }
-      ];
-      b.measures = [];
-      b.nextCharIdx = 3;
-      rebuildScene();
-    }
-
-    function getBoardPt(id) {
-      return state.board.points.find(p => p.id === id);
-    }
-
-    function updateBoardDependencies() {
-      const pts = state.board.points;
-      for (let pass = 0; pass < 3; pass++) {
-        pts.forEach(p => {
-          if (p.type === 'mid' && p.deps) {
-            const p1 = getBoardPt(p.deps.p1), p2 = getBoardPt(p.deps.p2);
-            if (p1 && p2) { p.x = (p1.x + p2.x) / 2; p.y = (p1.y + p2.y) / 2; }
-          } else if (p.type === 'foot' && p.deps) {
-            const pt = getBoardPt(p.deps.pt), a = getBoardPt(p.deps.a), b = getBoardPt(p.deps.b);
-            if (pt && a && b) {
-              const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1;
-              const t = ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / l2;
-              p.x = a.x + t * dx; p.y = a.y + t * dy;
-            }
-          } else if (p.type === 'inter' && p.deps) {
-            const p1 = getBoardPt(p.deps.a1), p2 = getBoardPt(p.deps.a2), p3 = getBoardPt(p.deps.b1), p4 = getBoardPt(p.deps.b2);
-            if (p1 && p2 && p3 && p4) {
-              const den = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
-              if (Math.abs(den) > 1e-4) {
-                const t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / den;
-                p.x = p1.x + t * (p2.x - p1.x); p.y = p1.y + t * (p2.y - p1.y);
-              }
-            }
-          }
-        });
+    function drawTriAuxElements(ctx, A, B, C, g, names, isDark) {
+      const [nA, nB, nC, , nH, nM] = names;
+      // Altitude from A to BC
+      if (g.showAlt) {
+        const dx = C.x - B.x, dy = C.y - B.y, l2 = dx * dx + dy * dy || 1;
+        const t = ((A.x - B.x) * dx + (A.y - B.y) * dy) / l2;
+        const H = { x: B.x + t * dx, y: B.y + t * dy };
+        if (t < -0.02 || t > 1.02) drawSeg(ctx, t < 0 ? H : C, t < 0 ? B : H, '#94a3b8', 1.6, true);
+        drawSeg(ctx, A, H, '#dc2626', 2.1, true);
+        drawRightAngle(ctx, H, A, C, 11, '#dc2626');
+        drawPt(ctx, H, nH, '#dc2626', -4, 18, isDark);
+      }
+      // Median AM
+      if (g.showMed) {
+        const M = { x: (B.x + C.x) / 2, y: (B.y + C.y) / 2 };
+        drawSeg(ctx, A, M, '#16a34a', 2.2);
+        drawPt(ctx, M, nM, '#16a34a', 4, 18, isDark);
+      }
+      // Bisector AD
+      if (g.showBis) {
+        const cLen = Math.hypot(A.x - B.x, A.y - B.y), bLen = Math.hypot(A.x - C.x, A.y - C.y);
+        const tD = cLen / (cLen + bLen || 1);
+        const D = { x: B.x + tD * (C.x - B.x), y: B.y + tD * (C.y - B.y) };
+        drawSeg(ctx, A, D, '#7c3aed', 2.2);
+        drawPt(ctx, D, 'D', '#7c3aed', -4, 18, isDark);
+      }
+      // Circumcircle
+      if (g.showCir) {
+        const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+        if (Math.abs(d) > 1) {
+          const ox = ((A.x*A.x + A.y*A.y)*(B.y - C.y) + (B.x*B.x + B.y*B.y)*(C.y - A.y) + (C.x*C.x + C.y*C.y)*(A.y - B.y)) / d;
+          const oy = ((A.x*A.x + A.y*A.y)*(C.x - B.x) + (B.x*B.x + B.y*B.y)*(A.x - C.x) + (C.x*C.x + C.y*C.y)*(B.x - A.x)) / d;
+          const R = Math.hypot(ox - A.x, oy - A.y);
+          ctx.save(); ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 1.7; ctx.setLineDash([6, 4]);
+          ctx.beginPath(); ctx.arc(ox, oy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+          drawPt(ctx, { x: ox, y: oy }, 'O', '#0ea5e9', 6, -6, isDark);
+        }
       }
     }
 
-    function renderBoardScene() {
+    function renderTab2Scene(onlyCanvas = false) {
       const env = setupCanvas2D();
       if (!env) return;
       const { ctx, w, h, isDark } = env;
-      drawBackdrop(ctx, w, h, 'grid', 0, isDark);
+      const g = state.geo;
+      if (g.showGridAndSol) drawBackdrop(ctx, w, h, 'grid', 0, isDark);
       updateTelemetryHUD('', []);
-      updateBoardDependencies();
+      const edgeCol = isDark ? '#38bdf8' : '#1e3a8a';
+      const mutedCol = isDark ? '#94a3b8' : '#475569';
+      const names = GEO_PRESETS[g.preset] || GEO_PRESETS.ABC;
+      const [nA, nB, nC, nD, nH, nM, nO] = names;
+      g.handles = [];
+      let essay = { hypothesis: '', method: '', steps: [], summary: '', tip: '' };
+      let hudTitle = '';
 
-      const b = state.board;
-      b.shapes.forEach(s => {
-        ctx.save();
-        ctx.strokeStyle = s.color || '#1e3a8a';
-        ctx.lineWidth = 2.3;
-        if (s.dashed) ctx.setLineDash([7, 5]);
-        if (s.type === 'seg') {
-          const p1 = getBoardPt(s.p1), p2 = getBoardPt(s.p2);
-          if (p1 && p2) { ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
-        } else if (s.type === 'line' || s.type === 'ray') {
-          const p1 = getBoardPt(s.p1), p2 = getBoardPt(s.p2);
-          if (p1 && p2) {
-            const dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.hypot(dx, dy) || 1;
-            const ux = dx / len, uy = dy / len;
-            const start = s.type === 'ray' ? p1 : { x: p1.x - ux * 2000, y: p1.y - uy * 2000 };
-            const end = { x: p1.x + ux * 2000, y: p1.y + uy * 2000 };
-            ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
-          }
-        } else if (s.type === 'circle') {
-          const c = getBoardPt(s.c), e = getBoardPt(s.e);
-          if (c && e) { ctx.beginPath(); ctx.arc(c.x, c.y, Math.hypot(e.x - c.x, e.y - c.y), 0, Math.PI * 2); ctx.stroke(); }
-        } else if (s.type === 'circle3') {
-          const A = getBoardPt(s.p1), B = getBoardPt(s.p2), C = getBoardPt(s.p3);
-          if (A && B && C) {
-            const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
-            if (Math.abs(d) > 1e-2) {
-              const ox = ((A.x*A.x + A.y*A.y)*(B.y - C.y) + (B.x*B.x + B.y*B.y)*(C.y - A.y) + (C.x*C.x + C.y*C.y)*(A.y - B.y)) / d;
-              const oy = ((A.x*A.x + A.y*A.y)*(C.x - B.x) + (B.x*B.x + B.y*B.y)*(A.x - C.x) + (C.x*C.x + C.y*C.y)*(B.x - A.x)) / d;
-              ctx.beginPath(); ctx.arc(ox, oy, Math.hypot(ox - A.x, oy - A.y), 0, Math.PI * 2); ctx.stroke();
-            }
-          }
-        } else if (s.type === 'perp') {
-          const pt = getBoardPt(s.pt), foot = getBoardPt(s.foot), a = getBoardPt(s.a), bp = getBoardPt(s.b);
-          if (pt && foot && a && bp) {
-            ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(foot.x, foot.y); ctx.stroke();
-            ctx.setLineDash([]);
-            drawRightAngle(ctx, foot, pt, bp, 11, s.color || '#dc2626');
-          }
-        } else if (s.type === 'para') {
-          const pt = getBoardPt(s.pt), a = getBoardPt(s.a), bp = getBoardPt(s.b);
-          if (pt && a && bp) {
-            const dx = bp.x - a.x, dy = bp.y - a.y, len = Math.hypot(dx, dy) || 1;
-            const ux = dx / len, uy = dy / len;
-            ctx.beginPath(); ctx.moveTo(pt.x - ux * 2000, pt.y - uy * 2000); ctx.lineTo(pt.x + ux * 2000, pt.y + uy * 2000); ctx.stroke();
-          }
-        } else if (s.type === 'bisector') {
-          const A = getBoardPt(s.a), V = getBoardPt(s.v), B = getBoardPt(s.b);
-          if (A && V && B) {
-            const u1 = { x: A.x - V.x, y: A.y - V.y }, l1 = Math.hypot(u1.x, u1.y) || 1;
-            const u2 = { x: B.x - V.x, y: B.y - V.y }, l2 = Math.hypot(u2.x, u2.y) || 1;
-            const bx = u1.x / l1 + u2.x / l2, by = u1.y / l1 + u2.y / l2, bl = Math.hypot(bx, by) || 1;
-            ctx.beginPath(); ctx.moveTo(V.x, V.y); ctx.lineTo(V.x + (bx / bl) * 2000, V.y + (by / bl) * 2000); ctx.stroke();
+      if (g.template === 'rt_tri' || g.template === 'rt_bis_med') {
+        const cx = w * 0.5, cy = h * 0.66, R = Math.min(w * 0.30, h * 0.34, 240);
+        const B = { x: cx - R, y: cy }, C = { x: cx + R, y: cy };
+        const A = { x: cx - R * Math.cos(g.rtAngle), y: cy - R * Math.sin(g.rtAngle) };
+        ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(148,163,184,0.55)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(cx, cy, R, Math.PI, 0, false); ctx.stroke(); ctx.restore();
+        drawSeg(ctx, A, B, edgeCol, 2.6); drawSeg(ctx, A, C, edgeCol, 2.6); drawSeg(ctx, B, C, edgeCol, 2.6);
+        drawRightAngle(ctx, A, B, C);
+        drawTriAuxElements(ctx, A, B, C, g, names, isDark);
+        const ab = (Math.hypot(A.x - B.x, A.y - B.y) / 40), ac = (Math.hypot(A.x - C.x, A.y - C.y) / 40), bc = Math.hypot(ab, ac);
+        const degB = (Math.atan2(ac, ab) * 180) / Math.PI, degC = 90 - degB;
+        if (g.showMeas) {
+          drawAngleArc(ctx, B, A, C, 28, '#f59e0b', `${degB.toFixed(1)}°`);
+          drawAngleArc(ctx, C, B, A, 28, '#0ea5e9', `${degC.toFixed(1)}°`);
+          drawTextLabel(ctx, `${ab.toFixed(2)}`, (A.x + B.x) / 2 - 28, (A.y + B.y) / 2, edgeCol);
+          drawTextLabel(ctx, `${ac.toFixed(2)}`, (A.x + C.x) / 2 + 10, (A.y + C.y) / 2, edgeCol);
+          drawTextLabel(ctx, `${bc.toFixed(2)}`, (B.x + C.x) / 2 - 14, cy + 20, edgeCol);
+        }
+        drawDragHandle(ctx, A, nA, '#ea580c', -6, -14, isDark);
+        drawPt(ctx, B, nB, edgeCol, -16, 16, isDark); drawPt(ctx, C, nC, edgeCol, 8, 16, isDark);
+        g.handles.push({ key: 'rtA', x: A.x, y: A.y, cx, cy, R });
+        const ah = (ab * ac) / bc, bh = (ab * ab) / bc, ch = bc - bh;
+        hudTitle = `Kéo đỉnh $${nA}$ (cam) trên nửa đường tròn đường kính $${nB}${nC}$`;
+        essay = {
+          hypothesis: `$\\triangle ${nA}${nB}${nC}$ vuông tại $${nA}$, đường cao $${nA}${nH}$.`,
+          method: 'Áp dụng Pytago và hệ thức lượng trong tam giác vuông.',
+          steps: [
+            `Cạnh huyền: $${nB}${nC} = \\sqrt{${ab.toFixed(2)}^2 + ${ac.toFixed(2)}^2} = ${bc.toFixed(2)}$`,
+            `Đường cao: $${nA}${nH} = \\dfrac{${nA}${nB}\\cdot${nA}${nC}}{${nB}${nC}} = ${ah.toFixed(2)}$`,
+            `Hình chiếu: $${nB}${nH} = ${bh.toFixed(2)},\\quad ${nC}${nH} = ${ch.toFixed(2)}$`,
+            `Góc nhọn: $\\widehat{${nB}} = ${toDegMin(degB)},\\quad \\widehat{${nC}} = ${toDegMin(degC)}$`
+          ],
+          summary: `$${nA}${nH} = ${ah.toFixed(2)},\\; S = ${(0.5 * ab * ac).toFixed(2)}$ đvdt.`,
+          tip: 'Mọi tam giác nội tiếp nửa đường tròn đường kính $BC$ đều vuông tại $A$.'
+        };
+      } else if (g.template === 'tri_orth') {
+        const A = { x: g.triPts[0].x * w, y: g.triPts[0].y * h };
+        const B = { x: g.triPts[1].x * w, y: g.triPts[1].y * h };
+        const C = { x: g.triPts[2].x * w, y: g.triPts[2].y * h };
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5); drawSeg(ctx, C, A, edgeCol, 2.5);
+        drawTriAuxElements(ctx, A, B, C, g, names, isDark);
+        if (g.showAlt) {
+          // Draw remaining 2 altitudes & orthocenter H
+          const foot = (P, P1, P2) => {
+            const dx = P2.x - P1.x, dy = P2.y - P1.y, l2 = dx * dx + dy * dy || 1;
+            const t = ((P.x - P1.x) * dx + (P.y - P1.y) * dy) / l2;
+            return { x: P1.x + t * dx, y: P1.y + t * dy };
+          };
+          const E = foot(B, A, C), F = foot(C, A, B);
+          drawSeg(ctx, B, E, '#dc2626', 1.8, true); drawRightAngle(ctx, E, B, C, 10, '#dc2626');
+          drawSeg(ctx, C, F, '#dc2626', 1.8, true); drawRightAngle(ctx, F, C, A, 10, '#dc2626');
+          const d = (A.x - (B.x + 0)) * 0; // compute orthocenter intersection of AE-type lines
+          const den = (B.x - E.x) * (C.y - F.y) - (B.y - E.y) * (C.x - F.x);
+          if (Math.abs(den) > 1e-2) {
+            const t = ((B.x - C.x) * (C.y - F.y) - (B.y - C.y) * (C.x - F.x)) / den;
+            const H = { x: B.x + t * (E.x - B.x), y: B.y + t * (E.y - B.y) };
+            drawPt(ctx, H, nH, '#dc2626', 6, -6, isDark);
           }
         }
-        ctx.restore();
-      });
-
-      // Measurements
-      const mLines = [];
-      b.measures.forEach(m => {
-        if (m.type === 'dist') {
-          const p1 = getBoardPt(m.p1), p2 = getBoardPt(m.p2);
-          if (p1 && p2) {
-            const val = (Math.hypot(p2.x - p1.x, p2.y - p1.y) / 40).toFixed(2);
-            drawTextLabel(ctx, `${val} đv`, (p1.x + p2.x) / 2 + 4, (p1.y + p2.y) / 2 - 6, '#dc2626');
-            mLines.push(`$${p1.name}${p2.name} = ${val}$ đv`);
-          }
-        } else if (m.type === 'angle') {
-          const A = getBoardPt(m.p1), V = getBoardPt(m.v), B = getBoardPt(m.p2);
-          if (A && V && B) {
-            const a1 = Math.atan2(A.y - V.y, A.x - V.x), a2 = Math.atan2(B.y - V.y, B.x - V.x);
-            let deg = (Math.abs(a2 - a1) * 180) / Math.PI;
-            if (deg > 180) deg = 360 - deg;
-            if (Math.abs(deg - 90) < 1.8) {
-              drawRightAngle(ctx, V, A, B, 13, '#16a34a');
-              mLines.push(`$\\widehat{${A.name}${V.name}${B.name}} = 90^\\circ$ (Vuông)`);
-            } else {
-              drawAngleArc(ctx, V, A, B, 28, '#f59e0b', `${deg.toFixed(1)}°`);
-              mLines.push(`$\\widehat{${A.name}${V.name}${B.name}} = ${deg.toFixed(1)}^\\circ$`);
-            }
-          }
+        drawDragHandle(ctx, A, nA, '#ea580c', -6, -14, isDark);
+        drawDragHandle(ctx, B, nB, '#ea580c', -16, 16, isDark);
+        drawDragHandle(ctx, C, nC, '#ea580c', 8, 16, isDark);
+        g.handles.push({ key: 'tri0', x: A.x, y: A.y }, { key: 'tri1', x: B.x, y: B.y }, { key: 'tri2', x: C.x, y: C.y });
+        hudTitle = `Kéo thả tự do 3 đỉnh $${nA}, ${nB}, ${nC}$ để quan sát trực tâm $${nH}$`;
+        essay = {
+          hypothesis: `$\\triangle ${nA}${nB}${nC}$ có 3 đường cao đồng quy tại trực tâm $${nH}$.`,
+          method: 'Ba đường cao của tam giác luôn đồng quy tại một điểm (trực tâm).',
+          steps: [
+            'Khi tam giác nhọn: Trực tâm nằm bên trong tam giác.',
+            'Khi tam giác vuông: Trực tâm trùng với đỉnh góc vuông.',
+            'Khi tam giác tù: Trực tâm nằm bên ngoài tam giác.'
+          ],
+          summary: `Trực tâm $${nH}$ là giao điểm 3 đường cao.`,
+          tip: 'Kéo đỉnh $A$ xuống thấp để quan sát trực tâm $H$ chạy ra ngoài khi tam giác tù!'
+        };
+      } else if (g.template === 'cir_tan') {
+        const cx = w * 0.38, cy = h * 0.52, R = Math.min(w * 0.20, h * 0.28, 140);
+        const O = { x: cx, y: cy };
+        const M = { x: Math.max(cx + R + 35, Math.min(w * 0.88, g.tanM.x * w)), y: Math.max(h * 0.16, Math.min(h * 0.84, g.tanM.y * h)) };
+        const dOM = Math.hypot(M.x - O.x, M.y - O.y), baseA = Math.atan2(M.y - O.y, M.x - O.x), alpha = Math.acos(R / dOM);
+        const A = { x: O.x + R * Math.cos(baseA - alpha), y: O.y + R * Math.sin(baseA - alpha) };
+        const B = { x: O.x + R * Math.cos(baseA + alpha), y: O.y + R * Math.sin(baseA + alpha) };
+        ctx.save(); ctx.strokeStyle = edgeCol; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(O.x, O.y, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        drawSeg(ctx, M, A, '#ea580c', 2.6); drawSeg(ctx, M, B, '#ea580c', 2.6);
+        drawSeg(ctx, A, B, '#16a34a', 2.2);
+        if (g.showAlt) {
+          drawSeg(ctx, O, M, mutedCol, 1.8, true); drawSeg(ctx, O, A, mutedCol, 1.8, true); drawSeg(ctx, O, B, mutedCol, 1.8, true);
+          drawRightAngle(ctx, A, O, M, 11, '#dc2626'); drawRightAngle(ctx, B, O, M, 11, '#dc2626');
         }
-      });
-      const mBox = document.getElementById('board-measures');
-      if (mBox) {
-        mBox.innerHTML = mLines.length ? mLines.map(t => `<div>• ${t}</div>`).join('') : 'Chưa có phép đo.';
-        renderAllMath(mBox);
+        const ma = (Math.hypot(M.x - A.x, M.y - A.y) / 40).toFixed(2);
+        if (g.showMeas) drawTextLabel(ctx, `${nM}${nA}=${nM}${nB}=${ma}`, (M.x + A.x) / 2 - 20, (M.y + A.y) / 2 - 12, '#ea580c');
+        drawPt(ctx, O, nO, edgeCol, -16, 6, isDark); drawPt(ctx, A, nA, edgeCol, -4, -12, isDark); drawPt(ctx, B, nB, edgeCol, -4, 18, isDark);
+        drawDragHandle(ctx, M, nM, '#ea580c', 10, 4, isDark);
+        g.handles.push({ key: 'tanM', x: M.x, y: M.y });
+        hudTitle = `Kéo điểm $${nM}$ (cam) để thay đổi độ dài hai tiếp tuyến $${nM}${nA}, ${nM}${nB}$`;
+        essay = {
+          hypothesis: `Từ $${nM}$ ngoài $(${nO}; R)$ kẻ hai tiếp tuyến $${nM}${nA}, ${nM}${nB}$.`,
+          method: 'Tính chất 2 tiếp tuyến cắt nhau tại một điểm.',
+          steps: [
+            `$${nM}${nA} = ${nM}${nB} = ${ma}$ đv và $${nO}${nA} \\perp ${nM}${nA},\\; ${nO}${nB} \\perp ${nM}${nB}$.`,
+            `$${nM}${nO}$ là phân giác của $\\widehat{${nA}${nM}${nB}}$ và $${nO}${nM} \\perp ${nA}${nB}$.`,
+            `Hệ thức: $${nM}${nA}^2 = ${nO}${nM}^2 - R^2$.`
+          ],
+          summary: `$${nM}${nA} = ${nM}${nB} = ${ma}$ đv.`,
+          tip: 'Bốn điểm $M, A, O, B$ luôn cùng nằm trên đường tròn đường kính $OM$.'
+        };
+      } else if (g.template === 'cir_ang') {
+        const cx = w * 0.5, cy = h * 0.52, R = Math.min(w, h) * 0.30;
+        const O = { x: cx, y: cy }, A = { x: cx + R * Math.cos(2.35), y: cy + R * Math.sin(2.35) }, B = { x: cx + R * Math.cos(0.75), y: cy + R * Math.sin(0.75) };
+        const M = { x: cx + R * Math.cos(g.cirAngM), y: cy + R * Math.sin(g.cirAngM) };
+        ctx.save(); ctx.strokeStyle = edgeCol; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        drawSeg(ctx, O, A, '#2563eb', 2.2); drawSeg(ctx, O, B, '#2563eb', 2.2);
+        drawSeg(ctx, M, A, '#ea580c', 2.4); drawSeg(ctx, M, B, '#ea580c', 2.4);
+        const degO = 91.7, degM = degO / 2;
+        if (g.showMeas) {
+          drawAngleArc(ctx, O, B, A, 32, '#2563eb', `${degO.toFixed(1)}°`);
+          drawAngleArc(ctx, M, B, A, 30, '#ea580c', `${degM.toFixed(1)}°`);
+        }
+        drawPt(ctx, O, nO, '#2563eb', -16, 4, isDark); drawPt(ctx, A, nA, edgeCol, -16, 14, isDark); drawPt(ctx, B, nB, edgeCol, 8, 14, isDark);
+        drawDragHandle(ctx, M, nM, '#ea580c', 8, -10, isDark);
+        g.handles.push({ key: 'cirAngM', x: M.x, y: M.y, cx, cy, R });
+        hudTitle = `Kéo điểm $${nM}$ trên cung lớn để kiểm chứng $\\widehat{${nA}${nM}${nB}} = \\frac{1}{2}\\widehat{${nA}${nO}${nB}}$`;
+        essay = {
+          hypothesis: `Trên $(${nO}; R)$, xét góc ở tâm $\\widehat{${nA}${nO}${nB}}$ và góc nội tiếp $\\widehat{${nA}${nM}${nB}}$.`,
+          method: 'Định lý góc nội tiếp bằng nửa số đo cung bị chắn.',
+          steps: [
+            `Số đo cung nhỏ $\\text{sđ}\\overset{\\frown}{${nA}${nB}} = \\widehat{${nA}${nO}${nB}} \\approx ${degO.toFixed(1)}^\\circ$.`,
+            `Góc nội tiếp $\\widehat{${nA}${nM}${nB}} = \\dfrac{1}{2}\\widehat{${nA}${nO}${nB}} \\approx ${degM.toFixed(1)}^\\circ$ (không đổi khi $${nM}$ trượt).`
+          ],
+          summary: `$\\widehat{${nA}${nM}${nB}} = \\dfrac{1}{2}\\widehat{${nA}${nO}${nB}} \\approx ${degM.toFixed(1)}^\\circ$.`,
+          tip: 'Mọi góc nội tiếp cùng chắn một cung đều bằng nhau.'
+        };
+      } else if (g.template === 'cyc_quad') {
+        const cx = w * 0.5, cy = h * 0.52, R = Math.min(w, h) * 0.30;
+        const pts = g.quadAngs.map(a => ({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) }));
+        const [A, B, C, D] = pts;
+        ctx.save(); ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        drawSeg(ctx, A, B, edgeCol, 2.5); drawSeg(ctx, B, C, edgeCol, 2.5); drawSeg(ctx, C, D, edgeCol, 2.5); drawSeg(ctx, D, A, edgeCol, 2.5);
+        if (g.showAlt) { drawSeg(ctx, A, C, mutedCol, 1.6, true); drawSeg(ctx, B, D, mutedCol, 1.6, true); }
+        const angAt = (V, P1, P2) => {
+          let d = Math.abs(Math.atan2(P1.y - V.y, P1.x - V.x) - Math.atan2(P2.y - V.y, P2.x - V.x)) * 180 / Math.PI;
+          return d > 180 ? 360 - d : d;
+        };
+        const aA = angAt(A, D, B), aC = angAt(C, B, D);
+        if (g.showMeas) { drawAngleArc(ctx, A, D, B, 26, '#ea580c', `${aA.toFixed(0)}°`); drawAngleArc(ctx, C, B, D, 26, '#16a34a', `${aC.toFixed(0)}°`); }
+        drawPt(ctx, { x: cx, y: cy }, nO, '#0ea5e9', 6, -6, isDark);
+        [A, B, C, D].forEach((p, i) => {
+          drawDragHandle(ctx, p, names[i], '#ea580c', p.x < cx ? -16 : 8, p.y < cy ? -10 : 16, isDark);
+          g.handles.push({ key: `quad${i}`, x: p.x, y: p.y, cx, cy, R });
+        });
+        hudTitle = `Kéo thả 4 đỉnh trên $(${nO})$ — Tổng hai góc đối luôn bằng $180^\\circ$`;
+        essay = {
+          hypothesis: `Tứ giác $${nA}${nB}${nC}${nD}$ nội tiếp đường tròn tâm $${nO}$.`,
+          method: 'Định lý tổng hai góc đối của tứ giác nội tiếp.',
+          steps: [
+            `$\\widehat{${nA}} \\approx ${aA.toFixed(1)}^\\circ,\\quad \\widehat{${nC}} \\approx ${aC.toFixed(1)}^\\circ$.`,
+            `$\\widehat{${nA}} + \\widehat{${nC}} = 180^\\circ$ và $\\widehat{${nB}} + \\widehat{${nD}} = 180^\\circ$.`
+          ],
+          summary: `Tổng hai góc đối $\\widehat{${nA}} + \\widehat{${nC}} = 180^\\circ$.`,
+          tip: 'Dấu hiệu nhận biết tứ giác nội tiếp thường dùng nhất trong đề thi vào 10.'
+        };
+      } else if (g.template === 'diam_chord') {
+        const cx = w * 0.5, cy = h * 0.52, R = Math.min(w, h) * 0.30;
+        const O = { x: cx, y: cy }, A = { x: cx, y: cy - R }, B = { x: cx, y: cy + R };
+        const hy = cy - g.chordY * R, dx = Math.sqrt(Math.max(100, R * R - (hy - cy) * (hy - cy)));
+        const H = { x: cx, y: hy }, C = { x: cx - dx, y: hy }, D = { x: cx + dx, y: hy };
+        ctx.save(); ctx.strokeStyle = edgeCol; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        drawSeg(ctx, A, B, '#2563eb', 2.4); drawSeg(ctx, C, D, '#ea580c', 2.8);
+        if (g.showAlt) drawRightAngle(ctx, H, A, D, 12, '#dc2626');
+        if (g.showCir) { drawSeg(ctx, O, C, mutedCol, 1.8, true); drawSeg(ctx, O, D, mutedCol, 1.8, true); }
+        drawPt(ctx, O, nO, '#2563eb', -16, 6, isDark); drawPt(ctx, A, nA, '#2563eb', 6, -10, isDark); drawPt(ctx, B, nB, '#2563eb', 6, 16, isDark);
+        drawPt(ctx, C, nC, '#ea580c', -18, 4, isDark); drawPt(ctx, D, nD, '#ea580c', 8, 4, isDark);
+        drawDragHandle(ctx, H, nH, '#dc2626', 8, -8, isDark);
+        g.handles.push({ key: 'chordH', x: H.x, y: H.y, cx, cy, R });
+        const halfCd = (dx / 40).toFixed(2);
+        hudTitle = `Kéo điểm $${nH}$ (cam) lên xuống dọc đường kính $${nA}${nB}$`;
+        essay = {
+          hypothesis: `Đường kính $${nA}${nB} \\perp$ dây cung $${nC}${nD}$ tại $${nH}$.`,
+          method: 'Định lý quan hệ vuông góc giữa đường kính và dây cung.',
+          steps: [
+            `Đường kính vuông góc với một dây thì đi qua trung điểm của dây ấy.`,
+            `Suy ra $${nH}${nC} = ${nH}${nD} = ${halfCd}$ đv.`
+          ],
+          summary: `$${nH}$ là trung điểm $${nC}${nD}$ ($${nH}${nC} = ${nH}${nD}$).`,
+          tip: 'Kết hợp với Pytago trong $\\triangle OHC$ vuông tại $H$: $R^2 = OH^2 + HC^2$.'
+        };
+      } else {
+        // trap_rect: Hình thang vuông
+        const x0 = w * 0.28, yBot = h * 0.72, yTop = h * 0.32, botW = w * 0.44, topW = Math.max(80, Math.min(botW, g.trapTopW * w));
+        const D = { x: x0, y: yBot }, C = { x: x0 + botW, y: yBot }, A = { x: x0, y: yTop }, B = { x: x0 + topW, y: yTop };
+        const H = { x: B.x, y: yBot };
+        drawSeg(ctx, A, B, edgeCol, 2.6); drawSeg(ctx, B, C, edgeCol, 2.6); drawSeg(ctx, C, D, edgeCol, 2.6); drawSeg(ctx, D, A, edgeCol, 2.6);
+        if (g.showAlt) { drawRightAngle(ctx, A, B, D, 11, '#16a34a'); drawRightAngle(ctx, D, A, C, 11, '#16a34a'); drawSeg(ctx, B, H, '#dc2626', 2, true); drawRightAngle(ctx, H, B, C, 11, '#dc2626'); drawPt(ctx, H, nH, '#dc2626', -4, 18, isDark); }
+        drawPt(ctx, A, nA, edgeCol, -16, -6, isDark); drawDragHandle(ctx, B, nB, '#ea580c', 8, -8, isDark);
+        drawPt(ctx, C, nC, edgeCol, 8, 16, isDark); drawPt(ctx, D, nD, edgeCol, -16, 16, isDark);
+        g.handles.push({ key: 'trapB', x: B.x, y: B.y, x0, botW });
+        const ab = (topW / 40).toFixed(2), cd = (botW / 40).toFixed(2), ad = ((yBot - yTop) / 40).toFixed(2);
+        hudTitle = `Kéo đỉnh $${nB}$ (cam) để biến đổi giữa Hình thang vuông & Hình chữ nhật`;
+        essay = {
+          hypothesis: `Hình thang vuông $${nA}${nB}${nC}${nD}$ ($\\widehat{${nA}}=\\widehat{${nD}}=90^\\circ$).`,
+          method: `Kẻ đường cao $${nB}${nH} \\perp ${nC}${nD}$ để chia thành hình chữ nhật $${nA}${nB}${nH}${nD}$ và $\\triangle ${nB}${nH}${nC}$ vuông.`,
+          steps: [
+            `Đáy nhỏ $${nA}${nB} = ${ab}$, đáy lớn $${nC}${nD} = ${cd}$, chiều cao $${nA}${nD} = ${ad}$.`,
+            `Diện tích: $S = \\dfrac{(${nA}${nB} + ${nC}${nD}) \\cdot ${nA}${nD}}{2}$.`
+          ],
+          summary: `Khi $${nA}${nB} = ${nC}${nD}$, hình thang vuông trở thành hình chữ nhật.`,
+          tip: 'Mẹo: Luôn kẻ thêm đường cao $BH$ từ đỉnh đáy nhỏ xuống đáy lớn!'
+        };
       }
 
-      // Points + hover/selected rings
-      b.points.forEach(p => {
-        const isSel = b.selPts.includes(p.id), isHov = b.hoverPtId === p.id;
-        if (isSel || isHov) {
-          ctx.save(); ctx.strokeStyle = isSel ? '#f59e0b' : '#0ea5e9'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
-        }
-        drawPt(ctx, p, p.name, p.color || '#1e3a8a', 8, -8, isDark, 5);
-      });
-
-      document.getElementById('hud-step-desc').innerHTML = `<strong>📐 Xưởng Vẽ Hình Phẳng: ${BOARD_HINTS[b.tool]}</strong>`;
-    }
-
-    function findSnapPoint(x, y) {
-      let best = null, bestD = 15;
-      state.board.points.forEach(p => {
-        const d = Math.hypot(p.x - x, p.y - y);
-        if (d < bestD) { bestD = d; best = p; }
-      });
-      return best;
+      document.getElementById('hud-step-desc').innerHTML = `<strong>${hudTitle}</strong>`;
+      renderAllMath(document.getElementById('hud-step-desc'));
+      if (!onlyCanvas && g.showGridAndSol) {
+        renderStructuredSolution('tab2-solutions', essay, 4);
+      }
     }
 
     mainCanvas.addEventListener('pointerdown', e => {
       if (state.mainTab !== 2 || state.pen.active) return;
-      const r = mainCanvas.getBoundingClientRect();
-      const x = e.clientX - r.left, y = e.clientY - r.top;
-      const b = state.board, snap = findSnapPoint(x, y);
-
-      if (b.tool === 'move') {
-        if (snap && snap.type === 'free') {
-          pushBoardHistory();
-          b.dragId = snap.id;
-          mainCanvas.setPointerCapture(e.pointerId);
-        }
-        return;
+      const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const hit = state.geo.handles.find(h => Math.hypot(h.x - x, h.y - y) < 22);
+      if (hit) {
+        state.geo.dragHandle = hit;
+        mainCanvas.setPointerCapture(e.pointerId);
       }
-
-      if (b.tool === 'point') {
-        if (!snap) {
-          pushBoardHistory();
-          b.points.push({ id: 'p_' + Date.now(), name: nextBoardName(), x, y, type: 'free', color: b.color });
-          rebuildScene();
-        }
-        return;
-      }
-
-      // All other tools select/create points
-      let ptId = snap ? snap.id : null;
-      if (!ptId) {
-        pushBoardHistory();
-        const np = { id: 'p_' + Date.now(), name: nextBoardName(), x, y, type: 'free', color: b.color };
-        b.points.push(np);
-        ptId = np.id;
-      }
-      b.selPts.push(ptId);
-
-      const req = { seg: 2, line: 2, ray: 2, circle: 2, circle3: 3, mid: 2, perp: 3, para: 3, bisector: 3, inter: 4, dist: 2, angle: 3 }[b.tool] || 2;
-      if (b.selPts.length >= req) {
-        pushBoardHistory();
-        const s = b.selPts.slice();
-        b.selPts = [];
-        if (b.tool === 'seg' || b.tool === 'line' || b.tool === 'ray') {
-          b.shapes.push({ type: b.tool, p1: s[0], p2: s[1], color: b.color, dashed: b.dashed });
-        } else if (b.tool === 'circle') {
-          b.shapes.push({ type: 'circle', c: s[0], e: s[1], color: b.color, dashed: b.dashed });
-        } else if (b.tool === 'circle3') {
-          b.shapes.push({ type: 'circle3', p1: s[0], p2: s[1], p3: s[2], color: b.color, dashed: b.dashed });
-        } else if (b.tool === 'mid') {
-          b.points.push({ id: 'p_' + Date.now(), name: nextBoardName(), x: 0, y: 0, type: 'mid', deps: { p1: s[0], p2: s[1] }, color: '#16a34a' });
-        } else if (b.tool === 'perp') {
-          const footId = 'p_' + Date.now();
-          b.points.push({ id: footId, name: nextBoardName(), x: 0, y: 0, type: 'foot', deps: { pt: s[0], a: s[1], b: s[2] }, color: '#dc2626' });
-          b.shapes.push({ type: 'perp', pt: s[0], a: s[1], b: s[2], foot: footId, color: b.color, dashed: b.dashed });
-        } else if (b.tool === 'para') {
-          b.shapes.push({ type: 'para', pt: s[0], a: s[1], b: s[2], color: b.color, dashed: b.dashed });
-        } else if (b.tool === 'bisector') {
-          b.shapes.push({ type: 'bisector', a: s[0], v: s[1], b: s[2], color: b.color, dashed: b.dashed });
-        } else if (b.tool === 'inter') {
-          b.points.push({ id: 'p_' + Date.now(), name: nextBoardName(), x: 0, y: 0, type: 'inter', deps: { a1: s[0], a2: s[1], b1: s[2], b2: s[3] }, color: '#ea580c' });
-        } else if (b.tool === 'dist') {
-          b.measures.push({ type: 'dist', p1: s[0], p2: s[1] });
-        } else if (b.tool === 'angle') {
-          b.measures.push({ type: 'angle', p1: s[0], v: s[1], p2: s[2] });
-        }
-      }
-      rebuildScene();
     });
 
     mainCanvas.addEventListener('pointermove', e => {
-      if (state.mainTab !== 2 || state.pen.active) return;
-      const r = mainCanvas.getBoundingClientRect();
-      const x = e.clientX - r.left, y = e.clientY - r.top;
-      const b = state.board;
-      if (b.dragId) {
-        const pt = getBoardPt(b.dragId);
-        if (pt) { pt.x = x; pt.y = y; renderBoardScene(); }
-        return;
+      if (state.mainTab !== 2 || state.pen.active || !state.geo.dragHandle) return;
+      const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const hObj = state.geo.dragHandle, g = state.geo;
+      if (hObj.key === 'rtA') {
+        let ang = Math.atan2(hObj.cy - y, hObj.cx - x);
+        g.rtAngle = Math.max(0.24, Math.min(Math.PI - 0.24, ang));
+      } else if (hObj.key.startsWith('tri')) {
+        const idx = +hObj.key.slice(3);
+        g.triPts[idx] = { x: Math.max(0.1, Math.min(0.9, x / r.width)), y: Math.max(0.12, Math.min(0.86, y / r.height)) };
+      } else if (hObj.key === 'tanM') {
+        g.tanM = { x: Math.max(0.55, Math.min(0.90, x / r.width)), y: Math.max(0.15, Math.min(0.85, y / r.height)) };
+      } else if (hObj.key === 'cirAngM') {
+        g.cirAngM = Math.atan2(y - hObj.cy, x - hObj.cx);
+      } else if (hObj.key.startsWith('quad')) {
+        const idx = +hObj.key.slice(4);
+        g.quadAngs[idx] = Math.atan2(y - hObj.cy, x - hObj.cx);
+      } else if (hObj.key === 'chordH') {
+        g.chordY = Math.max(-0.82, Math.min(0.82, (hObj.cy - y) / hObj.R));
+      } else if (hObj.key === 'trapB') {
+        g.trapTopW = Math.max(0.10, Math.min(hObj.botW / r.width, (x - hObj.x0) / r.width));
       }
-      const snap = findSnapPoint(x, y);
-      const newHov = snap ? snap.id : null;
-      if (newHov !== b.hoverPtId) { b.hoverPtId = newHov; renderBoardScene(); }
+      renderTab2Scene(true);
     });
 
     mainCanvas.addEventListener('pointerup', e => {
-      if (state.board.dragId) {
-        state.board.dragId = null;
+      if (state.geo.dragHandle) {
+        state.geo.dragHandle = null;
         mainCanvas.releasePointerCapture(e.pointerId);
+        renderTab2Scene(false);
       }
     });
 
@@ -1912,7 +1936,7 @@
       if (state.mainTab === 1) renderTab1Scene();
       else {
         updateTelemetryHUD('', []);
-        if (state.mainTab === 2) renderBoardScene();
+        if (state.mainTab === 2) renderTab2Scene();
         else renderAIScene();
       }
     }
