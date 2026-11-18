@@ -211,6 +211,22 @@
       padding: 1px 6px; border-radius: 4px; background: #cbd5e1; color: #1e293b; margin-right: 6px;
     }
     .sol-step.current .sol-badge { background: var(--primary); color: #fff; }
+    .left-panel.wide-sol { width: 46%; max-width: 640px; }
+    .sol-sec {
+      border: 1px solid #e2e8f0; border-radius: 9px; padding: 8px 10px;
+      background: #f8fafc; font-size: 12px; line-height: 1.55; margin-bottom: 6px;
+    }
+    .sol-sec-head {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+      color: #1e3a8a; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;
+    }
+    .sol-sec.conclusion { background: #f0fdf4; border-color: #86efac; }
+    .sol-sec.conclusion .sol-sec-head { color: #15803d; }
+    .sol-tip {
+      margin-top: 5px; padding: 6px 8px; border-radius: 7px;
+      background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 11.5px;
+    }
+    .sol-chain { margin-top: 3px; padding-left: 8px; border-left: 2px solid #cbd5e1; color: #1e293b; }
 
     /* Stage Toolbars & Floating Dock */
     .stage-toolbar {
@@ -430,7 +446,10 @@
         </section>
 
         <section class="card">
-          <div class="card-title"><span>📖 Lời giải chi tiết (KaTeX)</span></div>
+          <div class="card-title">
+            <span>📖 Lời giải chi tiết chuẩn tự luận (KaTeX)</span>
+            <button class="step-btn" onclick="toggleWideSolution()">⤢ Xem rộng</button>
+          </div>
           <div class="solution-list" id="tab1-solutions"></div>
         </section>
       </div>
@@ -511,7 +530,10 @@
         </section>
 
         <section class="card">
-          <div class="card-title"><span>📖 Lời giải tự luận từng bước (KaTeX)</span></div>
+          <div class="card-title">
+            <span>📖 Lời giải tự luận từng bước (KaTeX)</span>
+            <button class="step-btn" onclick="toggleWideSolution()">⤢ Xem rộng</button>
+          </div>
           <div class="solution-list" id="tab3-solutions"></div>
         </section>
       </div>
@@ -755,12 +777,203 @@
       return { A, B, C, H, scale, bcLen, bh, ch: bcLen - bh, ah, cx, cy };
     }
 
+    function toggleWideSolution() {
+      const lp = document.querySelector('.left-panel');
+      if (lp) lp.classList.toggle('wide-sol');
+      resizeStage();
+    }
+
+    function toDegMin(deg) {
+      const d = Math.floor(deg);
+      const m = Math.round((deg - d) * 60);
+      return m === 60 ? `${d + 1}^\\circ 00'` : `${d}^\\circ ${String(m).padStart(2, '0')}'`;
+    }
+
+    function renderStructuredSolution(containerId, essay, eff) {
+      const box = document.getElementById(containerId);
+      if (!box || !essay) return;
+      const stepsHtml = essay.steps.map((st, i) => `
+        <div class="sol-step ${i + 1 === eff ? 'current' : (i + 1 > eff ? 'dimmed' : '')}">
+          <div><span class="sol-badge">Bước ${i + 1}</span><span>${st}</span></div>
+        </div>
+      `).join('');
+
+      box.innerHTML = `
+        <div class="sol-sec">
+          <div class="sol-sec-head">📌 Phần 1 • Giả thiết &amp; Phương pháp</div>
+          <div><strong>Giả thiết:</strong> ${essay.hypothesis}</div>
+          <div style="margin-top:3px;"><strong>Phương pháp:</strong> ${essay.method}</div>
+        </div>
+        <div class="sol-sec">
+          <div class="sol-sec-head">✍️ Phần 2 • Trình bày tự luận (B1 → B${essay.steps.length})</div>
+          <div style="display:flex; flex-direction:column; gap:5px;">${stepsHtml}</div>
+        </div>
+        <div class="sol-sec conclusion">
+          <div class="sol-sec-head">✅ Phần 3 • Kết luận &amp; Mẹo thi vào 10</div>
+          <div style="font-weight:600;">${essay.summary}</div>
+          ${essay.tip ? `<div class="sol-tip">💡 <strong>Mẹo giải nhanh:</strong> ${essay.tip}</div>` : ''}
+        </div>
+      `;
+      renderAllMath(box);
+    }
+
+    function getModelEssay(id, solSteps) {
+      const map = {
+        a1: {
+          hypothesis: '$\\triangle ABC$ vuông tại $A$, đường cao $AH \\perp BC$ ($H \\in BC$).',
+          method: 'Vận dụng các cặp tam giác vuông đồng dạng ($\\triangle HBA \\sim \\triangle ABC$, $\\triangle HAC \\sim \\triangle ABC$) để suy ra 5 hệ thức vàng.',
+          summary: 'Ghi nhớ $5$ hệ thức: $b^2=ab\'$, $c^2=ac\'$, $h^2=b\'c\'$, $ah=bc$, $\\frac{1}{h^2}=\\frac{1}{b^2}+\\frac{1}{c^2}$.',
+          tip: 'Luôn kiểm tra điều kiện tam giác vuông và đường cao ứng với cạnh huyền trước khi viết hệ thức.'
+        },
+        a2: {
+          hypothesis: state.a2.mode === 'proj' ? '$\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $BH=4,\\; CH=9$.' : '$\\triangle ABC$ vuông tại $A$, đường cao $AH$, biết $AB=6,\\; BH=3{,}6$.',
+          method: 'Tính cạnh huyền $BC$, sau đó dùng hệ thức $AH^2 = BH \\cdot CH$ và $AB^2 = BH \\cdot BC$.',
+          summary: state.a2.mode === 'proj' ? 'Kết quả: $BC = 13,\\; AH = 6,\\; AB = 2\\sqrt{13},\\; AC = 3\\sqrt{13}$.' : 'Kết quả: $BC = 10,\\; CH = 6{,}4,\\; AC = 8,\\; AH = 4{,}8$.',
+          tip: 'Khi biết $2$ hình chiếu $BH, CH$, luôn cộng lại để ra $BC$ trước rồi mới tính $AB, AC$.'
+        },
+        a3: {
+          hypothesis: '$\\triangle ABC$ vuông tại $A$, $AB=6,\\; AC=8$, đường cao $AH$, trung tuyến $AM$, phân giác $AD$.',
+          method: 'Kết hợp định lý Pytago, tính chất trung tuyến ứng với cạnh huyền ($AM = \\frac{BC}{2}$) và tính chất đường phân giác.',
+          summary: '$BC=10,\\; AM=5,\\; AH=4{,}8,\\; AD = \\frac{24\\sqrt{2}}{7}$.',
+          tip: 'Trong tam giác vuông, độ dài đường trung tuyến ứng với cạnh huyền luôn bằng nửa cạnh huyền.'
+        },
+        a4: {
+          hypothesis: '$\\triangle ABC$ vuông tại $A$ ($AB=c, AC=b$), hình vuông $ANPQ$ nội tiếp ($P \\in BC$).',
+          method: 'Dùng tính chất song song $PQ \\parallel AB$ và định lý Ta-lét trong $\\triangle ABC$.',
+          summary: 'Cạnh hình vuông nội tiếp: $x = \\dfrac{bc}{b+c}$.',
+          tip: 'Công thức nhanh $x = \\frac{bc}{b+c}$ giúp kiểm tra ngay đáp án trắc nghiệm trong 5 giây.'
+        },
+        b1: {
+          hypothesis: `$\\triangle ABC$ vuông tại $A$, góc nhọn $\\alpha = ${state.b1.deg}^\\circ$.`,
+          method: 'Dùng định nghĩa tỉ số lượng giác: $\\sin = \\frac{\\text{đối}}{\\text{huyền}}$, $\\cos = \\frac{\\text{kề}}{\\text{huyền}}$, $\\tan = \\frac{\\text{đối}}{\\text{kề}}$.',
+          summary: `$\\sin ${state.b1.deg}^\\circ \\approx ${Math.sin(state.b1.deg*Math.PI/180).toFixed(4)},\\; \\cos ${state.b1.deg}^\\circ \\approx ${Math.cos(state.b1.deg*Math.PI/180).toFixed(4)}$.`,
+          tip: 'Nhớ câu thần chú: "Sin đi học - Cos không hư - Tan đoàn kết - Cot kết đoàn".'
+        },
+        b2: {
+          hypothesis: '$\\triangle ABC$ vuông tại $A$, biết cạnh huyền $BC = 10$ và $\\widehat{B} = 35^\\circ$.',
+          method: 'Tính góc nhọn còn lại $\\widehat{C} = 90^\\circ - \\widehat{B}$, sau đó dùng $AC = BC\\sin B,\\; AB = BC\\cos B$.',
+          summary: '$\\widehat{C} = 55^\\circ,\\; AC \\approx 5{,}74,\\; AB \\approx 8{,}19$.',
+          tip: 'Chuyển máy tính cầm tay sang chế độ Degree (chữ D) trước khi bấm $\\sin, \\cos, \\tan$.'
+        },
+        b3: {
+          hypothesis: '$\\triangle ABC$ vuông tại $A$, góc nhọn $\\widehat{C} = \\alpha$.',
+          method: 'Biểu diễn $\\sin\\alpha, \\cos\\alpha$ theo các cạnh của tam giác vuông rồi áp dụng định lý Pytago.',
+          summary: '$\\sin^2\\alpha + \\cos^2\\alpha = 1$ và $\\tan\\alpha \\cdot \\cot\\alpha = 1$.',
+          tip: 'Đây là 2 hằng đẳng thức lượng giác cơ bản dùng để rút gọn biểu thức.'
+        },
+        b4: {
+          hypothesis: `$\\triangle ABC$ (${state.b4.obtuse ? 'tù' : 'nhọn'}) có $BC = a,\\; AC = b$ và góc $\\widehat{C}$.`,
+          method: 'Kẻ đường cao phụ $AH \\perp BC$ để quy về tam giác vuông $\\triangle AHC$.',
+          summary: '$S_{\\triangle ABC} = \\dfrac{1}{2} ab \\sin C$.',
+          tip: 'Công thức $S = \\frac{1}{2}ab\\sin C$ đúng với cả tam giác nhọn lẫn tam giác tù.'
+        },
+        c1: {
+          hypothesis: `Mô hình hóa: Gọi $SB$ là chiều cao tháp, $AE = ${state.c1.eyeH}\\text{ m}$ là giác kế cách chân tháp $AB = ${state.c1.dist}\\text{ m}$, góc nâng $\\widehat{SEH} = ${state.c1.alpha}^\\circ$.`,
+          method: 'Xét hình chữ nhật $ABHE$ ($EH = AB, BH = AE$) và tam giác vuông $\\triangle SEH$ tại $H$.',
+          summary: `Chiều cao tháp: $SB = SH + BH \\approx ${(state.c1.dist * Math.tan(state.c1.alpha*Math.PI/180) + state.c1.eyeH).toFixed(2)}\\text{ m}$.`,
+          tip: 'Bẫy thi vào 10: Rất nhiều bạn tính xong $SH$ mà quên cộng thêm chiều cao giác kế $h_0$!'
+        },
+        c2: {
+          hypothesis: `Mô hình hóa: $A$ là điểm xuất phát, $AB = ${state.c2.dist}\\text{ m}$ là đường bay, $BH \\perp AH$, góc nghiêng $\\widehat{BAH} = ${state.c2.alpha}^\\circ$.`,
+          method: 'Xét $\\triangle AHB$ vuông tại $H$, áp dụng $BH = AB \\cdot \\sin\\alpha$.',
+          summary: `Độ cao chênh lệch: $BH \\approx ${(state.c2.dist * Math.sin(state.c2.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Đổi đơn vị vận tốc $\\text{km/h} \\rightarrow \\text{m/s}$ (chia $3{,}6$) hoặc nhân thời gian để ra $AB$ trước.'
+        },
+        c3: {
+          hypothesis: `Mô hình hóa: Mặt biển ngang $AH$, tàu ngầm lặn theo đoạn $AB = ${state.c3.dist}\\text{ m}$, góc lặn $\\widehat{BAH} = ${state.c3.alpha}^\\circ$.`,
+          method: 'Xét $\\triangle AHB$ vuông tại $H$, tính độ sâu $BH = AB \\cdot \\sin\\alpha$.',
+          summary: `Độ sâu tàu ngầm: $BH \\approx ${(state.c3.dist * Math.sin(state.c3.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Góc lặn tạo với phương ngang mặt biển đóng vai trò góc nhọn $\\widehat{BAH}$.'
+        },
+        c4: {
+          hypothesis: `Mô hình hóa: Tòa nhà $OA \\perp$ mặt đất $OB$, thang cứu hỏa $AB = ${state.c4.len}\\text{ m}$, góc $\\widehat{ABO} = ${state.c4.deg}^\\circ$.`,
+          method: 'Xét $\\triangle AOB$ vuông tại $O$, tính $OA = AB\\sin B$ và $OB = AB\\cos B$.',
+          summary: `Tầm với $OA \\approx ${(state.c4.len * Math.sin(state.c4.deg*Math.PI/180)).toFixed(2)}\\text{ m}$, chân thang $OB \\approx ${(state.c4.len * Math.cos(state.c4.deg*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Đọc kỹ đề xem góc cho là góc hợp bởi thang với mặt đất hay với tường nhà!'
+        },
+        c5: {
+          hypothesis: `Mô hình hóa: Cột cờ $AB = ${state.c5.h}\\text{ m} \\perp$ mặt đất $BC$, góc tia nắng $\\widehat{ACB} = ${state.c5.alpha}^\\circ$.`,
+          method: 'Xét $\\triangle ABC$ vuông tại $B$, dùng $\\tan\\widehat{ACB} = \\frac{AB}{BC}$.',
+          summary: `Chiều dài bóng đổ: $BC \\approx ${(state.c5.h / Math.tan(state.c5.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Tia nắng mặt trời luôn tạo góc nâng ở đỉnh bóng $C$ trên mặt đất.'
+        },
+        c6: {
+          hypothesis: `Mô hình hóa: Mặt cầu dốc $AB = ${state.c6.L}\\text{ m}$, phương ngang $BC$, độ cao $AC$, độ dốc $i = \\tan\\alpha = ${state.c6.pct}\\%$.`,
+          method: 'Từ $\\tan\\alpha = \\frac{i}{100}$ suy ra góc $\\alpha$, rồi tính độ cao $AC = AB\\sin\\alpha$.',
+          summary: `Góc nghiêng $\\alpha \\approx ${(Math.atan(state.c6.pct/100)*180/Math.PI).toFixed(2)}^\\circ$, độ cao $AC \\approx ${(state.c6.L * Math.sin(Math.atan(state.c6.pct/100))).toFixed(2)}\\text{ m}$.`,
+          tip: 'Độ dốc $8\\%$ nghĩa là $\\tan\\alpha = 0{,}08$, không phải $\\alpha = 8^\\circ$!'
+        },
+        c7: {
+          hypothesis: `Mô hình hóa: Dây cáp $AB = ${state.c7.L}\\text{ m}$, phương ngang $AH$, góc nghiêng $\\widehat{BAH} = ${state.c7.alpha}^\\circ$.`,
+          method: 'Xét $\\triangle AHB$ vuông tại $H$, tính chênh lệch độ cao $BH = AB\\sin\\alpha$.',
+          summary: `Chênh lệch độ cao hai ga: $BH \\approx ${(state.c7.L * Math.sin(state.c7.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Nếu đề cho độ cao ga đi $h_1$, nhớ cộng thêm $BH$ để ra độ cao ga đến.'
+        },
+        c8: {
+          hypothesis: `Mô hình hóa: Bờ sông song song rộng $AB = ${state.c8.width}\\text{ m}$, thuyền đi theo $AC$ lệch góc $\\widehat{BAC} = ${state.c8.alpha}^\\circ$.`,
+          method: 'Xét $\\triangle ABC$ vuông tại $B$, áp dụng $AC = \\frac{AB}{\\cos\\alpha}$.',
+          summary: `Quãng đường thực tế $AC \\approx ${(state.c8.width / Math.cos(state.c8.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Bề rộng sông $AB$ là cạnh góc vuông kề với góc lệch $\\alpha$, còn đường đi $AC$ là cạnh huyền.'
+        },
+        d1: {
+          hypothesis: `Mô hình hóa: Khinh khí cầu $K$, hình chiếu $H \\in AB$, $AB = ${state.d1.ab}\\text{ m}$ (${state.d1.side === 'same' ? 'cùng phía' : 'khác phía'}), góc nâng $\\alpha=${state.d1.alpha}^\\circ, \\beta=${state.d1.beta}^\\circ$.`,
+          method: 'Biểu diễn $HA = h\\cot\\alpha$, $HB = h\\cot\\beta$ rồi lập phương trình theo $AB$.',
+          summary: `Công thức tổng quát: $h = \\dfrac{AB}{${state.d1.side === 'same' ? '\\cot\\beta - \\cot\\alpha' : '\\cot\\alpha + \\cot\\beta'}}$.`,
+          tip: 'Phân biệt rõ 2 trạm quan sát nằm CÙNG PHÍA (dấu trừ) hay KHÁC PHÍA (dấu cộng) so với chân đường cao $H$.'
+        },
+        d2: {
+          hypothesis: `Mô hình hóa: Hải đăng $SB = ${state.d2.H}\\text{ m}$, tàu chạy từ $M$ đến $N$ với góc hạ $\\alpha=${state.d2.alpha}^\\circ, \\beta=${state.d2.beta}^\\circ$.`,
+          method: 'Dùng góc so le trong đưa góc hạ về $\\widehat{SMB}=\\alpha, \\widehat{SNB}=\\beta$, tính $BM, BN$ rồi lấy $BM - BN$.',
+          summary: `Quãng đường tàu chạy: $MN = H(\\cot\\alpha - \\cot\\beta)$.`,
+          tip: 'Góc hạ đo từ tia nằm ngang trên đỉnh $S$, bằng góc nâng tại tàu nhờ tính chất so le trong.'
+        },
+        d3: {
+          hypothesis: `Mô hình hóa: Ban công $E$ cách tháp $EH = ${state.d3.dist}\\text{ m}$, góc nâng đỉnh $\\alpha=${state.d3.alpha}^\\circ$, góc hạ chân $\\beta=${state.d3.beta}^\\circ$.`,
+          method: 'Tách chiều cao tháp $SB = SH + HB$ bằng cách giải 2 tam giác vuông $\\triangle SEH$ và $\\triangle EHB$.',
+          summary: `$SB = EH(\\tan\\alpha + \\tan\\beta) \\approx ${(state.d3.dist*(Math.tan(state.d3.alpha*Math.PI/180)+Math.tan(state.d3.beta*Math.PI/180))).toFixed(2)}\\text{ m}$.`,
+          tip: 'Vẽ đường ngang tầm mắt $EH$ chia tháp thành $2$ phần $SH$ (trên) và $HB$ (dưới).'
+        },
+        d4: {
+          hypothesis: `Mô hình hóa: Thân cẩu $h_0=${state.d4.h0}\\text{ m}$, tay cần $PT=${state.d4.L}\\text{ m}$ nghiêng $\\alpha=${state.d4.alpha}^\\circ$.`,
+          method: 'Xét $\\triangle PTH$ vuông tại $H$, tính tầm vươn $PH = PT\\cos\\alpha$ và độ cao nâng $TH = PT\\sin\\alpha$.',
+          summary: `Tầm vươn $PH \\approx ${(state.d4.L*Math.cos(state.d4.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$, cao tổng $h_0 + TH$.`,
+          tip: 'Khi $\\alpha$ tăng thì tầm vươn ngang giảm dần còn độ cao nâng tăng lên.'
+        },
+        d5: {
+          hypothesis: `Mô hình hóa: Flycam $F$ ở độ cao $FH = ${state.d5.h}\\text{ m}$, góc mở camera $2\\alpha = ${2*state.d5.alpha}^\\circ$.`,
+          method: 'Vì $\\triangle FAB$ cân tại $F$ có đường cao $FH$ nên $FH$ là phân giác $\\Rightarrow \\widehat{HFB} = \\alpha$.',
+          summary: `Bề rộng vùng quét $AB = 2h\\tan\\alpha \\approx ${(2*state.d5.h*Math.tan(state.d5.alpha*Math.PI/180)).toFixed(2)}\\text{ m}$.`,
+          tip: 'Nhớ chia đôi góc mở $2\\alpha$ thành $\\alpha$ trước khi dùng $\\tan\\alpha$ trong tam giác vuông!'
+        },
+        d6: {
+          hypothesis: `Mô hình hóa: Cột đèn $SA = ${state.d6.hLamp}\\text{ m}$, người $CD = ${state.d6.hPerson}\\text{ m}$, bóng $CB$.`,
+          method: 'Áp dụng hệ quả định lý Ta-lét cho $CD \\parallel SA$ trong $\\triangle SBA$.',
+          summary: `$\\dfrac{CB}{CB + AC} = \\dfrac{CD}{SA}$.`,
+          tip: 'Đặt ẩn $x = CB$ rồi giải phương trình bậc nhất theo $x$ rất nhanh và chính xác.'
+        },
+        d7: {
+          hypothesis: `Mô hình hóa: Cảng $O$, sau ${state.d7.hours}h hai tàu đi được $OA=${state.d7.v1*state.d7.hours}\\text{ km},\\; OB=${state.d7.v2*state.d7.hours}\\text{ km}$, góc $\\widehat{AOB}=${state.d7.alpha}^\\circ$.`,
+          method: 'Áp dụng Định lý Cosin trong $\\triangle OAB$ (hoặc hạ đường cao phụ khi không dùng Cosin).',
+          summary: `Khoảng cách hai tàu $AB = \\sqrt{OA^2 + OB^2 - 2\\cdot OA \\cdot OB \\cdot \\cos\\alpha}$.`,
+          tip: 'Đừng quên nhân vận tốc với thời gian để ra quãng đường $OA, OB$ trước khi tính $AB$.'
+        },
+        d8: {
+          hypothesis: `Mô hình hóa: Thân cây còn lại $AB = ${state.d8.hRemain}\\text{ m} \\perp$ mặt đất $BC$, ngọn cây gãy $AC = ${state.d8.lenBroken}\\text{ m}$.`,
+          method: 'Xét $\\triangle ABC$ vuông tại $B$, dùng Pytago tính $AC$ (hoặc $BC$) rồi cộng $AB + AC$.',
+          summary: `Chiều cao cây ban đầu: $H = AB + AC = ${state.d8.hRemain + state.d8.lenBroken}\\text{ m}$.`,
+          tip: 'Chiều cao cây ban đầu bằng TỔNG phần đứng $AB$ và phần gãy nghiêng $AC$!'
+        }
+      };
+      const m = map[id] || { hypothesis: '', method: '', summary: '', tip: '' };
+      return { hypothesis: m.hypothesis, method: m.method, steps: solSteps, summary: m.summary, tip: m.tip };
+    }
+
     function renderSolutionsList(containerId, steps, eff) {
       const box = document.getElementById(containerId);
       if (!box) return;
       box.innerHTML = steps.map((txt, i) => `
         <div class="sol-step ${i + 1 === eff ? 'current' : (i + 1 > eff ? 'dimmed' : '')}">
-          <span class="sol-badge">B${i + 1}</span><span>${txt}</span>
+          <span class="sol-badge">Bước ${i + 1}</span><span>${txt}</span>
         </div>
       `).join('');
       renderAllMath(box);
@@ -1187,7 +1400,7 @@
         const curIdx = Math.min(eff, stepDesc.length) - 1;
         document.getElementById('hud-step-desc').innerHTML = `<strong>${stepDesc[curIdx]}</strong>`;
         renderAllMath(document.getElementById('hud-step-desc'));
-        renderSolutionsList('tab1-solutions', solSteps, eff);
+        renderStructuredSolution('tab1-solutions', getModelEssay(id, solSteps), eff);
       }
     }
 
@@ -1669,18 +1882,26 @@
         drawRightAngle(ctx, A, B, C);
         if (eff >= 2) { drawSeg(ctx, A, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, C, 12, '#dc2626'); }
         const degB = (Math.atan2(p.ac, p.ab) * 180) / Math.PI;
+        const degC = 90 - degB;
         if (eff >= 3) drawAngleArc(ctx, B, A, C, 30, '#f59e0b', `${degB.toFixed(1)}°`);
         drawPt(ctx, A, nA, '#ea580c', -6, -12, isDark); drawPt(ctx, B, nB, edgeCol, -16, 16, isDark); drawPt(ctx, C, nC, edgeCol, 8, 16, isDark);
         if (eff >= 2) drawPt(ctx, H, nH, '#dc2626', -4, 18, isDark);
         const steps = [
-          `Dựng $\\triangle ${nA}${nB}${nC}$ vuông tại $${nA}$ với $${nA}${nB} = ${p.ab},\\; ${nA}${nC} = ${p.ac}$.`,
-          `Cạnh huyền: $${nB}${nC} = \\sqrt{${p.ab}^2 + ${p.ac}^2} = ${bcLen.toFixed(2)}$.`,
-          `Đường cao: $${nA}${nH} = \\dfrac{${nA}${nB}\\cdot${nA}${nC}}{${nB}${nC}} = ${ah.toFixed(2)}$.`,
-          `Hình chiếu: $${nB}${nH} = ${bh.toFixed(2)},\\; ${nC}${nH} = ${ch.toFixed(2)},\\; \\widehat{${nB}} \\approx ${degB.toFixed(1)}^\\circ$.`
+          `Xét $\\triangle ${nA}${nB}${nC}$ vuông tại $${nA}$, áp dụng định lý Pytago:<div class="sol-chain">$${nB}${nC} = \\sqrt{${nA}${nB}^2 + ${nA}${nC}^2} = \\sqrt{${p.ab}^2 + ${p.ac}^2} = ${bcLen.toFixed(2)}$</div>`,
+          `Áp dụng hệ thức lượng trong $\\triangle ${nA}${nB}${nC}$ vuông tại $${nA}$, đường cao $${nA}${nH}$:<div class="sol-chain">$${nA}${nH} = \\dfrac{${nA}${nB} \\cdot ${nA}${nC}}{${nB}${nC}} = \\dfrac{${p.ab} \\cdot ${p.ac}}{${bcLen.toFixed(2)}} = ${ah.toFixed(2)}$</div>`,
+          `Tính các hình chiếu trên cạnh huyền $${nB}${nC}$:<div class="sol-chain">$${nB}${nH} = \\dfrac{${nA}${nB}^2}{${nB}${nC}} = ${bh.toFixed(2)},\\quad ${nC}${nH} = ${nB}${nC} - ${nB}${nH} = ${ch.toFixed(2)}$</div>`,
+          `Tính tỉ số lượng giác và góc nhọn:<div class="sol-chain">$\\tan ${nB} = \\dfrac{${nA}${nC}}{${nA}${nB}} = \\dfrac{${p.ac}}{${p.ab}} \\Rightarrow \\widehat{${nB}} \\approx ${toDegMin(degB)},\\; \\widehat{${nC}} \\approx ${toDegMin(degC)}$</div>`
         ];
-        document.getElementById('hud-step-desc').innerHTML = `<strong>Bước ${eff}/4: ${steps[eff - 1]}</strong>`;
+        const essay = {
+          hypothesis: `$\\triangle ${nA}${nB}${nC}$ vuông tại $${nA}$, đường cao $${nA}${nH}$, biết $${nA}${nB}=${p.ab},\\; ${nA}${nC}=${p.ac}$.`,
+          method: `Dùng định lý Pytago tính $${nB}${nC}$, hệ thức lượng tính $${nA}${nH}, ${nB}${nH}, ${nC}${nH}$ và $\\tan$ tính góc nhọn.`,
+          steps,
+          summary: `$${nB}${nC}=${bcLen.toFixed(2)},\\; ${nA}${nH}=${ah.toFixed(2)},\\; ${nB}${nH}=${bh.toFixed(2)},\\; ${nC}${nH}=${ch.toFixed(2)},\\; \\widehat{${nB}}\\approx ${toDegMin(degB)}$.`,
+          tip: 'Luôn kiểm tra tổng $BH + CH = BC$ và $\\widehat{B} + \\widehat{C} = 90^\\circ$ để chắc chắn không sai số!'
+        };
+        document.getElementById('hud-step-desc').innerHTML = `<strong>Bước ${eff}/4: Giải $\\triangle ${nA}${nB}${nC}$ vuông tại $${nA}$</strong>`;
         renderAllMath(document.getElementById('hud-step-desc'));
-        renderSolutionsList('tab3-solutions', steps, eff);
+        renderStructuredSolution('tab3-solutions', essay, eff);
       }
     }
 
