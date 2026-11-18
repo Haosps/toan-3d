@@ -498,6 +498,33 @@
           </button>
         </section>
 
+        <section class="card">
+          <div class="card-title"><span>4. Chấm Điểm Phụ &amp; Nối Nét Nhanh</span></div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:6px;">
+            <button class="tool-btn active" id="gtl-move" onclick="geoSetTool('move')" style="padding:5px 4px; justify-content:center; font-size:11px;">🖐 Kéo</button>
+            <button class="tool-btn" id="gtl-point" onclick="geoSetTool('point')" style="padding:5px 4px; justify-content:center; font-size:11px;">📍 Điểm</button>
+            <button class="tool-btn" id="gtl-seg" onclick="geoSetTool('seg')" style="padding:5px 4px; justify-content:center; font-size:11px;">📏 Nối</button>
+            <button class="tool-btn" id="gtl-perp" onclick="geoSetTool('perp')" style="padding:5px 4px; justify-content:center; font-size:11px;">📐 Vuông</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
+            <span class="pen-dot selected" style="background:#1e3a8a;" onclick="geoSetColor('#1e3a8a', this)"></span>
+            <span class="pen-dot" style="background:#ea580c;" onclick="geoSetColor('#ea580c', this)"></span>
+            <span class="pen-dot" style="background:#16a34a;" onclick="geoSetColor('#16a34a', this)"></span>
+            <span class="pen-dot" style="background:#dc2626;" onclick="geoSetColor('#dc2626', this)"></span>
+            <span style="width:1px; height:14px; background:#cbd5e1;"></span>
+            <button class="step-btn active-tool" id="gd-solid" onclick="state.geo.dashed=false; updateGeoStyleBtns();">Liền</button>
+            <button class="step-btn" id="gd-dashed" onclick="state.geo.dashed=true; updateGeoStyleBtns();">Đứt</button>
+            <span style="width:1px; height:14px; background:#cbd5e1;"></span>
+            <button class="step-btn" onclick="geoUndoAux()" title="Hoàn tác nét vừa thêm">↩</button>
+            <button class="step-btn" onclick="geoClearAux()" style="color:#dc2626;" title="Xóa toàn bộ điểm phụ">🗑 Xóa phụ</button>
+          </div>
+          <div style="display:flex; gap:5px; margin-bottom:5px;">
+            <input type="text" id="geo-rename-val" class="aux-select" placeholder="Đổi tên điểm cuối (VD: K, D')..." maxlength="4" />
+            <button class="step-btn" onclick="geoRenameLastAux()">✏️ Đổi tên</button>
+          </div>
+          <div id="geo-extra-measures" style="font-size:11.5px; color:#475569;">Click đúp vào điểm phụ trên hình để đổi tên nhanh.</div>
+        </section>
+
         <section class="card" id="tab2-sol-card">
           <div class="card-title">
             <span>📖 Lời giải &amp; Tính chất tự động (KaTeX)</span>
@@ -644,7 +671,18 @@
         chordY: 0.36, // offset ratio for chord CD
         trapTopW: 0.22, // normalized top width
         dragHandle: null,
-        handles: []
+        handles: [],
+        // Chấm điểm phụ & nối nét nhanh
+        tool: 'move',
+        lineColor: '#1e3a8a',
+        dashed: false,
+        auxPts: [],
+        extraLines: [],
+        selRef: null,
+        auxHistory: [],
+        basePts: {},
+        baseSegs: [],
+        baseCircles: []
       },
       // Tab 3 AI Parser
       ai: { parsed: null },
@@ -1555,6 +1593,9 @@
       const names = GEO_PRESETS[g.preset] || GEO_PRESETS.ABC;
       const [nA, nB, nC, nD, nH, nM, nO] = names;
       g.handles = [];
+      g.basePts = {};
+      g.baseSegs = [];
+      g.baseCircles = [];
       let essay = { hypothesis: '', method: '', steps: [], summary: '', tip: '' };
       let hudTitle = '';
 
@@ -1579,6 +1620,8 @@
         drawDragHandle(ctx, A, nA, '#ea580c', -6, -14, isDark);
         drawPt(ctx, B, nB, edgeCol, -16, 16, isDark); drawPt(ctx, C, nC, edgeCol, 8, 16, isDark);
         g.handles.push({ key: 'rtA', x: A.x, y: A.y, cx, cy, R });
+        g.basePts = { [nA]: A, [nB]: B, [nC]: C };
+        g.baseSegs = [[nA, nB], [nB, nC], [nC, nA]];
         const ah = (ab * ac) / bc, bh = (ab * ab) / bc, ch = bc - bh;
         hudTitle = `Kéo đỉnh $${nA}$ (cam) trên nửa đường tròn đường kính $${nB}${nC}$`;
         essay = {
@@ -1621,6 +1664,8 @@
         drawDragHandle(ctx, B, nB, '#ea580c', -16, 16, isDark);
         drawDragHandle(ctx, C, nC, '#ea580c', 8, 16, isDark);
         g.handles.push({ key: 'tri0', x: A.x, y: A.y }, { key: 'tri1', x: B.x, y: B.y }, { key: 'tri2', x: C.x, y: C.y });
+        g.basePts = { [nA]: A, [nB]: B, [nC]: C };
+        g.baseSegs = [[nA, nB], [nB, nC], [nC, nA]];
         hudTitle = `Kéo thả tự do 3 đỉnh $${nA}, ${nB}, ${nC}$ để quan sát trực tâm $${nH}$`;
         essay = {
           hypothesis: `$\\triangle ${nA}${nB}${nC}$ có 3 đường cao đồng quy tại trực tâm $${nH}$.`,
@@ -1652,6 +1697,9 @@
         drawPt(ctx, O, nO, edgeCol, -16, 6, isDark); drawPt(ctx, A, nA, edgeCol, -4, -12, isDark); drawPt(ctx, B, nB, edgeCol, -4, 18, isDark);
         drawDragHandle(ctx, M, nM, '#ea580c', 10, 4, isDark);
         g.handles.push({ key: 'tanM', x: M.x, y: M.y });
+        g.basePts = { [nO]: O, [nA]: A, [nB]: B, [nM]: M };
+        g.baseSegs = [[nM, nA], [nM, nB], [nA, nB], [nO, nM]];
+        g.baseCircles = [{ center: nO, R }];
         hudTitle = `Kéo điểm $${nM}$ (cam) để thay đổi độ dài hai tiếp tuyến $${nM}${nA}, ${nM}${nB}$`;
         essay = {
           hypothesis: `Từ $${nM}$ ngoài $(${nO}; R)$ kẻ hai tiếp tuyến $${nM}${nA}, ${nM}${nB}$.`,
@@ -1679,6 +1727,9 @@
         drawPt(ctx, O, nO, '#2563eb', -16, 4, isDark); drawPt(ctx, A, nA, edgeCol, -16, 14, isDark); drawPt(ctx, B, nB, edgeCol, 8, 14, isDark);
         drawDragHandle(ctx, M, nM, '#ea580c', 8, -10, isDark);
         g.handles.push({ key: 'cirAngM', x: M.x, y: M.y, cx, cy, R });
+        g.basePts = { [nO]: O, [nA]: A, [nB]: B, [nM]: M };
+        g.baseSegs = [[nO, nA], [nO, nB], [nM, nA], [nM, nB]];
+        g.baseCircles = [{ center: nO, R }];
         hudTitle = `Kéo điểm $${nM}$ trên cung lớn để kiểm chứng $\\widehat{${nA}${nM}${nB}} = \\frac{1}{2}\\widehat{${nA}${nO}${nB}}$`;
         essay = {
           hypothesis: `Trên $(${nO}; R)$, xét góc ở tâm $\\widehat{${nA}${nO}${nB}}$ và góc nội tiếp $\\widehat{${nA}${nM}${nB}}$.`,
@@ -1708,6 +1759,9 @@
           drawDragHandle(ctx, p, names[i], '#ea580c', p.x < cx ? -16 : 8, p.y < cy ? -10 : 16, isDark);
           g.handles.push({ key: `quad${i}`, x: p.x, y: p.y, cx, cy, R });
         });
+        g.basePts = { [nO]: { x: cx, y: cy }, [nA]: A, [nB]: B, [nC]: C, [nD]: D };
+        g.baseSegs = [[nA, nB], [nB, nC], [nC, nD], [nD, nA]];
+        g.baseCircles = [{ center: nO, R }];
         hudTitle = `Kéo thả 4 đỉnh trên $(${nO})$ — Tổng hai góc đối luôn bằng $180^\\circ$`;
         essay = {
           hypothesis: `Tứ giác $${nA}${nB}${nC}${nD}$ nội tiếp đường tròn tâm $${nO}$.`,
@@ -1732,6 +1786,9 @@
         drawPt(ctx, C, nC, '#ea580c', -18, 4, isDark); drawPt(ctx, D, nD, '#ea580c', 8, 4, isDark);
         drawDragHandle(ctx, H, nH, '#dc2626', 8, -8, isDark);
         g.handles.push({ key: 'chordH', x: H.x, y: H.y, cx, cy, R });
+        g.basePts = { [nO]: O, [nA]: A, [nB]: B, [nC]: C, [nD]: D, [nH]: H };
+        g.baseSegs = [[nA, nB], [nC, nD]];
+        g.baseCircles = [{ center: nO, R }];
         const halfCd = (dx / 40).toFixed(2);
         hudTitle = `Kéo điểm $${nH}$ (cam) lên xuống dọc đường kính $${nA}${nB}$`;
         essay = {
@@ -1754,6 +1811,8 @@
         drawPt(ctx, A, nA, edgeCol, -16, -6, isDark); drawDragHandle(ctx, B, nB, '#ea580c', 8, -8, isDark);
         drawPt(ctx, C, nC, edgeCol, 8, 16, isDark); drawPt(ctx, D, nD, edgeCol, -16, 16, isDark);
         g.handles.push({ key: 'trapB', x: B.x, y: B.y, x0, botW });
+        g.basePts = { [nA]: A, [nB]: B, [nC]: C, [nD]: D };
+        g.baseSegs = [[nA, nB], [nB, nC], [nC, nD], [nD, nA]];
         const ab = (topW / 40).toFixed(2), cd = (botW / 40).toFixed(2), ad = ((yBot - yTop) / 40).toFixed(2);
         hudTitle = `Kéo đỉnh $${nB}$ (cam) để biến đổi giữa Hình thang vuông & Hình chữ nhật`;
         essay = {
@@ -1768,6 +1827,9 @@
         };
       }
 
+      // Update & draw auxiliary points + extra lines
+      resolveAndDrawGeoAux(ctx, w, h, isDark, onlyCanvas);
+
       document.getElementById('hud-step-desc').innerHTML = `<strong>${hudTitle}</strong>`;
       renderAllMath(document.getElementById('hud-step-desc'));
       if (!onlyCanvas && g.showGridAndSol) {
@@ -1775,13 +1837,263 @@
       }
     }
 
+    function geoSetTool(tool) {
+      state.geo.tool = tool;
+      state.geo.selRef = null;
+      ['move', 'point', 'seg', 'perp'].forEach(t => {
+        const b = document.getElementById(`gtl-${t}`);
+        if (b) b.classList.toggle('active', t === tool);
+      });
+      renderTab2Scene(true);
+    }
+
+    function geoSetColor(c, el) {
+      state.geo.lineColor = c;
+      document.querySelectorAll('#tab2-panel .pen-dot').forEach(d => d.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+    }
+
+    function updateGeoStyleBtns() {
+      document.getElementById('gd-solid').classList.toggle('active-tool', !state.geo.dashed);
+      document.getElementById('gd-dashed').classList.toggle('active-tool', state.geo.dashed);
+    }
+
+    function pushGeoAuxHistory() {
+      const g = state.geo;
+      g.auxHistory.push(JSON.stringify({ auxPts: g.auxPts, extraLines: g.extraLines }));
+      if (g.auxHistory.length > 20) g.auxHistory.shift();
+    }
+
+    function geoUndoAux() {
+      const g = state.geo;
+      if (g.auxHistory.length === 0) return;
+      const snap = JSON.parse(g.auxHistory.pop());
+      g.auxPts = snap.auxPts; g.extraLines = snap.extraLines; g.selRef = null;
+      renderTab2Scene(false);
+    }
+
+    function geoClearAux() {
+      pushGeoAuxHistory();
+      state.geo.auxPts = []; state.geo.extraLines = []; state.geo.selRef = null;
+      renderTab2Scene(false);
+    }
+
+    function geoRenameLastAux() {
+      const val = (document.getElementById('geo-rename-val').value || '').trim();
+      if (!val || state.geo.auxPts.length === 0) return;
+      pushGeoAuxHistory();
+      state.geo.auxPts[state.geo.auxPts.length - 1].name = val;
+      document.getElementById('geo-rename-val').value = '';
+      renderTab2Scene(false);
+    }
+
+    function nextAuxPointName() {
+      const pool = ['M', 'N', 'P', 'Q', 'E', 'F', 'I', 'K', 'R', 'S', 'T', 'U', 'V'];
+      const used = new Set([...Object.keys(state.geo.basePts), ...state.geo.auxPts.map(a => a.name)]);
+      return pool.find(c => !used.has(c)) || `P${state.geo.auxPts.length + 1}`;
+    }
+
+    function resolveGeoRef(ref, w, h) {
+      const g = state.geo;
+      if (!ref) return null;
+      if (ref.kind === 'base') return g.basePts[ref.key] || null;
+      const ap = g.auxPts.find(a => a.id === ref.id);
+      if (!ap) return null;
+      if (ap.mode === 'on_seg') {
+        const p1 = g.basePts[ap.segA], p2 = g.basePts[ap.segB];
+        if (p1 && p2) {
+          ap.x = p1.x + (p2.x - p1.x) * ap.t;
+          ap.y = p1.y + (p2.y - p1.y) * ap.t;
+        }
+      } else if (ap.mode === 'on_cir') {
+        const c = g.basePts[ap.cirCenter];
+        const cir = g.baseCircles.find(cc => cc.center === ap.cirCenter);
+        if (c && cir) {
+          ap.x = c.x + cir.R * Math.cos(ap.cirAng);
+          ap.y = c.y + cir.R * Math.sin(ap.cirAng);
+        }
+      } else if (ap.mode === 'foot') {
+        const pt = resolveGeoRef(ap.perpPt, w, h);
+        const a = g.basePts[ap.perpA], b = g.basePts[ap.perpB];
+        if (pt && a && b) {
+          const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1;
+          const t = ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / l2;
+          ap.x = a.x + t * dx; ap.y = a.y + t * dy;
+        }
+      } else if (ap.mode === 'free') {
+        ap.x = ap.nx * w; ap.y = ap.ny * h;
+      }
+      return { x: ap.x, y: ap.y, name: ap.name };
+    }
+
+    function resolveAndDrawGeoAux(ctx, w, h, isDark, onlyCanvas) {
+      const g = state.geo;
+      g.auxPts.forEach(ap => resolveGeoRef({ kind: 'aux', id: ap.id }, w, h));
+
+      const measLines = [];
+      g.extraLines.forEach(ln => {
+        const p1 = resolveGeoRef(ln.p1, w, h), p2 = resolveGeoRef(ln.p2, w, h);
+        if (!p1 || !p2) return;
+        drawSeg(ctx, p1, p2, ln.color || '#1e3a8a', 2.3, !!ln.dashed);
+        if (ln.type === 'perp' && ln.segA && ln.segB) {
+          const bPt = g.basePts[ln.segB];
+          if (bPt) drawRightAngle(ctx, p2, p1, bPt, 11, ln.color || '#dc2626');
+        }
+        const n1 = ln.p1.kind === 'base' ? ln.p1.key : (g.auxPts.find(a => a.id === ln.p1.id)?.name || '');
+        const n2 = ln.p2.kind === 'base' ? ln.p2.key : (g.auxPts.find(a => a.id === ln.p2.id)?.name || '');
+        const len = (Math.hypot(p2.x - p1.x, p2.y - p1.y) / 40).toFixed(2);
+        if (g.showMeas) drawTextLabel(ctx, len, (p1.x + p2.x) / 2 + 4, (p1.y + p2.y) / 2 - 5, ln.color || '#1e3a8a');
+        measLines.push(`$${n1}${n2} = ${len}$ đv`);
+      });
+
+      g.auxPts.forEach(ap => {
+        const isSel = g.selRef && g.selRef.kind === 'aux' && g.selRef.id === ap.id;
+        if (isSel) {
+          ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(ap.x, ap.y, 10, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        }
+        drawPt(ctx, ap, ap.name, ap.color || '#dc2626', 8, -8, isDark, 5);
+      });
+
+      if (g.selRef && g.selRef.kind === 'base' && g.basePts[g.selRef.key]) {
+        const bp = g.basePts[g.selRef.key];
+        ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.arc(bp.x, bp.y, 11, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      }
+
+      if (!onlyCanvas) {
+        const mBox = document.getElementById('geo-extra-measures');
+        if (mBox) {
+          mBox.innerHTML = measLines.length
+            ? `<strong>Độ dài nét nối:</strong> ${measLines.join(' | ')}`
+            : 'Click đúp vào điểm phụ trên hình để đổi tên nhanh.';
+          renderAllMath(mBox);
+        }
+      }
+    }
+
+    function findGeoPointHit(x, y) {
+      const g = state.geo;
+      for (const ap of g.auxPts) {
+        if (Math.hypot(ap.x - x, ap.y - y) < 16) return { kind: 'aux', id: ap.id, pt: ap };
+      }
+      for (const [key, pt] of Object.entries(g.basePts)) {
+        if (Math.hypot(pt.x - x, pt.y - y) < 18) return { kind: 'base', key, pt };
+      }
+      return null;
+    }
+
+    function findNearestSeg(x, y) {
+      const g = state.geo;
+      let best = null, bestD = 16;
+      g.baseSegs.forEach(([kA, kB]) => {
+        const A = g.basePts[kA], B = g.basePts[kB];
+        if (!A || !B) return;
+        const dx = B.x - A.x, dy = B.y - A.y, l2 = dx * dx + dy * dy || 1;
+        const t = Math.max(0.03, Math.min(0.97, ((x - A.x) * dx + (y - A.y) * dy) / l2));
+        const px = A.x + t * dx, py = A.y + t * dy;
+        const d = Math.hypot(x - px, y - py);
+        if (d < bestD) { bestD = d; best = { segA: kA, segB: kB, t, px, py }; }
+      });
+      return best;
+    }
+
+    function findNearestCircle(x, y) {
+      const g = state.geo;
+      let best = null, bestD = 16;
+      g.baseCircles.forEach(cir => {
+        const c = g.basePts[cir.center];
+        if (!c) return;
+        const dist = Math.hypot(x - c.x, y - c.y);
+        const d = Math.abs(dist - cir.R);
+        if (d < bestD) { bestD = d; best = { cirCenter: cir.center, cirAng: Math.atan2(y - c.y, x - c.x) }; }
+      });
+      return best;
+    }
+
     mainCanvas.addEventListener('pointerdown', e => {
       if (state.mainTab !== 2 || state.pen.active) return;
       const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-      const hit = state.geo.handles.find(h => Math.hypot(h.x - x, h.y - y) < 22);
-      if (hit) {
-        state.geo.dragHandle = hit;
-        mainCanvas.setPointerCapture(e.pointerId);
+      const g = state.geo;
+
+      if (g.tool === 'move') {
+        const auxHit = g.auxPts.find(ap => ap.mode !== 'foot' && Math.hypot(ap.x - x, ap.y - y) < 18);
+        if (auxHit) {
+          g.dragHandle = { key: 'aux', id: auxHit.id };
+          mainCanvas.setPointerCapture(e.pointerId);
+          return;
+        }
+        const hit = g.handles.find(h => Math.hypot(h.x - x, h.y - y) < 22);
+        if (hit) {
+          g.dragHandle = hit;
+          mainCanvas.setPointerCapture(e.pointerId);
+        }
+        return;
+      }
+
+      if (g.tool === 'point') {
+        pushGeoAuxHistory();
+        const segSnap = findNearestSeg(x, y);
+        const cirSnap = !segSnap ? findNearestCircle(x, y) : null;
+        const name = nextAuxPointName();
+        const id = 'aux_' + Date.now();
+        if (segSnap) {
+          g.auxPts.push({ id, name, mode: 'on_seg', segA: segSnap.segA, segB: segSnap.segB, t: segSnap.t, x: segSnap.px, y: segSnap.py, color: '#16a34a' });
+        } else if (cirSnap) {
+          g.auxPts.push({ id, name, mode: 'on_cir', cirCenter: cirSnap.cirCenter, cirAng: cirSnap.cirAng, x, y, color: '#0284c7' });
+        } else {
+          g.auxPts.push({ id, name, mode: 'free', nx: x / r.width, ny: y / r.height, x, y, color: g.lineColor });
+        }
+        renderTab2Scene(false);
+        return;
+      }
+
+      if (g.tool === 'seg') {
+        const hit = findGeoPointHit(x, y);
+        if (!hit) return;
+        const ref = hit.kind === 'base' ? { kind: 'base', key: hit.key } : { kind: 'aux', id: hit.id };
+        if (!g.selRef) { g.selRef = ref; renderTab2Scene(true); }
+        else {
+          if (JSON.stringify(g.selRef) !== JSON.stringify(ref)) {
+            pushGeoAuxHistory();
+            g.extraLines.push({ type: 'seg', p1: g.selRef, p2: ref, color: g.lineColor, dashed: g.dashed });
+          }
+          g.selRef = null;
+          renderTab2Scene(false);
+        }
+        return;
+      }
+
+      if (g.tool === 'perp') {
+        if (!g.selRef) {
+          const hit = findGeoPointHit(x, y);
+          if (hit) { g.selRef = hit.kind === 'base' ? { kind: 'base', key: hit.key } : { kind: 'aux', id: hit.id }; renderTab2Scene(true); }
+        } else {
+          const segSnap = findNearestSeg(x, y);
+          if (segSnap) {
+            pushGeoAuxHistory();
+            const footId = 'aux_' + Date.now();
+            const name = nextAuxPointName();
+            g.auxPts.push({ id: footId, name, mode: 'foot', perpPt: g.selRef, perpA: segSnap.segA, perpB: segSnap.segB, x: segSnap.px, y: segSnap.py, color: '#dc2626' });
+            g.extraLines.push({ type: 'perp', p1: g.selRef, p2: { kind: 'aux', id: footId }, segA: segSnap.segA, segB: segSnap.segB, color: g.lineColor, dashed: g.dashed });
+            g.selRef = null;
+            renderTab2Scene(false);
+          }
+        }
+      }
+    });
+
+    mainCanvas.addEventListener('dblclick', e => {
+      if (state.mainTab !== 2 || state.pen.active) return;
+      const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const ap = state.geo.auxPts.find(a => Math.hypot(a.x - x, a.y - y) < 18);
+      if (ap) {
+        const newName = prompt('Nhập tên mới cho điểm phụ:', ap.name);
+        if (newName && newName.trim()) {
+          pushGeoAuxHistory();
+          ap.name = newName.trim().slice(0, 4);
+          renderTab2Scene(false);
+        }
       }
     });
 
@@ -1789,7 +2101,24 @@
       if (state.mainTab !== 2 || state.pen.active || !state.geo.dragHandle) return;
       const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
       const hObj = state.geo.dragHandle, g = state.geo;
-      if (hObj.key === 'rtA') {
+      if (hObj.key === 'aux') {
+        const ap = g.auxPts.find(a => a.id === hObj.id);
+        if (ap) {
+          if (ap.mode === 'on_seg') {
+            const A = g.basePts[ap.segA], B = g.basePts[ap.segB];
+            if (A && B) {
+              const dx = B.x - A.x, dy = B.y - A.y, l2 = dx * dx + dy * dy || 1;
+              ap.t = Math.max(0.03, Math.min(0.97, ((x - A.x) * dx + (y - A.y) * dy) / l2));
+            }
+          } else if (ap.mode === 'on_cir') {
+            const c = g.basePts[ap.cirCenter];
+            if (c) ap.cirAng = Math.atan2(y - c.y, x - c.x);
+          } else if (ap.mode === 'free') {
+            ap.nx = Math.max(0.05, Math.min(0.95, x / r.width));
+            ap.ny = Math.max(0.05, Math.min(0.95, y / r.height));
+          }
+        }
+      } else if (hObj.key === 'rtA') {
         let ang = Math.atan2(hObj.cy - y, hObj.cx - x);
         g.rtAngle = Math.max(0.24, Math.min(Math.PI - 0.24, ang));
       } else if (hObj.key.startsWith('tri')) {
