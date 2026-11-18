@@ -363,7 +363,7 @@
 
     <div class="main-tabs" role="tablist">
       <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho 24 Mô Hình Toán 9</button>
-      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">📐 Kho Hình Phẳng (8 Mẫu)</button>
+      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">📐 Kho Hình Phẳng (10 Mẫu)</button>
       <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">🤖 Trợ Lý Đọc Đề (AI Parser)</button>
     </div>
 
@@ -458,10 +458,12 @@
       <div id="tab2-panel" style="display:none; flex-direction:column; gap:8px;">
         <section class="card">
           <div class="card-title">
-            <span>1. Chọn nhanh 8 Khung hình chuẩn Toán 9</span>
-            <span style="font-size:11px; color:#ea580c; font-weight:700;">Kéo thả đỉnh cam</span>
+            <span>1. Chọn nhanh 10 Khung hình chuẩn</span>
+            <button class="step-btn" onclick="randomizeGeoShape()" style="background:#fff7ed; color:#c2410c; border-color:#fdba74;" title="Sinh hình mới cân đối ngẫu nhiên">🎲 Ngẫu nhiên</button>
           </div>
           <div class="tool-grid" id="geo-templates">
+            <button class="tool-btn" id="gt-tri_any" onclick="selectGeoTemplate('tri_any')">🔺 $\triangle$ Thường bất kỳ</button>
+            <button class="tool-btn" id="gt-quad_any" onclick="selectGeoTemplate('quad_any')">⬟ Tứ giác lồi bất kỳ</button>
             <button class="tool-btn active" id="gt-rt_tri" onclick="selectGeoTemplate('rt_tri')">📐 $\triangle$ Vuông &amp; Đường cao</button>
             <button class="tool-btn" id="gt-tri_orth" onclick="selectGeoTemplate('tri_orth')">🔺 $\triangle$ Thường &amp; Trực tâm</button>
             <button class="tool-btn" id="gt-cir_tan" onclick="selectGeoTemplate('cir_tan')">⭕ Đường tròn &amp; Tiếp tuyến</button>
@@ -665,6 +667,7 @@
         // Normalized / interactive parameters per template
         rtAngle: 1.05, // angle for apex A on semicircle (0.25 .. PI-0.25)
         triPts: [{ x: 0.44, y: 0.24 }, { x: 0.25, y: 0.68 }, { x: 0.75, y: 0.68 }], // A, B, C normalized
+        anyQuadPts: [{ x: 0.30, y: 0.28 }, { x: 0.64, y: 0.23 }, { x: 0.77, y: 0.67 }, { x: 0.24, y: 0.72 }], // A, B, C, D convex any
         tanM: { x: 0.76, y: 0.46 },
         cirAngM: -1.1, // angle on circle for M
         quadAngs: [-2.25, -0.75, 0.55, 2.20], // A, B, C, D on circle
@@ -1517,6 +1520,33 @@
       rebuildScene();
     }
 
+    function randomizeGeoShape() {
+      const g = state.geo;
+      if (g.template === 'quad_any') {
+        // Generate 4 well-spaced convex angles around center (0.5, 0.5)
+        const baseA = -2.4 + Math.random() * 0.4;
+        const deltas = [1.1 + Math.random() * 0.4, 1.3 + Math.random() * 0.5, 1.3 + Math.random() * 0.5];
+        const angs = [baseA, baseA + deltas[0], baseA + deltas[0] + deltas[1], baseA + deltas[0] + deltas[1] + deltas[2]];
+        g.anyQuadPts = angs.map(a => {
+          const rx = 0.21 + Math.random() * 0.11;
+          const ry = 0.20 + Math.random() * 0.10;
+          return { x: +(0.5 + rx * Math.cos(a)).toFixed(3), y: +(0.5 + ry * Math.sin(a)).toFixed(3) };
+        });
+      } else if (g.template === 'tri_any' || g.template === 'tri_orth') {
+        const ax = 0.28 + Math.random() * 0.44, ay = 0.18 + Math.random() * 0.14;
+        const bx = 0.18 + Math.random() * 0.14, by = 0.62 + Math.random() * 0.14;
+        const cx = 0.66 + Math.random() * 0.16, cy = 0.58 + Math.random() * 0.16;
+        g.triPts = [{ x: ax, y: ay }, { x: bx, y: by }, { x: cx, y: cy }];
+      } else if (g.template === 'rt_tri' || g.template === 'rt_bis_med') {
+        g.rtAngle = 0.45 + Math.random() * (Math.PI - 0.90);
+      } else {
+        selectGeoTemplate('tri_any');
+        randomizeGeoShape();
+        return;
+      }
+      rebuildScene();
+    }
+
     function setGeoPreset(key) {
       state.geo.preset = key;
       ['ABC', 'MNP', 'DEF', 'IKH'].forEach(k => {
@@ -1599,7 +1629,89 @@
       let essay = { hypothesis: '', method: '', steps: [], summary: '', tip: '' };
       let hudTitle = '';
 
-      if (g.template === 'rt_tri' || g.template === 'rt_bis_med') {
+      if (g.template === 'tri_any') {
+        const A = { x: g.triPts[0].x * w, y: g.triPts[0].y * h };
+        const B = { x: g.triPts[1].x * w, y: g.triPts[1].y * h };
+        const C = { x: g.triPts[2].x * w, y: g.triPts[2].y * h };
+        drawSeg(ctx, A, B, edgeCol, 2.6); drawSeg(ctx, B, C, edgeCol, 2.6); drawSeg(ctx, C, A, edgeCol, 2.6);
+        drawTriAuxElements(ctx, A, B, C, g, names, isDark);
+        const ab = Math.hypot(A.x - B.x, A.y - B.y) / 40, bc = Math.hypot(B.x - C.x, B.y - C.y) / 40, ca = Math.hypot(C.x - A.x, C.y - A.y) / 40;
+        const s = (ab + bc + ca) / 2, area = Math.sqrt(Math.max(0, s * (s - ab) * (s - bc) * (s - ca)));
+        const ang = (V, P1, P2) => {
+          const u1 = { x: P1.x - V.x, y: P1.y - V.y }, u2 = { x: P2.x - V.x, y: P2.y - V.y };
+          const c = (u1.x * u2.x + u1.y * u2.y) / ((Math.hypot(u1.x, u1.y) * Math.hypot(u2.x, u2.y)) || 1);
+          return Math.acos(Math.max(-1, Math.min(1, c))) * 180 / Math.PI;
+        };
+        const aA = ang(A, B, C), aB = ang(B, A, C), aC = 180 - aA - aB;
+        if (g.showMeas) {
+          drawTextLabel(ctx, ab.toFixed(2), (A.x + B.x) / 2 - 26, (A.y + B.y) / 2, edgeCol);
+          drawTextLabel(ctx, bc.toFixed(2), (B.x + C.x) / 2 - 12, (B.y + C.y) / 2 + 18, edgeCol);
+          drawTextLabel(ctx, ca.toFixed(2), (C.x + A.x) / 2 + 10, (C.y + A.y) / 2, edgeCol);
+          drawAngleArc(ctx, A, B, C, 24, '#f59e0b', `${aA.toFixed(0)}°`);
+          drawAngleArc(ctx, B, A, C, 24, '#0ea5e9', `${aB.toFixed(0)}°`);
+          drawAngleArc(ctx, C, B, A, 24, '#16a34a', `${aC.toFixed(0)}°`);
+        }
+        drawDragHandle(ctx, A, nA, '#ea580c', -6, -14, isDark);
+        drawDragHandle(ctx, B, nB, '#ea580c', -16, 16, isDark);
+        drawDragHandle(ctx, C, nC, '#ea580c', 8, 16, isDark);
+        g.handles.push({ key: 'tri0', x: A.x, y: A.y }, { key: 'tri1', x: B.x, y: B.y }, { key: 'tri2', x: C.x, y: C.y });
+        g.basePts = { [nA]: A, [nB]: B, [nC]: C };
+        g.baseSegs = [[nA, nB], [nB, nC], [nC, nA]];
+        hudTitle = `Tam giác thường bất kỳ $${nA}${nB}${nC}$ — Kéo thả 3 đỉnh tự do hoặc bấm Ngẫu nhiên`;
+        essay = {
+          hypothesis: `Tam giác thường $${nA}${nB}${nC}$ với 3 cạnh $${nB}${nC}=${bc.toFixed(2)},\\; ${nC}${nA}=${ca.toFixed(2)},\\; ${nA}${nB}=${ab.toFixed(2)}$.`,
+          method: 'Đo độ dài 3 cạnh, số đo 3 góc ($\\widehat{A}+\\widehat{B}+\\widehat{C}=180^\\circ$) và tính diện tích theo công thức Heron.',
+          steps: [
+            `Tổng 3 góc: $${aA.toFixed(1)}^\\circ + ${aB.toFixed(1)}^\\circ + ${aC.toFixed(1)}^\\circ = 180^\\circ$.`,
+            `Nửa chu vi $p = ${s.toFixed(2)}$, diện tích $S = \\sqrt{p(p-a)(p-b)(p-c)} \\approx ${area.toFixed(2)}$ đvdt.`
+          ],
+          summary: `Chu vi $P = ${(2 * s).toFixed(2)}$, Diện tích $S = ${area.toFixed(2)}$ đvdt.`,
+          tip: 'Dùng công cụ 📍 Chấm điểm ở mục 4 để đặt trung điểm hoặc điểm bất kỳ lên 3 cạnh!'
+        };
+      } else if (g.template === 'quad_any') {
+        const pts = g.anyQuadPts.map(p => ({ x: p.x * w, y: p.y * h }));
+        const [A, B, C, D] = pts;
+        drawSeg(ctx, A, B, edgeCol, 2.6); drawSeg(ctx, B, C, edgeCol, 2.6); drawSeg(ctx, C, D, edgeCol, 2.6); drawSeg(ctx, D, A, edgeCol, 2.6);
+        if (g.showAlt) {
+          drawSeg(ctx, A, C, mutedCol, 1.8, true); drawSeg(ctx, B, D, mutedCol, 1.8, true);
+          const den = (A.x - C.x) * (B.y - D.y) - (A.y - C.y) * (B.x - D.x);
+          if (Math.abs(den) > 1e-2) {
+            const t = ((A.x - B.x) * (B.y - D.y) - (A.y - B.y) * (B.x - D.x)) / den;
+            const O = { x: A.x + t * (C.x - A.x), y: A.y + t * (C.y - A.y) };
+            drawPt(ctx, O, nO, '#dc2626', 6, -6, isDark);
+            g.basePts[nO] = O;
+          }
+        }
+        const side = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y) / 40;
+        const lAB = side(A, B), lBC = side(B, C), lCD = side(C, D), lDA = side(D, A);
+        // Shoelace area
+        const areaPx = Math.abs((A.x*B.y - B.x*A.y) + (B.x*C.y - C.x*B.y) + (C.x*D.y - D.x*C.y) + (D.x*A.y - A.x*D.y)) / 2;
+        const area = areaPx / 1600;
+        if (g.showMeas) {
+          drawTextLabel(ctx, lAB.toFixed(2), (A.x + B.x) / 2, (A.y + B.y) / 2 - 8, edgeCol);
+          drawTextLabel(ctx, lBC.toFixed(2), (B.x + C.x) / 2 + 8, (B.y + C.y) / 2, edgeCol);
+          drawTextLabel(ctx, lCD.toFixed(2), (C.x + D.x) / 2, (C.y + D.y) / 2 + 18, edgeCol);
+          drawTextLabel(ctx, lDA.toFixed(2), (D.x + A.x) / 2 - 30, (D.y + A.y) / 2, edgeCol);
+        }
+        const qNames = [nA, nB, nC, nD];
+        pts.forEach((p, i) => {
+          drawDragHandle(ctx, p, qNames[i], '#ea580c', p.x < w * 0.5 ? -16 : 8, p.y < h * 0.5 ? -10 : 16, isDark);
+          g.handles.push({ key: `anyQuad${i}`, x: p.x, y: p.y });
+          g.basePts[qNames[i]] = p;
+        });
+        g.baseSegs = [[nA, nB], [nB, nC], [nC, nD], [nD, nA], [nA, nC], [nB, nD]];
+        hudTitle = `Tứ giác lồi bất kỳ $${nA}${nB}${nC}${nD}$ — Kéo thả 4 đỉnh tự do`;
+        essay = {
+          hypothesis: `Tứ giác lồi bất kỳ $${nA}${nB}${nC}${nD}$ (4 cạnh không bằng nhau, không nội tiếp).`,
+          method: 'Tính tổng 4 góc trong bằng $360^\\circ$, độ dài 4 cạnh và diện tích theo công thức chia đôi tam giác.',
+          steps: [
+            `4 cạnh: $${nA}${nB}=${lAB.toFixed(2)},\\; ${nB}${nC}=${lBC.toFixed(2)},\\; ${nC}${nD}=${lCD.toFixed(2)},\\; ${nD}${nA}=${lDA.toFixed(2)}$.`,
+            `Tổng 4 góc trong: $\\widehat{${nA}} + \\widehat{${nB}} + \\widehat{${nC}} + \\widehat{${nD}} = 360^\\circ$.`
+          ],
+          summary: `Chu vi $P = ${(lAB + lBC + lCD + lDA).toFixed(2)}$, Diện tích $S \\approx ${area.toFixed(2)}$ đvdt.`,
+          tip: 'Chấm thêm trung điểm 4 cạnh để kiểm chứng định lý Varignon: 4 trung điểm luôn tạo thành hình bình hành!'
+        };
+      } else if (g.template === 'rt_tri' || g.template === 'rt_bis_med') {
         const cx = w * 0.5, cy = h * 0.66, R = Math.min(w * 0.30, h * 0.34, 240);
         const B = { x: cx - R, y: cy }, C = { x: cx + R, y: cy };
         const A = { x: cx - R * Math.cos(g.rtAngle), y: cy - R * Math.sin(g.rtAngle) };
@@ -2121,6 +2233,9 @@
       } else if (hObj.key === 'rtA') {
         let ang = Math.atan2(hObj.cy - y, hObj.cx - x);
         g.rtAngle = Math.max(0.24, Math.min(Math.PI - 0.24, ang));
+      } else if (hObj.key.startsWith('anyQuad')) {
+        const idx = +hObj.key.slice(7);
+        g.anyQuadPts[idx] = { x: Math.max(0.08, Math.min(0.92, x / r.width)), y: Math.max(0.10, Math.min(0.88, y / r.height)) };
       } else if (hObj.key.startsWith('tri')) {
         const idx = +hObj.key.slice(3);
         g.triPts[idx] = { x: Math.max(0.1, Math.min(0.9, x / r.width)), y: Math.max(0.12, Math.min(0.86, y / r.height)) };
