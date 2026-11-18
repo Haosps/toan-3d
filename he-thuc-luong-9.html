@@ -639,7 +639,7 @@
 
     function renderAllMath(target = document.body) {
       if (!target) return;
-      if (!window.renderMathInElement) {
+      if (typeof renderMathInElement !== 'function') {
         setTimeout(() => renderAllMath(target), 150);
         return;
       }
@@ -658,9 +658,10 @@
     }
 
     function resizeCanvas() {
-      const rect = stageEl.getBoundingClientRect();
-      const w = rect.width > 0 ? rect.width : Math.max(320, window.innerWidth - 360);
-      const h = rect.height > 0 ? rect.height : Math.max(400, window.innerHeight - 50);
+      const cw = stageEl ? stageEl.clientWidth : 0;
+      const ch = stageEl ? stageEl.clientHeight : 0;
+      const w = cw > 0 ? cw : 900;
+      const h = ch > 0 ? ch : 600;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       mainCanvas.width = Math.round(w * dpr);
       mainCanvas.height = Math.round(h * dpr);
@@ -670,9 +671,10 @@
     }
 
     function setupCanvas2D() {
-      const rect = stageEl.getBoundingClientRect();
-      const w = rect.width > 0 ? rect.width : Math.max(320, window.innerWidth - 360);
-      const h = rect.height > 0 ? rect.height : Math.max(400, window.innerHeight - 50);
+      const cw = stageEl ? stageEl.clientWidth : 0;
+      const ch = stageEl ? stageEl.clientHeight : 0;
+      const w = cw > 0 ? cw : 900;
+      const h = ch > 0 ? ch : 600;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const tw = Math.round(w * dpr), th = Math.round(h * dpr);
       if (mainCanvas.width !== tw || mainCanvas.height !== th) {
@@ -1170,7 +1172,16 @@
           stepDesc = [`Bước 1/4: Thân cây còn lại $AB = ${hRemain}\\text{ m}$.`, `Bước 2/4: Ngọn cây gãy chạm đất cách gốc $BC = ${baseDist.toFixed(1)}\\text{ m}$.`, `Bước 3/4: Pytago $\\Rightarrow AC = \\sqrt{${hRemain}^2 + BC^2} = ${lenBroken}\\text{ m}$.`, `Bước 4/4: Chiều cao ban đầu $H = AB + AC = ${totalH}\\text{ m}$.`];
           solSteps = [`$AC = \\sqrt{AB^2 + BC^2} = ${lenBroken}\\text{ m}$.`, `Chiều cao cây ban đầu: $H = AB + AC = ${hRemain} + ${lenBroken} = ${totalH}\\text{ m}$.`];
         }
-      } catch (e) { console.error('Tab1 draw error:', e); }
+      } catch (e) {
+        console.error('Tab1 draw error:', e);
+        // Fallback: draw Bài 1.1 (Tam giác vuông ABC đường cao AH)
+        const { A, B, C, H } = computeRightTriLayout(w, h, 6, 8);
+        drawSeg(ctx, A, B, '#ea580c', 3); drawSeg(ctx, A, C, edgeCol, 2.5); drawSeg(ctx, B, C, '#2563eb', 2.8);
+        drawSeg(ctx, A, H, '#dc2626', 2.2, true);
+        drawRightAngle(ctx, A, B, C); drawRightAngle(ctx, H, A, C, 12, '#dc2626');
+        drawPt(ctx, A, 'A', edgeCol, -6, -12, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark);
+        drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark); drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark);
+      }
 
       if (!onlyCanvas && stepDesc.length > 0) {
         const curIdx = Math.min(eff, stepDesc.length) - 1;
@@ -1856,22 +1867,26 @@
       requestAnimationFrame(animateLoop);
     }
 
-    window.addEventListener('resize', resizeStage);
+    window.onresize = resizeStage;
     let _appInitialized = false;
     function initApp() {
       if (_appInitialized) return;
       _appInitialized = true;
-      document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => {
-        acc.addEventListener('toggle', () => {
-          if (acc.open) document.querySelectorAll('#tab1-panel .acc-group').forEach(o => { if (o !== acc) o.open = false; });
+      try {
+        document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => {
+          acc.addEventListener('toggle', () => {
+            if (acc.open) document.querySelectorAll('#tab1-panel .acc-group').forEach(o => { if (o !== acc) o.open = false; });
+          });
         });
-      });
-      resizeCanvas();
-      selectModel('a1');
-      renderAllMath(document.body);
-      requestAnimationFrame(animateLoop);
+        resizeCanvas();
+        selectModel('a1');
+        renderAllMath(document.body);
+        requestAnimationFrame(animateLoop);
+      } catch (err) {
+        console.error('Init error:', err);
+      }
     }
-    window.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('DOMContentLoaded', initApp);
     window.addEventListener('load', () => { initApp(); renderAllMath(document.body); });
   </script>
 </body>
