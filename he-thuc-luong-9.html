@@ -155,10 +155,24 @@
 
     #mainCanvas, #drawOverlay {
       position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+      touch-action: none;
     }
     #mainCanvas { z-index: 2; }
     #drawOverlay { z-index: 5; pointer-events: none; }
     #drawOverlay.drawing-active { pointer-events: auto; cursor: crosshair; }
+    .export-png-popover {
+      display: none; position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
+      background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 10px;
+      padding: 6px; box-shadow: 0 12px 28px rgba(15,23,42,0.2); z-index: 30;
+      flex-direction: column; gap: 4px; min-width: 230px; pointer-events: auto;
+    }
+    .export-png-popover.open { display: flex; }
+    .export-png-opt {
+      border: 1px solid #e2e8f0; background: #f8fafc; color: #0f172a; border-radius: 7px;
+      padding: 6px 10px; font-size: 11.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; text-align: left; display: flex; align-items: center; gap: 6px;
+    }
+    .export-png-opt:hover { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
 
     /* Cards & Accordions */
     .card {
@@ -687,16 +701,20 @@
           <button class="hud-btn" id="btn-focus-mode" onclick="toggleFocusMode()">◀ Thu gọn bảng bên</button>
           <div class="hud-info" id="hud-step-desc"></div>
         </div>
-        <div id="pen-palette" style="display:none; align-items:center; gap:6px; flex-wrap:wrap; background:rgba(255,255,255,0.96); color:#0f172a; padding:6px 10px; border-radius:11px; border:1px solid #cbd5e1; box-shadow:0 6px 20px rgba(15,23,42,0.16); pointer-events:auto;">
+        <div id="pen-palette" style="display:none; align-items:center; gap:5px; flex-wrap:wrap; background:rgba(255,255,255,0.96); color:#0f172a; padding:6px 10px; border-radius:11px; border:1px solid #cbd5e1; box-shadow:0 6px 20px rgba(15,23,42,0.16); pointer-events:auto;">
           <span class="pen-dot selected" style="background:#ef4444;" onclick="setPenColor('#ef4444', this)"></span>
           <span class="pen-dot" style="background:#f59e0b;" onclick="setPenColor('#f59e0b', this)"></span>
           <span class="pen-dot" style="background:#2563eb;" onclick="setPenColor('#2563eb', this)"></span>
           <span class="pen-dot" id="pen-dot-contrast" style="background:#0f172a;" onclick="setPenColor('contrast', this)"></span>
           <span style="width:1px; height:18px; background:#cbd5e1;"></span>
           <button class="step-btn active-tool" id="pt-free" onclick="setPenTool('free')">✏️ Tự do</button>
+          <button class="step-btn" id="pt-highlight" onclick="setPenTool('highlight')">🖍️ Dạ quang</button>
           <button class="step-btn" id="pt-line" onclick="setPenTool('line')">📏 Thẳng</button>
+          <button class="step-btn" id="pt-arrow" onclick="setPenTool('arrow')">↗️ Mũi tên</button>
           <button class="step-btn" id="pt-circle" onclick="setPenTool('circle')">⭕ Khoanh</button>
+          <button class="step-btn" id="pt-text" onclick="setPenTool('text')">🔤 Nhãn chữ</button>
           <button class="step-btn" id="pt-rightAngle" onclick="setPenTool('rightAngle')">📐 Góc vuông</button>
+          <button class="step-btn" id="pt-angleArc" onclick="setPenTool('angleArc')">〰️ Cung bằng</button>
           <button class="step-btn" id="pt-eraser" onclick="setPenTool('eraser')">🧽 Tẩy</button>
           <span style="width:1px; height:18px; background:#cbd5e1;"></span>
           <button class="step-btn active-tool" id="pw-2" onclick="setPenWidth(2)">2px</button>
@@ -724,10 +742,16 @@
       </div>
 
       <!-- Floating Bottom Dock -->
-      <div class="floating-dock">
+      <div class="floating-dock" style="position:absolute;">
+        <div class="export-png-popover" id="export-png-popover">
+          <button class="export-png-opt" onclick="doExportExamPNG('white')">📄 Nền trắng tinh khôi (2x HD • Word/LaTeX)</button>
+          <button class="export-png-opt" onclick="doExportExamPNG('transparent')">💎 Nền trong suốt (2x HD • Slide)</button>
+        </div>
+        <button class="dock-btn" id="btn-reset-view" onclick="resetCanvasView()" title="Đưa hình vẽ về đúng tỉ lệ chuẩn (100%)">🎯 Căn giữa</button>
+        <span class="dock-sep"></span>
         <button class="dock-btn" id="btn-pen" onclick="togglePenMode()">✏️ Bút vẽ (B)</button>
         <span class="dock-sep"></span>
-        <button class="dock-btn" onclick="exportExamPNG()">📷 Xuất PNG</button>
+        <button class="dock-btn" onclick="toggleExportPNGMenu()">📷 Xuất PNG ▾</button>
         <span class="dock-sep"></span>
         <button class="dock-btn active-dock" id="btn-sol-drawer" onclick="toggleRightSolDrawer()">📖 Lời giải</button>
       </div>
@@ -810,8 +834,12 @@
         auxHistory: [],
         basePts: {},
         baseSegs: [],
-        baseCircles: []
+        baseCircles: [],
+        hoverPt: null,
+        alignGuides: []
       },
+      view: { scale: 1, ox: 0, oy: 0, panning: false, spaceDown: false, panStartX: 0, panStartY: 0, panBaseOx: 0, panBaseOy: 0 },
+      exportingMode: null,
       // Tab 3 AI Parser
       ai: { parsed: null },
       // Pen Overlay
@@ -851,12 +879,38 @@
       const ch = stageEl ? stageEl.clientHeight : 0;
       const w = cw > 0 ? cw : 900;
       const h = ch > 0 ? ch : 600;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
       mainCanvas.width = Math.round(w * dpr);
       mainCanvas.height = Math.round(h * dpr);
-      drawOverlay.width = Math.round(w);
-      drawOverlay.height = Math.round(h);
+      drawOverlay.width = Math.round(w * dpr);
+      drawOverlay.height = Math.round(h * dpr);
+      const dCtx = drawOverlay.getContext('2d');
+      if (dCtx) {
+        dCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        dCtx.imageSmoothingEnabled = true;
+        dCtx.imageSmoothingQuality = 'high';
+      }
       return { w, h, dpr };
+    }
+
+    function screenToWorld(sx, sy) {
+      return { x: (sx - state.view.ox) / state.view.scale, y: (sy - state.view.oy) / state.view.scale };
+    }
+
+    function resetCanvasView() {
+      state.view.scale = 1;
+      state.view.ox = 0;
+      state.view.oy = 0;
+      const btn = document.getElementById('btn-reset-view');
+      if (btn) btn.textContent = '🎯 Căn giữa';
+      rebuildScene();
+    }
+
+    function updateZoomBadge() {
+      const btn = document.getElementById('btn-reset-view');
+      if (!btn) return;
+      const pct = Math.round(state.view.scale * 100);
+      btn.textContent = (pct === 100 && Math.abs(state.view.ox) < 2 && Math.abs(state.view.oy) < 2) ? '🎯 Căn giữa' : `🎯 ${pct}%`;
     }
 
     function setupCanvas2D() {
@@ -864,7 +918,7 @@
       const ch = stageEl ? stageEl.clientHeight : 0;
       const w = cw > 0 ? cw : 900;
       const h = ch > 0 ? ch : 600;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = state.exportingMode ? 2 : Math.min(window.devicePixelRatio || 1, 2.5);
       const tw = Math.round(w * dpr), th = Math.round(h * dpr);
       if (mainCanvas.width !== tw || mainCanvas.height !== th) {
         mainCanvas.width = tw;
@@ -872,9 +926,22 @@
       }
       const ctx = mainCanvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = state.lightTheme ? '#ffffff' : '#0b1120';
-      ctx.fillRect(0, 0, w, h);
-      return { ctx, w, h, isDark: !state.lightTheme };
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      if (state.exportingMode === 'transparent') {
+        ctx.clearRect(0, 0, w, h);
+      } else if (state.exportingMode === 'white') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+      } else {
+        ctx.fillStyle = state.lightTheme ? '#ffffff' : '#0b1120';
+        ctx.fillRect(0, 0, w, h);
+      }
+      if (!state.exportingMode) {
+        ctx.translate(state.view.ox, state.view.oy);
+        ctx.scale(state.view.scale, state.view.scale);
+      }
+      return { ctx, w, h, isDark: state.exportingMode ? false : !state.lightTheme };
     }
 
     function drawPt(ctx, p, label, color, ox = 8, oy = -8, isDark = false, r = 4.5) {
@@ -1160,6 +1227,7 @@
     }
 
     function drawBackdrop(ctx, w, h, kind, t, isDark) {
+      if (state.exportingMode) return;
       ctx.save();
       if (kind === 'sky') {
         const g = ctx.createLinearGradient(0, 0, 0, h * 0.74);
@@ -2199,6 +2267,55 @@
         ctx.beginPath(); ctx.arc(bp.x, bp.y, 11, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
       }
 
+      // Smart Alignment Guides (when dragging points)
+      if (g.alignGuides && g.alignGuides.length > 0 && !state.exportingMode) {
+        ctx.save();
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 1.3;
+        ctx.setLineDash([5, 4]);
+        g.alignGuides.forEach(gd => {
+          ctx.beginPath();
+          ctx.moveTo(gd.x1, gd.y1);
+          ctx.lineTo(gd.x2, gd.y2);
+          ctx.stroke();
+          if (gd.label) {
+            ctx.fillStyle = '#0284c7';
+            ctx.font = '700 11px "Be Vietnam Pro", sans-serif';
+            ctx.fillText(gd.label, (gd.x1 + gd.x2) / 2 + 6, (gd.y1 + gd.y2) / 2 - 6);
+          }
+        });
+        ctx.restore();
+      }
+
+      // Hover Halo + Coordinate / Angle Tooltip
+      if (g.hoverPt && !state.exportingMode) {
+        const hp = g.hoverPt;
+        ctx.save();
+        ctx.fillStyle = 'rgba(37, 99, 235, 0.16)';
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(hp.x, hp.y, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        const tip = hp.tip || `${hp.label || 'Điểm'} (${Math.round(hp.x)}, ${Math.round(hp.y)})`;
+        ctx.font = '600 11px "JetBrains Mono", "Be Vietnam Pro", monospace';
+        const tw = ctx.measureText(tip).width + 12;
+        const tx = Math.min(w - tw - 6, Math.max(6, hp.x + 14));
+        const ty = Math.max(24, hp.y - 16);
+        ctx.fillStyle = isDark ? 'rgba(15,23,42,0.92)' : 'rgba(255,255,255,0.95)';
+        ctx.strokeStyle = '#93c5fd';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(tx, ty - 15, tw, 20, 5);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = isDark ? '#f8fafc' : '#1e3a8a';
+        ctx.fillText(tip, tx + 6, ty - 1);
+        ctx.restore();
+      }
+
       if (!onlyCanvas) {
         const mBox = document.getElementById('geo-extra-measures');
         if (mBox) {
@@ -2249,19 +2366,105 @@
       return best;
     }
 
+    // Wheel Zoom to Cursor (works on all tabs)
+    stageEl.addEventListener('wheel', e => {
+      if (state.pen.active) return;
+      e.preventDefault();
+      const r = mainCanvas.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
+      const oldScale = state.view.scale;
+      const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      const newScale = Math.max(0.45, Math.min(4.0, oldScale * factor));
+      state.view.ox = mx - (mx - state.view.ox) * (newScale / oldScale);
+      state.view.oy = my - (my - state.view.oy) * (newScale / oldScale);
+      state.view.scale = newScale;
+      updateZoomBadge();
+      rebuildScene();
+    }, { passive: false });
+
+    mainCanvas.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Multi-touch pinch-zoom & 2-finger pan tracking
+    const _stagePointers = new Map();
+    let _lastPinchDist = null;
+    let _lastPinchMid = null;
+
+    function computeSmartAlign(x, y, excludeKey, w, h) {
+      const g = state.geo;
+      const guides = [];
+      let sx = x, sy = y;
+      const others = [];
+      Object.entries(g.basePts).forEach(([k, pt]) => { if (k !== excludeKey && pt) others.push({ key: k, x: pt.x, y: pt.y }); });
+      g.auxPts.forEach(ap => { if (ap.id !== excludeKey) others.push({ key: ap.name, x: ap.x, y: ap.y }); });
+
+      for (const o of others) {
+        if (Math.abs(y - o.y) < 6) {
+          sy = o.y;
+          guides.push({ type: 'h', x1: 0, y1: o.y, x2: w, y2: o.y, label: `Ngạng ${o.key}` });
+          break;
+        }
+      }
+      for (const o of others) {
+        if (Math.abs(x - o.x) < 6) {
+          sx = o.x;
+          guides.push({ type: 'v', x1: o.x, y1: 0, x2: o.x, y2: h, label: `Thẳng ${o.key}` });
+          break;
+        }
+      }
+      if (others.length >= 2) {
+        for (let i = 0; i < others.length; i++) {
+          for (let j = i + 1; j < others.length; j++) {
+            const A = others[i], B = others[j];
+            const ux = sx - A.x, uy = sy - A.y, vx = B.x - A.x, vy = B.y - A.y;
+            const lu = Math.hypot(ux, uy), lv = Math.hypot(vx, vy);
+            if (lu > 20 && lv > 20 && Math.abs(ux * vx + uy * vy) / (lu * lv) < 0.035) {
+              guides.push({ type: 'perp', x1: A.x, y1: A.y, x2: sx, y2: sy, label: '90°' });
+              break;
+            }
+          }
+          if (guides.some(gd => gd.type === 'perp')) break;
+        }
+      }
+      g.alignGuides = guides;
+      return { x: sx, y: sy };
+    }
+
     mainCanvas.addEventListener('pointerdown', e => {
-      if (state.mainTab !== 2 || state.pen.active) return;
-      const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      if (state.pen.active) return;
+      _stagePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (_stagePointers.size === 2) {
+        const pts = [..._stagePointers.values()];
+        _lastPinchDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+        _lastPinchMid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+        state.geo.dragHandle = null;
+        return;
+      }
+
+      // Panning via Space+Drag, Right-click, or Middle-click on any tab
+      if (state.view.spaceDown || e.button === 2 || e.button === 1) {
+        state.view.panning = true;
+        state.view.panStartX = e.clientX;
+        state.view.panStartY = e.clientY;
+        state.view.panBaseOx = state.view.ox;
+        state.view.panBaseOy = state.view.oy;
+        mainCanvas.style.cursor = 'grabbing';
+        mainCanvas.setPointerCapture(e.pointerId);
+        return;
+      }
+
+      if (state.mainTab !== 2) return;
+      const r = mainCanvas.getBoundingClientRect();
+      const { x, y } = screenToWorld(e.clientX - r.left, e.clientY - r.top);
       const g = state.geo;
 
       if (g.tool === 'move') {
-        const auxHit = g.auxPts.find(ap => ap.mode !== 'foot' && Math.hypot(ap.x - x, ap.y - y) < 18);
+        const auxHit = g.auxPts.find(ap => ap.mode !== 'foot' && Math.hypot(ap.x - x, ap.y - y) < 18 / state.view.scale);
         if (auxHit) {
           g.dragHandle = { key: 'aux', id: auxHit.id };
           mainCanvas.setPointerCapture(e.pointerId);
           return;
         }
-        const hit = g.handles.find(h => Math.hypot(h.x - x, h.y - y) < 22);
+        const hit = g.handles.find(h => Math.hypot(h.x - x, h.y - y) < 22 / state.view.scale);
         if (hit) {
           g.dragHandle = hit;
           mainCanvas.setPointerCapture(e.pointerId);
@@ -2323,8 +2526,9 @@
 
     mainCanvas.addEventListener('dblclick', e => {
       if (state.mainTab !== 2 || state.pen.active) return;
-      const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-      const ap = state.geo.auxPts.find(a => Math.hypot(a.x - x, a.y - y) < 18);
+      const r = mainCanvas.getBoundingClientRect();
+      const { x, y } = screenToWorld(e.clientX - r.left, e.clientY - r.top);
+      const ap = state.geo.auxPts.find(a => Math.hypot(a.x - x, a.y - y) < 18 / state.view.scale);
       if (ap) {
         const newName = prompt('Nhập tên mới cho điểm phụ:', ap.name);
         if (newName && newName.trim()) {
@@ -2336,56 +2540,143 @@
     });
 
     mainCanvas.addEventListener('pointermove', e => {
-      if (state.mainTab !== 2 || state.pen.active || !state.geo.dragHandle) return;
-      const r = mainCanvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-      const hObj = state.geo.dragHandle, g = state.geo;
+      if (state.pen.active) return;
+      if (_stagePointers.has(e.pointerId)) {
+        _stagePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      }
+      if (_stagePointers.size === 2) {
+        const pts = [..._stagePointers.values()];
+        const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+        const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+        if (_lastPinchDist && _lastPinchMid) {
+          const r = mainCanvas.getBoundingClientRect();
+          const mx = mid.x - r.left, my = mid.y - r.top;
+          const oldScale = state.view.scale;
+          const newScale = Math.max(0.45, Math.min(4.0, oldScale * (dist / _lastPinchDist)));
+          state.view.ox += mid.x - _lastPinchMid.x;
+          state.view.oy += mid.y - _lastPinchMid.y;
+          state.view.ox = mx - (mx - state.view.ox) * (newScale / oldScale);
+          state.view.oy = my - (my - state.view.oy) * (newScale / oldScale);
+          state.view.scale = newScale;
+          updateZoomBadge();
+          rebuildScene();
+        }
+        _lastPinchDist = dist;
+        _lastPinchMid = mid;
+        return;
+      }
+
+      if (state.view.panning) {
+        state.view.ox = state.view.panBaseOx + (e.clientX - state.view.panStartX);
+        state.view.oy = state.view.panBaseOy + (e.clientY - state.view.panStartY);
+        updateZoomBadge();
+        rebuildScene();
+        return;
+      }
+
+      if (state.mainTab !== 2) return;
+      const r = mainCanvas.getBoundingClientRect();
+      const { x: rawX, y: rawY } = screenToWorld(e.clientX - r.left, e.clientY - r.top);
+      const g = state.geo;
+
+      if (!g.dragHandle) {
+        const auxHover = g.auxPts.find(ap => Math.hypot(ap.x - rawX, ap.y - rawY) < 18 / state.view.scale);
+        const hHover = !auxHover ? g.handles.find(h => Math.hypot(h.x - rawX, h.y - rawY) < 20 / state.view.scale) : null;
+        let nextHover = null;
+        if (auxHover) nextHover = { x: auxHover.x, y: auxHover.y, label: auxHover.name };
+        else if (hHover) {
+          const baseEntry = Object.entries(g.basePts).find(([, pt]) => pt && Math.hypot(pt.x - hHover.x, pt.y - hHover.y) < 12);
+          const lbl = baseEntry ? baseEntry[0] : 'Đỉnh';
+          nextHover = { x: hHover.x, y: hHover.y, label: lbl };
+          if (hHover.key === 'rtA') {
+            nextHover.tip = `${lbl} • Góc ${(g.rtAngle * 180 / Math.PI).toFixed(0)}°`;
+          }
+        }
+        const changed = (!!nextHover !== !!g.hoverPt) || (nextHover && g.hoverPt && (nextHover.x !== g.hoverPt.x || nextHover.y !== g.hoverPt.y));
+        g.hoverPt = nextHover;
+        mainCanvas.style.cursor = state.view.spaceDown ? 'grab' : (nextHover ? 'grab' : 'default');
+        if (changed) renderTab2Scene(true);
+        return;
+      }
+
+      let x = rawX, y = rawY;
+      const hObj = g.dragHandle;
       if (hObj.key === 'aux') {
         const ap = g.auxPts.find(a => a.id === hObj.id);
         if (ap) {
           if (ap.mode === 'on_seg') {
+            g.alignGuides = [];
             const A = g.basePts[ap.segA], B = g.basePts[ap.segB];
             if (A && B) {
               const dx = B.x - A.x, dy = B.y - A.y, l2 = dx * dx + dy * dy || 1;
               ap.t = Math.max(0.03, Math.min(0.97, ((x - A.x) * dx + (y - A.y) * dy) / l2));
             }
           } else if (ap.mode === 'on_cir') {
+            g.alignGuides = [];
             const c = g.basePts[ap.cirCenter];
             if (c) ap.cirAng = Math.atan2(y - c.y, x - c.x);
           } else if (ap.mode === 'free') {
-            ap.nx = Math.max(0.05, Math.min(0.95, x / r.width));
-            ap.ny = Math.max(0.05, Math.min(0.95, y / r.height));
+            const aligned = computeSmartAlign(x, y, ap.id, r.width, r.height);
+            ap.nx = Math.max(0.05, Math.min(0.95, aligned.x / r.width));
+            ap.ny = Math.max(0.05, Math.min(0.95, aligned.y / r.height));
           }
         }
       } else if (hObj.key === 'rtA') {
+        g.alignGuides = [];
         let ang = Math.atan2(hObj.cy - y, hObj.cx - x);
         g.rtAngle = Math.max(0.24, Math.min(Math.PI - 0.24, ang));
       } else if (hObj.key.startsWith('anyQuad')) {
         const idx = +hObj.key.slice(7);
-        g.anyQuadPts[idx] = { x: Math.max(0.08, Math.min(0.92, x / r.width)), y: Math.max(0.10, Math.min(0.88, y / r.height)) };
+        const vKey = ['A', 'B', 'C', 'D'][idx];
+        const aligned = computeSmartAlign(x, y, vKey, r.width, r.height);
+        g.anyQuadPts[idx] = { x: Math.max(0.08, Math.min(0.92, aligned.x / r.width)), y: Math.max(0.10, Math.min(0.88, aligned.y / r.height)) };
       } else if (hObj.key.startsWith('tri')) {
         const idx = +hObj.key.slice(3);
-        g.triPts[idx] = { x: Math.max(0.1, Math.min(0.9, x / r.width)), y: Math.max(0.12, Math.min(0.86, y / r.height)) };
+        const vKey = ['A', 'B', 'C'][idx];
+        const aligned = computeSmartAlign(x, y, vKey, r.width, r.height);
+        g.triPts[idx] = { x: Math.max(0.1, Math.min(0.9, aligned.x / r.width)), y: Math.max(0.12, Math.min(0.86, aligned.y / r.height)) };
       } else if (hObj.key === 'tanM') {
-        g.tanM = { x: Math.max(0.55, Math.min(0.90, x / r.width)), y: Math.max(0.15, Math.min(0.85, y / r.height)) };
+        const aligned = computeSmartAlign(x, y, 'M', r.width, r.height);
+        g.tanM = { x: Math.max(0.55, Math.min(0.90, aligned.x / r.width)), y: Math.max(0.15, Math.min(0.85, aligned.y / r.height)) };
       } else if (hObj.key === 'cirAngM') {
+        g.alignGuides = [];
         g.cirAngM = Math.atan2(y - hObj.cy, x - hObj.cx);
       } else if (hObj.key.startsWith('quad')) {
+        g.alignGuides = [];
         const idx = +hObj.key.slice(4);
         g.quadAngs[idx] = Math.atan2(y - hObj.cy, x - hObj.cx);
       } else if (hObj.key === 'chordH') {
+        g.alignGuides = [];
         g.chordY = Math.max(-0.82, Math.min(0.82, (hObj.cy - y) / hObj.R));
       } else if (hObj.key === 'trapB') {
+        g.alignGuides = [];
         g.trapTopW = Math.max(0.10, Math.min(hObj.botW / r.width, (x - hObj.x0) / r.width));
       }
       renderTab2Scene(true);
     });
 
     mainCanvas.addEventListener('pointerup', e => {
+      _stagePointers.delete(e.pointerId);
+      if (_stagePointers.size < 2) { _lastPinchDist = null; _lastPinchMid = null; }
+      if (state.view.panning) {
+        state.view.panning = false;
+        mainCanvas.style.cursor = state.view.spaceDown ? 'grab' : 'default';
+        try { mainCanvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        return;
+      }
       if (state.geo.dragHandle) {
         state.geo.dragHandle = null;
-        mainCanvas.releasePointerCapture(e.pointerId);
+        state.geo.alignGuides = [];
+        try { mainCanvas.releasePointerCapture(e.pointerId); } catch (_) {}
         renderTab2Scene(false);
       }
+    });
+    mainCanvas.addEventListener('pointercancel', e => {
+      _stagePointers.delete(e.pointerId);
+      _lastPinchDist = null; _lastPinchMid = null;
+      state.view.panning = false;
+      state.geo.dragHandle = null;
+      state.geo.alignGuides = [];
     });
 
     // =========================================================================
@@ -2972,7 +3263,10 @@
     }
     function setPenTool(t) {
       state.pen.tool = t;
-      ['free', 'line', 'circle', 'rightAngle', 'eraser'].forEach(k => { const b = document.getElementById(`pt-${k}`); if (b) b.classList.toggle('active-tool', k === t); });
+      ['free', 'highlight', 'line', 'arrow', 'circle', 'text', 'rightAngle', 'angleArc', 'eraser'].forEach(k => {
+        const b = document.getElementById(`pt-${k}`);
+        if (b) b.classList.toggle('active-tool', k === t);
+      });
     }
     function setPenWidth(w) {
       state.pen.width = w;
@@ -2983,6 +3277,21 @@
     function clearDrawOverlay() { state.pen.history.push(drawCtx.getImageData(0, 0, drawOverlay.width, drawOverlay.height)); drawCtx.clearRect(0, 0, drawOverlay.width, drawOverlay.height); }
     function getPenColor() { return state.pen.color === 'contrast' ? (state.lightTheme ? '#0f172a' : '#f8fafc') : state.pen.color; }
 
+    function drawArrowOnOverlay(ctx, x1, y1, x2, y2, col, lw) {
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      const head = Math.max(10, lw * 3.5);
+      ctx.save();
+      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - head * Math.cos(ang - Math.PI / 6), y2 - head * Math.sin(ang - Math.PI / 6));
+      ctx.lineTo(x2 - head * Math.cos(ang + Math.PI / 6), y2 - head * Math.sin(ang + Math.PI / 6));
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    let _penPts = [];
     drawOverlay.addEventListener('pointerdown', e => {
       if (!state.pen.active) return;
       const r = drawOverlay.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
@@ -2993,45 +3302,164 @@
         drawCtx.beginPath(); drawCtx.moveTo(x, y - 16); drawCtx.lineTo(x + 16, y - 16); drawCtx.lineTo(x + 16, y); drawCtx.stroke(); drawCtx.restore();
         return;
       }
+      if (state.pen.tool === 'angleArc') {
+        drawCtx.save(); drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width;
+        drawCtx.beginPath(); drawCtx.arc(x, y, 22, -Math.PI * 0.75, -Math.PI * 0.15); drawCtx.stroke();
+        const mx = x + 22 * Math.cos(-Math.PI * 0.45), my = y + 22 * Math.sin(-Math.PI * 0.45);
+        drawCtx.beginPath(); drawCtx.moveTo(mx - 4, my - 4); drawCtx.lineTo(mx + 4, my + 4); drawCtx.stroke();
+        drawCtx.restore();
+        return;
+      }
+      if (state.pen.tool === 'text') {
+        const txt = prompt('Nhập nhãn chú thích / số đo lên hình:', '');
+        if (txt && txt.trim()) {
+          drawCtx.save();
+          drawCtx.font = '700 14px "Be Vietnam Pro", sans-serif';
+          const tw = drawCtx.measureText(txt.trim()).width + 12;
+          drawCtx.fillStyle = state.lightTheme ? 'rgba(255,255,255,0.92)' : 'rgba(15,23,42,0.9)';
+          drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = 1.4;
+          drawCtx.beginPath(); drawCtx.roundRect(x, y - 18, tw, 24, 5); drawCtx.fill(); drawCtx.stroke();
+          drawCtx.fillStyle = getPenColor();
+          drawCtx.fillText(txt.trim(), x + 6, y - 2);
+          drawCtx.restore();
+        }
+        return;
+      }
       state.pen.drawing = true; state.pen.startX = x; state.pen.startY = y;
-      if (state.pen.tool === 'line' || state.pen.tool === 'circle') state.pen.snapshot = drawCtx.getImageData(0, 0, drawOverlay.width, drawOverlay.height);
-      else { drawCtx.beginPath(); drawCtx.moveTo(x, y); }
+      _penPts = [{ x, y }];
+      if (state.pen.tool === 'line' || state.pen.tool === 'arrow' || state.pen.tool === 'circle' || state.pen.tool === 'free' || state.pen.tool === 'highlight') {
+        state.pen.snapshot = drawCtx.getImageData(0, 0, drawOverlay.width, drawOverlay.height);
+      }
       drawOverlay.setPointerCapture(e.pointerId);
     });
     drawOverlay.addEventListener('pointermove', e => {
       if (!state.pen.active || !state.pen.drawing) return;
       const r = drawOverlay.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-      if (state.pen.tool === 'line' || state.pen.tool === 'circle') {
+      if (state.pen.tool === 'line' || state.pen.tool === 'arrow' || state.pen.tool === 'circle') {
         if (state.pen.snapshot) drawCtx.putImageData(state.pen.snapshot, 0, 0);
-        drawCtx.save(); drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width;
-        drawCtx.beginPath();
-        if (state.pen.tool === 'line') { drawCtx.moveTo(state.pen.startX, state.pen.startY); drawCtx.lineTo(x, y); }
-        else { drawCtx.arc(state.pen.startX, state.pen.startY, Math.hypot(x - state.pen.startX, y - state.pen.startY), 0, Math.PI * 2); }
-        drawCtx.stroke(); drawCtx.restore();
-      } else {
+        if (state.pen.tool === 'arrow') {
+          drawArrowOnOverlay(drawCtx, state.pen.startX, state.pen.startY, x, y, getPenColor(), state.pen.width);
+        } else {
+          drawCtx.save(); drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width;
+          drawCtx.beginPath();
+          if (state.pen.tool === 'line') { drawCtx.moveTo(state.pen.startX, state.pen.startY); drawCtx.lineTo(x, y); }
+          else { drawCtx.arc(state.pen.startX, state.pen.startY, Math.hypot(x - state.pen.startX, y - state.pen.startY), 0, Math.PI * 2); }
+          drawCtx.stroke(); drawCtx.restore();
+        }
+      } else if (state.pen.tool === 'eraser') {
         drawCtx.save();
-        if (state.pen.tool === 'eraser') { drawCtx.globalCompositeOperation = 'destination-out'; drawCtx.lineWidth = 20; }
-        else { drawCtx.strokeStyle = getPenColor(); drawCtx.lineWidth = state.pen.width; }
-        drawCtx.lineCap = 'round'; drawCtx.lineTo(x, y); drawCtx.stroke(); drawCtx.restore();
+        drawCtx.globalCompositeOperation = 'destination-out';
+        drawCtx.lineWidth = 22; drawCtx.lineCap = 'round';
+        const prev = _penPts[_penPts.length - 1] || { x, y };
+        drawCtx.beginPath(); drawCtx.moveTo(prev.x, prev.y); drawCtx.lineTo(x, y); drawCtx.stroke();
+        drawCtx.restore();
+        _penPts.push({ x, y });
+      } else {
+        // Smooth Bezier freehand / highlighter
+        _penPts.push({ x, y });
+        if (state.pen.snapshot) drawCtx.putImageData(state.pen.snapshot, 0, 0);
+        drawCtx.save();
+        drawCtx.strokeStyle = getPenColor();
+        drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
+        if (state.pen.tool === 'highlight') {
+          drawCtx.globalAlpha = 0.35;
+          drawCtx.lineWidth = 14;
+        } else {
+          drawCtx.lineWidth = state.pen.width;
+        }
+        drawCtx.beginPath();
+        drawCtx.moveTo(_penPts[0].x, _penPts[0].y);
+        for (let i = 1; i < _penPts.length - 1; i++) {
+          const midX = (_penPts[i].x + _penPts[i + 1].x) / 2;
+          const midY = (_penPts[i].y + _penPts[i + 1].y) / 2;
+          drawCtx.quadraticCurveTo(_penPts[i].x, _penPts[i].y, midX, midY);
+        }
+        const last = _penPts[_penPts.length - 1];
+        drawCtx.lineTo(last.x, last.y);
+        drawCtx.stroke();
+        drawCtx.restore();
       }
     });
     drawOverlay.addEventListener('pointerup', e => {
-      if (state.pen.drawing) { state.pen.drawing = false; state.pen.snapshot = null; drawOverlay.releasePointerCapture(e.pointerId); }
+      if (state.pen.drawing) { state.pen.drawing = false; state.pen.snapshot = null; _penPts = []; drawOverlay.releasePointerCapture(e.pointerId); }
     });
 
-    function exportExamPNG() {
-      const link = document.createElement('a');
-      link.download = `toan9-he-thuc-luong-${state.mainTab}-${state.modelId}.png`;
-      link.href = mainCanvas.toDataURL('image/png');
-      link.click();
+    function toggleExportPNGMenu() {
+      const pop = document.getElementById('export-png-popover');
+      if (pop) pop.classList.toggle('open');
     }
+
+    function autoCropCanvas(srcCanvas, isWhiteBg) {
+      const w = srcCanvas.width, h = srcCanvas.height;
+      const sCtx = srcCanvas.getContext('2d');
+      const img = sCtx.getImageData(0, 0, w, h).data;
+      let minX = w, minY = h, maxX = -1, maxY = -1;
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          const idx = (y * w + x) * 4;
+          const r = img[idx], g = img[idx + 1], b = img[idx + 2], a = img[idx + 3];
+          const isEmpty = isWhiteBg ? (a === 0 || (r > 250 && g > 250 && b > 250)) : (a < 10);
+          if (!isEmpty) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+      if (maxX < minX || maxY < minY) return srcCanvas;
+      const pad = 40;
+      const cx = Math.max(0, minX - pad), cy = Math.max(0, minY - pad);
+      const cw = Math.min(w - cx, maxX - minX + pad * 2);
+      const ch = Math.min(h - cy, maxY - minY + pad * 2);
+      const out = document.createElement('canvas');
+      out.width = cw; out.height = ch;
+      const oCtx = out.getContext('2d');
+      if (isWhiteBg) { oCtx.fillStyle = '#ffffff'; oCtx.fillRect(0, 0, cw, ch); }
+      oCtx.drawImage(srcCanvas, cx, cy, cw, ch, 0, 0, cw, ch);
+      return out;
+    }
+
+    function doExportExamPNG(bgMode) {
+      const pop = document.getElementById('export-png-popover');
+      if (pop) pop.classList.remove('open');
+      state.exportingMode = bgMode;
+      rebuildScene();
+      // Composite pen overlay if any
+      const mCtx = mainCanvas.getContext('2d');
+      mCtx.save();
+      mCtx.setTransform(1, 0, 0, 1, 0, 0);
+      mCtx.drawImage(drawOverlay, 0, 0, mainCanvas.width, mainCanvas.height);
+      mCtx.restore();
+
+      const cropped = autoCropCanvas(mainCanvas, bgMode === 'white');
+      const link = document.createElement('a');
+      link.download = `toan9-hinh-ve-${bgMode}-2xHD.png`;
+      link.href = cropped.toDataURL('image/png');
+      link.click();
+
+      state.exportingMode = null;
+      rebuildScene();
+    }
+
+    function exportExamPNG() { doExportExamPNG('white'); }
 
     window.addEventListener('keydown', e => {
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) return;
-      if (e.key === 'b' || e.key === 'B') togglePenMode();
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!state.view.spaceDown) { state.view.spaceDown = true; mainCanvas.style.cursor = 'grab'; }
+      }
+      else if (e.key === 'b' || e.key === 'B') togglePenMode();
       else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFocusMode(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); stepPrev(); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); stepNext(); }
+    });
+    window.addEventListener('keyup', e => {
+      if (e.code === 'Space') {
+        state.view.spaceDown = false;
+        if (!state.view.panning) mainCanvas.style.cursor = 'default';
+      }
     });
 
     function toggleMotionAnim() {
