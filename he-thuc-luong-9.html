@@ -334,29 +334,41 @@
     }
     .right-stage.dark-theme .katex { color: #f8fafc; }
 
-    /* Step Bar & Dock */
-    .step-pres-bar {
-      position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%);
-      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
-      border-radius: 999px; background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px); border: 1px solid #cbd5e1;
-      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12); z-index: 12; flex-wrap: wrap; justify-content: center;
+    /* Unified Draggable Floating Toolbar */
+    .stage-dock-wrap {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: stretch; gap: 6px; padding: 6px 10px;
+      border-radius: 14px; background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid #cbd5e1; box-shadow: 0 8px 26px rgba(15, 23, 42, 0.16);
+      z-index: 16; max-width: calc(100% - 20px); user-select: none;
     }
-    .floating-dock {
-      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
-      border-radius: 14px; background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px); border: 1px solid #cbd5e1;
-      box-shadow: 0 6px 22px rgba(15, 23, 42, 0.14); z-index: 12; flex-wrap: wrap; justify-content: center;
+    .stage-dock-wrap.dragging {
+      cursor: grabbing; box-shadow: 0 14px 36px rgba(15, 23, 42, 0.24);
+      border-color: #3b82f6;
     }
-    .right-stage.dark-theme .step-pres-bar,
-    .right-stage.dark-theme .floating-dock {
-      background: rgba(15, 23, 42, 0.85); border-color: rgba(255, 255, 255, 0.18);
+    .dock-drag-handle {
+      display: flex; align-items: center; justify-content: center;
+      width: 20px; border-radius: 8px; background: #f1f5f9; color: #64748b;
+      font-size: 13px; font-weight: 700; letter-spacing: -1px;
+      cursor: grab; touch-action: none; flex-shrink: 0; transition: all 0.15s;
     }
+    .dock-drag-handle:hover { background: #e2e8f0; color: #1d4ed8; }
+    .dock-rows { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+    .dock-row {
+      display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center;
+    }
+    .right-stage.dark-theme .stage-dock-wrap {
+      background: rgba(15, 23, 42, 0.88); border-color: rgba(255, 255, 255, 0.2);
+    }
+    .right-stage.dark-theme .dock-drag-handle {
+      background: rgba(255, 255, 255, 0.1); color: #94a3b8;
+    }
+    .stage-dock-wrap .dock-btn { padding: 4px 8px; font-size: 12px; border-radius: 7px; }
     .step-dots { display: flex; gap: 4px; }
     .step-pill {
       border: 1px solid #cbd5e1; background: #f8fafc; color: #334155;
-      padding: 4px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
+      padding: 3px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
       cursor: pointer; font-family: inherit;
     }
     .step-pill.active { background: #2563eb; color: #fff; border-color: #2563eb; }
@@ -753,36 +765,39 @@
         </div>
       </div>
 
-      <!-- 4-Step Presentation Bar -->
-      <div class="step-pres-bar" id="step-pres-bar">
-        <div class="step-dots">
-          <button class="step-pill" id="sp-1" onclick="setStep(1)">B1</button>
-          <button class="step-pill" id="sp-2" onclick="setStep(2)">B2</button>
-          <button class="step-pill" id="sp-3" onclick="setStep(3)">B3</button>
-          <button class="step-pill active" id="sp-4" onclick="setStep(4)">B4</button>
+      <!-- Unified Draggable Floating Toolbar -->
+      <div class="stage-dock-wrap" id="stage-floating-toolbar">
+        <div class="dock-drag-handle" id="dock-drag-handle" title="Kéo để di chuyển thanh công cụ (Nhấp đúp để căn giữa lại)">⋮⋮</div>
+        <div class="dock-rows">
+          <div class="dock-row" id="step-pres-bar">
+            <div class="step-dots">
+              <button class="step-pill" id="sp-1" onclick="setStep(1)">B1</button>
+              <button class="step-pill" id="sp-2" onclick="setStep(2)">B2</button>
+              <button class="step-pill" id="sp-3" onclick="setStep(3)">B3</button>
+              <button class="step-pill active" id="sp-4" onclick="setStep(4)">B4</button>
+            </div>
+            <span class="dock-sep"></span>
+            <button class="dock-btn" onclick="stepPrev()" title="Mũi tên Trái">◀ Trước</button>
+            <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()">▶ Tự động</button>
+            <button class="dock-btn" onclick="stepNext()" title="Mũi tên Phải">Tiếp ▶</button>
+            <span class="dock-sep"></span>
+            <button class="dock-btn" id="btn-show-all" onclick="toggleShowAllSteps()">⚡ Hiện đủ</button>
+            <button class="dock-btn active-dock" id="btn-anim-toggle" onclick="toggleMotionAnim()">⏸ Dừng/Chạy</button>
+          </div>
+          <div class="dock-row" style="position:relative;">
+            <div class="export-png-popover" id="export-png-popover">
+              <button class="export-png-opt" onclick="doExportExamPNG('white')">📄 Nền trắng tinh khôi (2x HD • Word/LaTeX)</button>
+              <button class="export-png-opt" onclick="doExportExamPNG('transparent')">💎 Nền trong suốt (2x HD • Slide)</button>
+            </div>
+            <button class="dock-btn" id="btn-reset-view" onclick="resetCanvasView()" title="Đưa hình vẽ về đúng tỉ lệ chuẩn (100%)">🎯 100%</button>
+            <span class="dock-sep"></span>
+            <button class="dock-btn" id="btn-pen" onclick="togglePenMode()">✏️ Bút vẽ (B)</button>
+            <span class="dock-sep"></span>
+            <button class="dock-btn" onclick="toggleExportPNGMenu()">📷 Xuất PNG ▾</button>
+            <span class="dock-sep"></span>
+            <button class="dock-btn active-dock" id="btn-sol-drawer" onclick="toggleRightSolDrawer()">📖 Lời giải</button>
+          </div>
         </div>
-        <span class="dock-sep"></span>
-        <button class="dock-btn" onclick="stepPrev()" title="Mũi tên Trái">◀ Trước</button>
-        <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()">▶ Tự động</button>
-        <button class="dock-btn" onclick="stepNext()" title="Mũi tên Phải">Tiếp ▶</button>
-        <span class="dock-sep"></span>
-        <button class="dock-btn" id="btn-show-all" onclick="toggleShowAllSteps()">⚡ Hiện đủ</button>
-        <button class="dock-btn active-dock" id="btn-anim-toggle" onclick="toggleMotionAnim()">⏸ Dừng chuyển động</button>
-      </div>
-
-      <!-- Floating Bottom Dock -->
-      <div class="floating-dock" style="position:absolute;">
-        <div class="export-png-popover" id="export-png-popover">
-          <button class="export-png-opt" onclick="doExportExamPNG('white')">📄 Nền trắng tinh khôi (2x HD • Word/LaTeX)</button>
-          <button class="export-png-opt" onclick="doExportExamPNG('transparent')">💎 Nền trong suốt (2x HD • Slide)</button>
-        </div>
-        <button class="dock-btn" id="btn-reset-view" onclick="resetCanvasView()" title="Đưa hình vẽ về đúng tỉ lệ chuẩn (100%)">🎯 Căn giữa</button>
-        <span class="dock-sep"></span>
-        <button class="dock-btn" id="btn-pen" onclick="togglePenMode()">✏️ Bút vẽ (B)</button>
-        <span class="dock-sep"></span>
-        <button class="dock-btn" onclick="toggleExportPNGMenu()">📷 Xuất PNG ▾</button>
-        <span class="dock-sep"></span>
-        <button class="dock-btn active-dock" id="btn-sol-drawer" onclick="toggleRightSolDrawer()">📖 Lời giải</button>
       </div>
     </section>
 
@@ -935,7 +950,7 @@
       state.view.ox = 0;
       state.view.oy = 0;
       const btn = document.getElementById('btn-reset-view');
-      if (btn) btn.textContent = '🎯 Căn giữa';
+      if (btn) btn.textContent = '🎯 100%';
       rebuildScene();
     }
 
@@ -943,7 +958,7 @@
       const btn = document.getElementById('btn-reset-view');
       if (!btn) return;
       const pct = Math.round(state.view.scale * 100);
-      btn.textContent = (pct === 100 && Math.abs(state.view.ox) < 2 && Math.abs(state.view.oy) < 2) ? '🎯 Căn giữa' : `🎯 ${pct}%`;
+      btn.textContent = `🎯 ${pct}%`;
     }
 
     function setupCanvas2D() {
@@ -3925,6 +3940,54 @@
       requestAnimationFrame(animateLoop);
     }
 
+    function setupDraggableToolbar() {
+      const bar = document.getElementById('stage-floating-toolbar');
+      const handle = document.getElementById('dock-drag-handle');
+      if (!bar || !handle) return;
+      let dragging = false, startX = 0, startY = 0, origLeft = 0, origTop = 0;
+
+      const startDrag = e => {
+        if (e.target.closest('button')) return;
+        const stRect = stageEl.getBoundingClientRect();
+        const bRect = bar.getBoundingClientRect();
+        origLeft = bRect.left - stRect.left;
+        origTop = bRect.top - stRect.top;
+        bar.style.left = `${origLeft}px`;
+        bar.style.top = `${origTop}px`;
+        bar.style.bottom = 'auto';
+        bar.style.transform = 'none';
+        startX = e.clientX; startY = e.clientY;
+        dragging = true;
+        bar.classList.add('dragging');
+        try { bar.setPointerCapture(e.pointerId); } catch (_) {}
+      };
+
+      bar.addEventListener('pointerdown', startDrag);
+      bar.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const stRect = stageEl.getBoundingClientRect();
+        const bRect = bar.getBoundingClientRect();
+        const maxLeft = Math.max(6, stRect.width - bRect.width - 6);
+        const maxTop = Math.max(6, stRect.height - bRect.height - 6);
+        const nx = Math.max(6, Math.min(maxLeft, origLeft + (e.clientX - startX)));
+        const ny = Math.max(6, Math.min(maxTop, origTop + (e.clientY - startY)));
+        bar.style.left = `${nx}px`;
+        bar.style.top = `${ny}px`;
+      });
+      const endDrag = e => {
+        if (!dragging) return;
+        dragging = false;
+        bar.classList.remove('dragging');
+        try { bar.releasePointerCapture(e.pointerId); } catch (_) {}
+      };
+      bar.addEventListener('pointerup', endDrag);
+      bar.addEventListener('pointercancel', endDrag);
+      handle.addEventListener('dblclick', () => {
+        bar.style.left = '50%'; bar.style.top = 'auto';
+        bar.style.bottom = '12px'; bar.style.transform = 'translateX(-50%)';
+      });
+    }
+
     window.onresize = resizeStage;
     let _appInitialized = false;
     function initApp() {
@@ -3938,6 +4001,7 @@
         });
         resizeCanvas();
         setupAIImageHandlers();
+        setupDraggableToolbar();
         selectModel('a1');
         renderAllMath(document.body);
         if (!_rafStarted) {
