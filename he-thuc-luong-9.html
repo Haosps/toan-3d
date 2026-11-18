@@ -10,8 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
   <!-- KaTeX CDN + Auto-Render -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <style>
     :root {
       --bg-app: #f1f5f9;
@@ -106,7 +106,8 @@
       transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
     }
     .right-stage {
-      flex: 1; position: relative; background: #ffffff; overflow: hidden;
+      flex: 1; height: calc(100vh - 50px); min-height: 550px; min-width: 0;
+      position: relative; background: #ffffff; overflow: hidden;
       transition: width 0.25s ease;
     }
     .workspace.focus-mode .left-panel {
@@ -586,7 +587,11 @@
     const stageEl = document.getElementById('right-stage');
 
     function renderAllMath(target = document.body) {
-      if (!window.renderMathInElement || !target) return;
+      if (!target) return;
+      if (!window.renderMathInElement) {
+        setTimeout(() => renderAllMath(target), 150);
+        return;
+      }
       try {
         renderMathInElement(target, {
           delimiters: [
@@ -598,15 +603,31 @@
           throwOnError: false,
           ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         });
-      } catch (e) {}
+      } catch (e) { console.error('KaTeX render error:', e); }
+    }
+
+    function resizeCanvas() {
+      const rect = stageEl.getBoundingClientRect();
+      const w = rect.width > 0 ? rect.width : Math.max(320, window.innerWidth - 360);
+      const h = rect.height > 0 ? rect.height : Math.max(400, window.innerHeight - 50);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas2d.width = Math.round(w * dpr);
+      canvas2d.height = Math.round(h * dpr);
+      drawOverlay.width = Math.round(w);
+      drawOverlay.height = Math.round(h);
+      return { w, h, dpr };
     }
 
     function setupCanvas2D() {
-      const w = stageEl.clientWidth || 800;
-      const h = stageEl.clientHeight || 580;
+      const rect = stageEl.getBoundingClientRect();
+      const w = rect.width > 0 ? rect.width : Math.max(320, window.innerWidth - 360);
+      const h = rect.height > 0 ? rect.height : Math.max(400, window.innerHeight - 50);
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas2d.width = w * dpr;
-      canvas2d.height = h * dpr;
+      const targetW = Math.round(w * dpr), targetH = Math.round(h * dpr);
+      if (canvas2d.width !== targetW || canvas2d.height !== targetH) {
+        canvas2d.width = targetW;
+        canvas2d.height = targetH;
+      }
       const ctx = canvas2d.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = state.lightTheme ? '#ffffff' : '#0b1120';
@@ -806,6 +827,7 @@
       let stepDesc = [];
       let solSteps = [];
 
+      try {
       if (id === 'a1') {
         const lay = computeRightTriLayout(w, h, 6, 8);
         const { A, B, C, H } = lay;
@@ -1393,7 +1415,11 @@
         ];
       }
 
-      if (!onlyCanvas) {
+      } catch (e) {
+        console.error('Canvas draw error:', e);
+      }
+
+      if (!onlyCanvas && stepDesc.length > 0) {
         const curIdx = Math.min(eff, stepDesc.length) - 1;
         document.getElementById('hud-step-desc').innerHTML = `<strong>${stepDesc[curIdx]}</strong>`;
         renderAllMath(document.getElementById('hud-step-desc'));
@@ -1746,6 +1772,7 @@
         document.getElementById(`tab${i}-panel`).style.display = tab === i ? 'flex' : 'none';
       });
       rebuildScene();
+      renderAllMath(document.querySelector('.left-panel'));
     }
 
     function selectModel(id) {
@@ -1824,8 +1851,7 @@
 
     // Pen Overlay
     function resizeStage() {
-      drawOverlay.width = stageEl.clientWidth;
-      drawOverlay.height = stageEl.clientHeight;
+      resizeCanvas();
       rebuildScene();
     }
     function togglePenMode() {
@@ -1938,17 +1964,22 @@
     }
 
     window.addEventListener('resize', resizeStage);
-    window.addEventListener('load', () => {
+    let _appInitialized = false;
+    function initApp() {
+      if (_appInitialized) return;
+      _appInitialized = true;
       document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => {
         acc.addEventListener('toggle', () => {
           if (acc.open) document.querySelectorAll('#tab1-panel .acc-group').forEach(o => { if (o !== acc) o.open = false; });
         });
       });
-      resizeStage();
+      resizeCanvas();
       selectModel('a1');
       renderAllMath(document.body);
       requestAnimationFrame(animateLoop);
-    });
+    }
+    window.addEventListener('DOMContentLoaded', initApp);
+    window.addEventListener('load', () => { initApp(); renderAllMath(document.body); });
   </script>
 </body>
 </html>
