@@ -12,6 +12,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <!-- Tesseract.js v5 CDN (client-side OCR, no API key required) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
       --bg-app: #f1f5f9;
@@ -373,6 +375,36 @@
     .hud-tel-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #ea580c; }
     .right-stage.dark-theme .hud-tel-val { color: #fbbf24; }
 
+    /* AI Image Dropzone & OCR Progress */
+    .ai-dropzone {
+      border: 1.5px dashed #818cf8; border-radius: 9px; padding: 10px 8px;
+      background: rgba(238, 242, 255, 0.55); text-align: center; cursor: pointer;
+      transition: all 0.16s ease; margin-bottom: 8px;
+    }
+    .ai-dropzone:hover, .ai-dropzone.drag-over {
+      border-color: #4f46e5; background: #e0e7ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    .ai-dropzone-title { font-size: 11.5px; font-weight: 700; color: #3730a3; line-height: 1.4; }
+    .ai-dropzone-sub { font-size: 10.5px; color: #6366f1; margin-top: 2px; }
+    .ai-preview-wrap {
+      display: none; align-items: center; gap: 8px; padding: 6px 8px;
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 8px;
+    }
+    .ai-preview-thumb {
+      width: 56px; height: 42px; object-fit: cover; border-radius: 5px;
+      border: 1px solid #cbd5e1; flex-shrink: 0; background: #fff;
+    }
+    .ai-progress-wrap {
+      display: none; flex-direction: column; gap: 4px; margin-bottom: 8px;
+      padding: 7px 9px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    }
+    .ai-progress-track { width: 100%; height: 6px; background: #dbeafe; border-radius: 99px; overflow: hidden; }
+    .ai-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #2563eb, #7c3aed); transition: width 0.15s ease; }
+    .ai-vision-panel {
+      display: none; padding: 8px; margin-bottom: 8px; border-radius: 8px;
+      background: #f8fafc; border: 1px solid #cbd5e1; font-size: 11px;
+    }
+
     @media (max-width: 960px) {
       body { height: auto; overflow: auto; }
       .workspace { flex-direction: column-reverse; }
@@ -582,11 +614,53 @@
 
       </div>
 
-      <!-- TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 (SMART MATH PARSER) -->
+      <!-- TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 (SMART MATH PARSER + OCR / AI VISION) -->
       <div id="tab3-panel" style="display:none; flex-direction:column; gap:8px;">
-        <section class="card" style="border:1.5px solid #818cf8; background:linear-gradient(180deg, #eef2ff 0%, #ffffff 30%);">
-          <div class="card-title" style="color:#3730a3;"><span>🤖 Nhập đề bài Toán 9 bằng chữ</span></div>
-          <textarea id="ai-problem-input" rows="3" style="width:100%; padding:8px; border:1px solid #c7d2fe; border-radius:8px; font-size:12px; font-family:inherit; resize:vertical;" placeholder="Dán nguyên văn đề bài Toán 9 (VD: Cho tam giác MNP vuông tại M, đường cao MK. Biết MN = 6cm, MP = 8cm...)"></textarea>
+        <section class="card" style="border:1.5px solid #818cf8; background:linear-gradient(180deg, #eef2ff 0%, #ffffff 28%);">
+          <div class="card-title" style="color:#3730a3; display:flex; justify-content:space-between; align-items:center; gap:6px;">
+            <span>🤖 Trợ lý Đọc đề &amp; Giải AI</span>
+            <button type="button" class="step-btn" id="btn-ai-vision-key" onclick="toggleAIVisionSettings()" style="font-size:10.5px; padding:3px 7px;" title="Cài đặt Gemini Vision API Key">🔑 Cài đặt AI Vision</button>
+          </div>
+
+          <!-- Gemini Vision API Key Settings (Mode 2) -->
+          <div class="ai-vision-panel" id="ai-vision-settings">
+            <div style="font-weight:700; color:#1e293b; margin-bottom:4px;">🔑 Cài đặt AI Vision (Đọc công thức chuẩn 100%)</div>
+            <div style="color:#475569; margin-bottom:6px; line-height:1.4;">Nhập Gemini API Key để đọc chính xác phân số, căn thức &amp; chữ viết tay (lưu cục bộ trên trình duyệt). Để trống sẽ dùng OCR Tesseract miễn phí.</div>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+              <input type="password" id="ai-gemini-key-input" placeholder="Dán Gemini API Key (AIza...)" style="flex:1; padding:5px 7px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px; font-family:monospace;" />
+              <button type="button" class="step-btn active-tool" onclick="saveAIVisionKey()">Lưu</button>
+              <button type="button" class="step-btn" onclick="clearAIVisionKey()" style="color:#dc2626;">Xóa</button>
+            </div>
+            <div id="ai-vision-status" style="font-size:10.5px; font-weight:600; color:#0284c7;"></div>
+          </div>
+
+          <!-- Image Dropzone & Paste Handler -->
+          <div class="ai-dropzone" id="ai-img-dropzone" onclick="document.getElementById('ai-img-file').click()">
+            <div class="ai-dropzone-title">📸 Dán ảnh chụp đề bài (Ctrl + V) hoặc Kéo thả / Chọn ảnh tại đây</div>
+            <div class="ai-dropzone-sub" id="ai-ocr-mode-badge">Chế độ hiện tại: OCR Trình duyệt (Miễn phí, không cần Key)</div>
+            <input type="file" id="ai-img-file" accept="image/*" style="display:none;" onchange="handleAIImageSelect(event)" />
+          </div>
+
+          <!-- Thumbnail Preview -->
+          <div class="ai-preview-wrap" id="ai-img-preview-wrap">
+            <img id="ai-img-preview" class="ai-preview-thumb" alt="Ảnh đề bài" />
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:11px; font-weight:700; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="ai-img-name">Ảnh chụp đề bài</div>
+              <div style="font-size:10.5px; color:#64748b;" id="ai-img-meta">Sẵn sàng bóc tách</div>
+            </div>
+            <button type="button" class="step-btn" onclick="clearAIImage()" style="color:#dc2626; padding:3px 7px;" title="Xóa ảnh">✕ Xóa</button>
+          </div>
+
+          <!-- OCR / AI Progress Bar -->
+          <div class="ai-progress-wrap" id="ai-ocr-progress-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#1d4ed8;">
+              <span id="ai-ocr-status">Đang quét chữ từ ảnh... 0%</span>
+              <span id="ai-ocr-pct">0%</span>
+            </div>
+            <div class="ai-progress-track"><div class="ai-progress-fill" id="ai-ocr-progress-bar"></div></div>
+          </div>
+
+          <textarea id="ai-problem-input" rows="3" style="width:100%; padding:8px; border:1px solid #c7d2fe; border-radius:8px; font-size:12px; font-family:inherit; resize:vertical;" placeholder="Dán nguyên văn đề bài Toán 9 hoặc dán ảnh chụp phía trên (Ctrl+V)..."></textarea>
           <div class="preset-row" style="margin:6px 0;">
             <button class="preset-btn" onclick="loadAISample(1)">Mẫu 1: $\triangle MNP$ vuông</button>
             <button class="preset-btn" onclick="loadAISample(2)">Mẫu 2: Thang tựa tường</button>
@@ -2315,8 +2389,10 @@
     });
 
     // =========================================================================
-    // 4. TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 BẰNG CHỮ (SMART MATH PARSER)
+    // 4. TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 BẰNG CHỮ & HÌNH CHỤP (OCR + AI VISION)
     // =========================================================================
+    const GEMINI_KEY_STORAGE = 'haohiep_gemini_api_key';
+
     const AI_SAMPLES_9 = {
       1: 'Cho tam giác MNP vuông tại M, đường cao MK. Biết MN = 6cm, MP = 8cm. Tính NP, MK, NK, PK và góc N.',
       2: 'Một chiếc thang dài 5m tựa vào tường tạo với mặt đất góc 60 độ. Tính chiều cao mà thang chạm tới tường.',
@@ -2324,52 +2400,301 @@
       4: 'Để đo chiều cao một tòa tháp, người ta đặt giác kế cao 1,5m cách chân tháp 24m và đo được góc nâng 42 độ. Tính chiều cao tòa tháp.'
     };
 
+    function getGeminiKey() {
+      try { return (localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim(); } catch (e) { return ''; }
+    }
+
+    function updateAIVisionUI() {
+      const key = getGeminiKey();
+      const badge = document.getElementById('ai-ocr-mode-badge');
+      const status = document.getElementById('ai-vision-status');
+      const btn = document.getElementById('btn-ai-vision-key');
+      const inp = document.getElementById('ai-gemini-key-input');
+      if (inp && key && !inp.value) inp.value = key;
+      if (key) {
+        if (badge) badge.textContent = '✨ Chế độ AI Vision (Gemini) đang bật — Đọc công thức chuẩn 100%';
+        if (status) { status.textContent = '✅ Đã kết nối Gemini API Key (lưu cục bộ).'; status.style.color = '#16a34a'; }
+        if (btn) btn.classList.add('active-tool');
+      } else {
+        if (badge) badge.textContent = 'Chế độ hiện tại: OCR Trình duyệt (Miễn phí, không cần Key)';
+        if (status) { status.textContent = 'ℹ️ Chưa có API Key — đang dùng Tesseract OCR miễn phí.'; status.style.color = '#0284c7'; }
+        if (btn) btn.classList.remove('active-tool');
+      }
+    }
+
+    function toggleAIVisionSettings() {
+      const panel = document.getElementById('ai-vision-settings');
+      if (!panel) return;
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      updateAIVisionUI();
+    }
+
+    function saveAIVisionKey() {
+      const val = (document.getElementById('ai-gemini-key-input').value || '').trim();
+      try {
+        if (val) localStorage.setItem(GEMINI_KEY_STORAGE, val);
+        else localStorage.removeItem(GEMINI_KEY_STORAGE);
+      } catch (e) {}
+      updateAIVisionUI();
+    }
+
+    function clearAIVisionKey() {
+      document.getElementById('ai-gemini-key-input').value = '';
+      try { localStorage.removeItem(GEMINI_KEY_STORAGE); } catch (e) {}
+      updateAIVisionUI();
+    }
+
+    function clearAIImage() {
+      const wrap = document.getElementById('ai-img-preview-wrap');
+      const prog = document.getElementById('ai-ocr-progress-wrap');
+      const inp = document.getElementById('ai-img-file');
+      const img = document.getElementById('ai-img-preview');
+      if (wrap) wrap.style.display = 'none';
+      if (prog) prog.style.display = 'none';
+      if (inp) inp.value = '';
+      if (img) img.removeAttribute('src');
+    }
+
+    function setOCRProgress(pct, label) {
+      const wrap = document.getElementById('ai-ocr-progress-wrap');
+      const bar = document.getElementById('ai-ocr-progress-bar');
+      const st = document.getElementById('ai-ocr-status');
+      const pctEl = document.getElementById('ai-ocr-pct');
+      if (wrap) wrap.style.display = 'flex';
+      const p = Math.max(0, Math.min(100, Math.round(pct)));
+      if (bar) bar.style.width = `${p}%`;
+      if (st) st.textContent = label || `Đang quét chữ từ ảnh... ${p}%`;
+      if (pctEl) pctEl.textContent = `${p}%`;
+    }
+
+    function handleAIImageFile(file, sourceLabel) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        const wrap = document.getElementById('ai-img-preview-wrap');
+        const img = document.getElementById('ai-img-preview');
+        const nameEl = document.getElementById('ai-img-name');
+        const metaEl = document.getElementById('ai-img-meta');
+        if (img) img.src = dataUrl;
+        if (nameEl) nameEl.textContent = file.name || sourceLabel || 'Ảnh chụp đề bài';
+        if (metaEl) metaEl.textContent = `${Math.round(file.size / 1024)} KB • Đang xử lý...`;
+        if (wrap) wrap.style.display = 'flex';
+        processAIProblemImage(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleAIImageSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (file) handleAIImageFile(file, file.name);
+    }
+
+    function normalizeOCRMathText(txt) {
+      return (txt || '')
+        .replace(/\r?\n+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .replace(/[“”]/g, '"')
+        .replace(/[‘’]/g, "'")
+        .replace(/\s*°/g, '°')
+        .trim();
+    }
+
+    async function callGeminiVisionForMath(dataUrl, apiKey) {
+      const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+      if (!match) throw new Error('Định dạng ảnh không hợp lệ.');
+      const mimeType = match[1], base64Data = match[2];
+      const prompt = [
+        'Bạn là trợ lý Toán lớp 9 (Hệ thức lượng trong tam giác vuông & Tỉ số lượng giác).',
+        'Hãy đọc chính xác đề bài trong ảnh (kể cả phân số, căn thức, độ, chữ viết tay) và trả về DUY NHẤT một JSON hợp lệ (không markdown) theo cấu trúc:',
+        '{',
+        '  "problemText": "Nguyên văn đề bài tiếng Việt đã chuẩn hóa",',
+        '  "type": "tri | ladder | tree | tower",',
+        '  "vNames": ["A", "B", "C", "H"],',
+        '  "ab": 6,',
+        '  "ac": 8,',
+        '  "len": 5,',
+        '  "deg": 60,',
+        '  "hRemain": 3,',
+        '  "lenBroken": 5,',
+        '  "dist": 24,',
+        '  "eyeH": 1.5,',
+        '  "alpha": 42',
+        '}',
+        'Trong đó: nếu là tam giác vuông thì type="tri", vNames=[đỉnh góc vuông, đỉnh 2, đỉnh 3, chân đường cao], ab và ac là 2 cạnh góc vuông (nếu đề cho cạnh huyền & 1 cạnh hoặc hình chiếu hãy quy đổi ra ab, ac tương ứng).'
+      ].join('\n');
+
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType, data: base64Data } }] }],
+          generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
+        })
+      });
+      if (!res.ok) throw new Error(`Gemini API HTTP ${res.status}`);
+      const data = await res.json();
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('AI không trả về JSON hợp lệ.');
+      return JSON.parse(jsonMatch[0]);
+    }
+
+    async function processAIProblemImage(dataUrl) {
+      const metaEl = document.getElementById('ai-img-meta');
+      const apiKey = getGeminiKey();
+
+      if (apiKey) {
+        try {
+          setOCRProgress(35, '✨ Đang gửi ảnh tới Gemini AI Vision...');
+          const aiData = await callGeminiVisionForMath(dataUrl, apiKey);
+          setOCRProgress(100, '✨ Hoàn tất bóc tách bằng AI Vision!');
+          if (aiData.problemText) document.getElementById('ai-problem-input').value = aiData.problemText;
+          if (metaEl) metaEl.textContent = '✨ Đã nhận diện bởi Gemini AI Vision';
+          let overrideParsed = null;
+          if (aiData.type === 'ladder') overrideParsed = { type: 'ladder', len: +aiData.len || 5, deg: +aiData.deg || 60 };
+          else if (aiData.type === 'tree') overrideParsed = { type: 'tree', hRemain: +aiData.hRemain || 3, lenBroken: Math.max((+aiData.hRemain || 3) + 1, +aiData.lenBroken || 5) };
+          else if (aiData.type === 'tower') overrideParsed = { type: 'tower', dist: +aiData.dist || 24, eyeH: +aiData.eyeH || 1.5, alpha: +aiData.alpha || 42 };
+          else if (aiData.type === 'tri' && Array.isArray(aiData.vNames) && aiData.vNames.length >= 3) {
+            overrideParsed = {
+              type: 'tri',
+              vNames: [aiData.vNames[0] || 'A', aiData.vNames[1] || 'B', aiData.vNames[2] || 'C', aiData.vNames[3] || 'H'],
+              ab: +aiData.ab || 6,
+              ac: +aiData.ac || 8
+            };
+          }
+          parseMath9Problem(overrideParsed, true);
+          return;
+        } catch (err) {
+          console.warn('Gemini Vision fallback to Tesseract:', err);
+          setOCRProgress(15, `⚠️ AI Vision lỗi (${err.message}), chuyển sang Tesseract OCR...`);
+        }
+      }
+
+      if (typeof Tesseract === 'undefined') {
+        setOCRProgress(0, '⚠️ Thư viện Tesseract.js đang tải hoặc mất kết nối mạng.');
+        if (metaEl) metaEl.textContent = 'Không tải được OCR';
+        return;
+      }
+
+      try {
+        setOCRProgress(5, 'Đang khởi tạo bộ quét OCR (vie+eng)... 5%');
+        const result = await Tesseract.recognize(dataUrl, 'vie+eng', {
+          logger: m => {
+            if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+              const p = Math.max(10, Math.round(m.progress * 100));
+              setOCRProgress(p, `Đang quét chữ từ ảnh... ${p}%`);
+            } else if (m.status) {
+              setOCRProgress(10, `Đang chuẩn bị dữ liệu OCR (${m.status})...`);
+            }
+          }
+        });
+        const cleanText = normalizeOCRMathText(result?.data?.text || '');
+        setOCRProgress(100, '✓ Đã quét xong đề bài từ ảnh!');
+        if (metaEl) metaEl.textContent = cleanText ? '✓ Đã quét OCR xong' : '⚠️ Không đọc được chữ rõ';
+        if (cleanText) {
+          document.getElementById('ai-problem-input').value = cleanText;
+          parseMath9Problem(null, true);
+        }
+      } catch (err) {
+        console.error('OCR error:', err);
+        setOCRProgress(0, `⚠️ Lỗi quét OCR: ${err.message || err}`);
+      }
+    }
+
+    function setupAIImageHandlers() {
+      const dz = document.getElementById('ai-img-dropzone');
+      if (dz) {
+        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+        dz.addEventListener('drop', e => {
+          e.preventDefault();
+          dz.classList.remove('drag-over');
+          const file = e.dataTransfer?.files?.[0];
+          if (file) handleAIImageFile(file, file.name);
+        });
+      }
+      document.addEventListener('paste', e => {
+        if (state.mainTab !== 3) return;
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (const item of items) {
+          if (item.type && item.type.startsWith('image/')) {
+            e.preventDefault();
+            const blob = item.getAsFile();
+            if (blob) handleAIImageFile(blob, 'Ảnh dán từ Clipboard (Ctrl+V)');
+            break;
+          }
+        }
+      });
+      updateAIVisionUI();
+    }
+
     function loadAISample(idx) {
       document.getElementById('ai-problem-input').value = AI_SAMPLES_9[idx] || '';
       parseMath9Problem();
     }
 
-    function parseMath9Problem() {
+    function parseMath9Problem(overrideParsed = null, triggerFlow = false) {
       const raw = (document.getElementById('ai-problem-input').value || '').trim();
       const logEl = document.getElementById('ai-parse-log');
-      if (!raw) { logEl.style.display = 'block'; logEl.innerHTML = '⚠️ Vui lòng nhập đề bài Toán 9.'; return; }
+      if (!raw && !overrideParsed) { logEl.style.display = 'block'; logEl.innerHTML = '⚠️ Vui lòng nhập đề bài Toán 9 hoặc dán ảnh chụp đề bài.'; return; }
       const lower = raw.toLowerCase().replace(/,/g, '.');
-      let parsed = null;
+      let parsed = overrideParsed;
 
-      if (/thang/.test(lower)) {
-        const lenM = lower.match(/(?:dài|thang)\s*(\d+(?:\.\d+)?)\s*m/);
-        const degM = lower.match(/(\d+(?:\.\d+)?)\s*(?:độ|°)/);
-        const len = lenM ? +lenM[1] : 5, deg = degM ? +degM[1] : 60;
-        parsed = { type: 'ladder', len, deg };
-        logEl.innerHTML = `✓ Nhận diện: <strong>Thang tựa tường</strong> ($l = ${len}\\text{ m},\\; \\alpha = ${deg}^\\circ$)`;
-      } else if (/cây.*gãy|bão|gãy/.test(lower)) {
-        const nums = [...lower.matchAll(/(\d+(?:\.\d+)?)\s*m/g)].map(m => +m[1]);
-        const hRem = nums[0] || 3, lenB = nums[1] || 5;
-        parsed = { type: 'tree', hRemain: hRem, lenBroken: Math.max(hRem + 1, lenB) };
-        logEl.innerHTML = `✓ Nhận diện: <strong>Cây bị bão thổi gãy</strong> ($AB = ${hRem}\\text{ m},\\; AC = ${parsed.lenBroken}\\text{ m}$)`;
-      } else if (/tháp|giác\s*kế|tòa\s*nhà/.test(lower)) {
-        const dM = lower.match(/cách[^0-9]*(\d+(?:\.\d+)?)\s*m/), eyeM = lower.match(/(?:cao|giác\s*kế)[^0-9]*(\d+(?:\.\d+)?)\s*m/), degM = lower.match(/(\d+(?:\.\d+)?)\s*(?:độ|°)/);
-        const dist = dM ? +dM[1] : 24, eyeH = (eyeM && +eyeM[1] < 4) ? +eyeM[1] : 1.5, alpha = degM ? +degM[1] : 42;
-        parsed = { type: 'tower', dist, eyeH, alpha };
-        logEl.innerHTML = `✓ Nhận diện: <strong>Đo tháp bằng giác kế</strong> ($d = ${dist}\\text{ m},\\; \\alpha = ${alpha}^\\circ$)`;
+      if (!parsed) {
+        if (/thang/.test(lower)) {
+          const lenM = lower.match(/(?:dài|thang)\s*(\d+(?:\.\d+)?)\s*m/);
+          const degM = lower.match(/(\d+(?:\.\d+)?)\s*(?:độ|°)/);
+          const len = lenM ? +lenM[1] : 5, deg = degM ? +degM[1] : 60;
+          parsed = { type: 'ladder', len, deg };
+        } else if (/cây.*gãy|bão|gãy/.test(lower)) {
+          const nums = [...lower.matchAll(/(\d+(?:\.\d+)?)\s*m/g)].map(m => +m[1]);
+          const hRem = nums[0] || 3, lenB = nums[1] || 5;
+          parsed = { type: 'tree', hRemain: hRem, lenBroken: Math.max(hRem + 1, lenB) };
+        } else if (/tháp|giác\s*kế|tòa\s*nhà/.test(lower)) {
+          const dM = lower.match(/cách[^0-9]*(\d+(?:\.\d+)?)\s*m/), eyeM = lower.match(/(?:cao|giác\s*kế)[^0-9]*(\d+(?:\.\d+)?)\s*m/), degM = lower.match(/(\d+(?:\.\d+)?)\s*(?:độ|°)/);
+          const dist = dM ? +dM[1] : 24, eyeH = (eyeM && +eyeM[1] < 4) ? +eyeM[1] : 1.5, alpha = degM ? +degM[1] : 42;
+          parsed = { type: 'tower', dist, eyeH, alpha };
+        } else {
+          const vM = raw.match(/tam\s*giác\s*([A-Z])([A-Z])([A-Z])/);
+          const rM = raw.match(/vuông\s*tại\s*([A-Z])/);
+          const hM = raw.match(/đường\s*cao\s*([A-Z])([A-Z])/);
+          let vA = rM ? rM[1] : (vM ? vM[1] : 'A');
+          let others = vM ? [vM[1], vM[2], vM[3]].filter(x => x !== vA) : ['B', 'C'];
+          const vB = others[0] || 'B', vC = others[1] || 'C', vH = hM ? hM[2] : 'H';
+          const nums = [...lower.matchAll(/([a-z]{2})\s*=\s*(\d+(?:\.\d+)?)/g)];
+          let ab = 6, ac = 8;
+          if (nums.length >= 2) { ab = +nums[0][2]; ac = +nums[1][2]; }
+          parsed = { type: 'tri', vNames: [vA, vB, vC, vH], ab, ac };
+        }
+      }
+
+      if (parsed.type === 'ladder') {
+        logEl.innerHTML = `✓ Nhận diện: <strong>Thang tựa tường</strong> ($l = ${parsed.len}\\text{ m},\\; \\alpha = ${parsed.deg}^\\circ$)`;
+      } else if (parsed.type === 'tree') {
+        logEl.innerHTML = `✓ Nhận diện: <strong>Cây bị bão thổi gãy</strong> ($AB = ${parsed.hRemain}\\text{ m},\\; AC = ${parsed.lenBroken}\\text{ m}$)`;
+      } else if (parsed.type === 'tower') {
+        logEl.innerHTML = `✓ Nhận diện: <strong>Đo tháp bằng giác kế</strong> ($d = ${parsed.dist}\\text{ m},\\; \\alpha = ${parsed.alpha}^\\circ$)`;
       } else {
-        const vM = raw.match(/tam\s*giác\s*([A-Z])([A-Z])([A-Z])/);
-        const rM = raw.match(/vuông\s*tại\s*([A-Z])/);
-        const hM = raw.match(/đường\s*cao\s*([A-Z])([A-Z])/);
-        let vA = rM ? rM[1] : (vM ? vM[1] : 'A');
-        let others = vM ? [vM[1], vM[2], vM[3]].filter(x => x !== vA) : ['B', 'C'];
-        const vB = others[0] || 'B', vC = others[1] || 'C', vH = hM ? hM[2] : 'H';
-        const nums = [...lower.matchAll(/([a-z]{2})\s*=\s*(\d+(?:\.\d+)?)/g)];
-        let ab = 6, ac = 8;
-        if (nums.length >= 2) { ab = +nums[0][2]; ac = +nums[1][2]; }
-        parsed = { type: 'tri', vNames: [vA, vB, vC, vH], ab, ac };
-        logEl.innerHTML = `✓ Nhận diện: <strong>$\\triangle ${vA}${vB}${vC}$ vuông tại $${vA}$, đường cao $${vA}${vH}$</strong> ($${ab}; ${ac}$)`;
+        const [vA, vB, vC, vH] = parsed.vNames;
+        logEl.innerHTML = `✓ Nhận diện: <strong>$\\triangle ${vA}${vB}${vC}$ vuông tại $${vA}$, đường cao $${vA}${vH}$</strong> ($${parsed.ab}; ${parsed.ac}$)`;
       }
 
       state.ai.parsed = parsed;
       logEl.style.display = 'block';
       renderAllMath(logEl);
-      rebuildScene();
+
+      // Mở ngăn Lời giải bên phải & đồng bộ diễn hoạt B1 -> B4 khi bóc tách từ ảnh
+      const drawer = document.getElementById('right-sol-drawer');
+      if (drawer) drawer.classList.remove('collapsed');
+      if (triggerFlow) {
+        setStep(1);
+        toggleAutoPlay();
+      } else {
+        rebuildScene();
+      }
     }
 
     function renderAIScene() {
@@ -2741,6 +3066,7 @@
           });
         });
         resizeCanvas();
+        setupAIImageHandlers();
         selectModel('a1');
         renderAllMath(document.body);
         requestAnimationFrame(animateLoop);
