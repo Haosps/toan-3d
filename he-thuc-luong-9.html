@@ -40,79 +40,115 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    /* Compact 50px Header Bar */
+    /* Top Project Bar (48px) */
     header {
-      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+      background: #0F172A;
       color: #fff;
-      padding: 6px 16px;
-      min-height: 50px;
+      padding: 0 14px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       flex-shrink: 0;
-      z-index: 20;
-      border-bottom: 1.5px solid rgba(245, 158, 11, 0.45);
-      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.24);
-      flex-wrap: wrap;
+      z-index: 30;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
     }
 
-    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .brand-icon {
-      width: 34px; height: 34px; border-radius: 9px;
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(245, 158, 11, 0.22));
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.24), rgba(245, 158, 11, 0.24));
       border: 1px solid rgba(245, 158, 11, 0.55);
       display: grid; place-items: center; flex-shrink: 0;
     }
-    .brand h1 { font-size: 13.5px; font-weight: 700; letter-spacing: 0.02em; color: #f8fafc; line-height: 1.2; }
-    .brand p { font-size: 10.5px; color: #bae6fd; font-weight: 500; margin-top: 1px; }
+    .proj-breadcrumb {
+      display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .proj-breadcrumb strong { color: #f8fafc; font-weight: 600; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 600; color: #4ade80;
+      background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(74, 222, 128, 0.35);
+      padding: 2px 7px; border-radius: 999px; flex-shrink: 0;
+    }
 
     .main-tabs {
       display: inline-flex;
-      background: rgba(15, 23, 42, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      padding: 3px; border-radius: 999px; gap: 4px;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 2px; border-radius: 9px; gap: 3px;
     }
     .main-tab {
       border: none; background: transparent; color: #cbd5e1;
-      padding: 6px 13px; border-radius: 999px;
-      font-size: 12px; font-weight: 700; font-family: inherit;
-      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+      padding: 5px 11px; border-radius: 7px;
+      font-size: 11.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .main-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
     .main-tab.active {
-      background: linear-gradient(135deg, #f59e0b, #ea580c);
-      color: #fff; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.45);
+      background: #2563eb; color: #fff; box-shadow: 0 1px 6px rgba(37, 99, 235, 0.45);
     }
 
-    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .header-right { display: flex; align-items: center; gap: 6px; position: relative; }
     .theme-pill {
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background: rgba(255, 255, 255, 0.1);
-      color: #f8fafc; padding: 5px 11px; border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc; padding: 4px 10px; border-radius: 8px;
       font-size: 11.5px; font-weight: 600; font-family: inherit;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+      text-decoration: none; transition: all 0.15s; white-space: nowrap;
     }
-    .theme-pill:hover { background: rgba(14, 165, 233, 0.28); border-color: #38bdf8; }
+    .theme-pill:hover { background: rgba(56, 189, 248, 0.22); border-color: #38bdf8; }
 
-    /* 2-Column Workspace */
-    .workspace { display: flex; flex: 1; min-height: 0; }
+    .session-popover {
+      position: absolute; top: 46px; right: 0; width: 300px;
+      background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1;
+      border-radius: 10px; padding: 10px; box-shadow: 0 14px 32px rgba(15, 23, 42, 0.22);
+      z-index: 40; display: none; flex-direction: column; gap: 7px;
+    }
+    .session-popover.open { display: flex; }
+
+    /* 3-Zone Workspace Shell (Activity Rail 52px + Collapsible Sidebar 320px + Stage + Right Solution Drawer) */
+    .workspace { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+
+    .activity-rail {
+      width: 52px; flex-shrink: 0; background: #f8fafc; border-right: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 8px; z-index: 15;
+    }
+    .rail-btn {
+      width: 38px; height: 38px; border-radius: 9px; border: 1px solid transparent;
+      background: transparent; font-size: 17px; cursor: pointer; display: grid; place-items: center;
+      color: #475569; transition: all 0.15s;
+    }
+    .rail-btn:hover { background: #e2e8f0; color: #0f172a; }
+    .rail-btn.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
 
     .left-panel {
-      width: 32%; min-width: 340px; max-width: 440px;
+      width: 320px; min-width: 320px;
       background: var(--panel-bg); border-right: 1px solid var(--border);
-      overflow-y: auto; padding: 11px;
-      display: flex; flex-direction: column; gap: 9px;
-      transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+      overflow-y: auto; padding: 10px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
     }
     .right-stage {
-      flex: 1; height: calc(100vh - 50px); min-height: 550px; min-width: 0;
+      flex: 1; height: calc(100vh - 48px); min-height: 550px; min-width: 0;
       position: relative; background: #ffffff; overflow: hidden;
-      transition: width 0.25s ease;
     }
     .workspace.focus-mode .left-panel {
       width: 0 !important; min-width: 0 !important; padding: 0 !important;
       border-right: none !important; overflow: hidden !important; opacity: 0; pointer-events: none;
+    }
+    .right-sol-drawer {
+      width: 365px; flex-shrink: 0; background: #ffffff; border-left: 1px solid #e2e8f0;
+      overflow-y: auto; padding: 11px; display: flex; flex-direction: column; gap: 8px;
+      transition: width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
+    }
+    .right-sol-drawer.collapsed {
+      width: 0 !important; padding: 0 !important; border-left: none !important;
+      overflow: hidden !important; opacity: 0; pointer-events: none;
     }
 
     #mainCanvas, #drawOverlay {
@@ -349,31 +385,56 @@
   <header>
     <div class="brand">
       <div class="brand-icon" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M4 19H20L4 5V19Z" stroke="#F59E0B" stroke-width="2" fill="rgba(14,165,233,0.2)"/>
           <path d="M4 19L11.5 11.5" stroke="#38BDF8" stroke-width="1.6" stroke-dasharray="2 2"/>
-          <rect x="4" y="15.5" width="3.5" height="3.5" stroke="#22C55E" stroke-width="1.5"/>
         </svg>
       </div>
-      <div>
-        <h1>CƠ SỞ BỒI DƯỠNG VĂN HÓA HÀO HIỆP</h1>
-        <p>Hệ thống Toán 9 Trực Quan: 24 Mô Hình &amp; Xưởng Hình Phẳng • ThS. Phạm Ngọc Hào</p>
+      <div class="proj-breadcrumb">
+        <span>Cơ sở BDVH Hào Hiệp</span>
+        <span>/</span>
+        <span>Toán Trực Quan</span>
+        <span>/</span>
+        <strong id="hdr-breadcrumb">Nhóm 1 • Bài 1.1</strong>
+        <span class="status-pill">● Sẵn sàng</span>
       </div>
     </div>
 
     <div class="main-tabs" role="tablist">
-      <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho 24 Mô Hình Toán 9</button>
-      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">📐 Kho Hình Phẳng (10 Mẫu)</button>
-      <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">🤖 Trợ Lý Đọc Đề (AI Parser)</button>
+      <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Thư viện Mô hình</button>
+      <button class="main-tab" id="main-tab-2" onclick="switchMainTab(2)">📐 Bảng vẽ &amp; Thí nghiệm</button>
+      <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">🤖 Trợ lý Giải đề AI</button>
     </div>
 
     <div class="header-right">
-      <button class="theme-pill" id="btn-theme" onclick="toggleTheme()">🌙 Tối Studio</button>
-      <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Phím tắt: F">◀ Thu gọn bảng bên</button>
+      <a class="theme-pill" href="./hinh-khong-gian-11.html" title="Chuyển sang dự án Hình Không Gian 3D">🧊 Toán 11-12 ↗</a>
+      <button class="theme-pill" onclick="toggleSessionPopover()">💾 Lưu tiết dạy</button>
+      <button class="theme-pill" id="btn-theme" onclick="toggleTheme()">🌙 Tối</button>
+      <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Phím tắt: F">⛶ Toàn màn hình (F)</button>
+
+      <div class="session-popover" id="session-popover">
+        <div style="font-size:12px; font-weight:700; color:#1e3a8a; display:flex; justify-content:space-between; align-items:center;">
+          <span>💾 Quản lý Tiết dạy (LocalStorage)</span>
+          <button class="step-btn" onclick="toggleSessionPopover()">✕</button>
+        </div>
+        <div style="display:flex; gap:5px;">
+          <input type="text" id="session-name-input" class="aux-select" placeholder="VD: Tiết 1 - Lớp 9A2..." />
+          <button class="step-btn" onclick="saveCurrentSession()" style="background:#16a34a; color:#fff; border-color:#15803d;">Lưu</button>
+        </div>
+        <div id="saved-sessions-list" style="display:flex; flex-direction:column; gap:5px; max-height:220px; overflow-y:auto;"></div>
+      </div>
     </div>
   </header>
 
   <main class="workspace">
+    <!-- 52px Activity Rail -->
+    <nav class="activity-rail" id="activity-rail" aria-label="Công cụ nhanh">
+      <button class="rail-btn active" id="rail-lib" onclick="clickRail('lib')" title="Danh mục bài / Khung hình">📚</button>
+      <button class="rail-btn" id="rail-params" onclick="clickRail('params')" title="Thông số / Bật tắt đường phụ">🎛️</button>
+      <button class="rail-btn" id="rail-aux" onclick="clickRail('aux')" title="Chấm điểm phụ / Nhập đề AI">📍</button>
+      <button class="rail-btn active" id="rail-sol" onclick="toggleRightSolDrawer()" title="Mở / Đóng Ngăn Lời giải chi tiết">📖</button>
+    </nav>
+
     <aside class="left-panel">
       <!-- TAB 1: KHO 24 MÔ HÌNH (4 NHÓM ACCORDION) -->
       <div id="tab1-panel" style="display:flex; flex-direction:column; gap:8px;">
@@ -440,17 +501,9 @@
           </details>
         </section>
 
-        <section class="card">
+        <section class="card" id="tab1-ctrl-card">
           <div class="card-title"><span>📌 Đề bài &amp; Tương tác thông số</span></div>
           <div id="tab1-controls"></div>
-        </section>
-
-        <section class="card">
-          <div class="card-title">
-            <span>📖 Lời giải chi tiết chuẩn tự luận (KaTeX)</span>
-            <button class="step-btn" onclick="toggleWideSolution()">⤢ Xem rộng</button>
-          </div>
-          <div class="solution-list" id="tab1-solutions"></div>
         </section>
       </div>
 
@@ -527,13 +580,6 @@
           <div id="geo-extra-measures" style="font-size:11.5px; color:#475569;">Click đúp vào điểm phụ trên hình để đổi tên nhanh.</div>
         </section>
 
-        <section class="card" id="tab2-sol-card">
-          <div class="card-title">
-            <span>📖 Lời giải &amp; Tính chất tự động (KaTeX)</span>
-            <button class="step-btn" onclick="toggleWideSolution()">⤢ Xem rộng</button>
-          </div>
-          <div class="solution-list" id="tab2-solutions"></div>
-        </section>
       </div>
 
       <!-- TAB 3: TRỢ LÝ ĐỌC ĐỀ TOÁN 9 (SMART MATH PARSER) -->
@@ -551,14 +597,6 @@
             ⚡ Tự động dựng hình chuẩn tỉ lệ &amp; Giải chi tiết
           </button>
           <div id="ai-parse-log" style="display:none; margin-top:8px; padding:8px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac; font-size:12px; color:#166534;"></div>
-        </section>
-
-        <section class="card">
-          <div class="card-title">
-            <span>📖 Lời giải tự luận từng bước (KaTeX)</span>
-            <button class="step-btn" onclick="toggleWideSolution()">⤢ Xem rộng</button>
-          </div>
-          <div class="solution-list" id="tab3-solutions"></div>
         </section>
       </div>
     </aside>
@@ -615,9 +653,22 @@
       <div class="floating-dock">
         <button class="dock-btn" id="btn-pen" onclick="togglePenMode()">✏️ Bút vẽ (B)</button>
         <span class="dock-sep"></span>
-        <button class="dock-btn" onclick="exportExamPNG()">📷 Tải ảnh đề thi PNG</button>
+        <button class="dock-btn" onclick="exportExamPNG()">📷 Xuất PNG</button>
+        <span class="dock-sep"></span>
+        <button class="dock-btn active-dock" id="btn-sol-drawer" onclick="toggleRightSolDrawer()">📖 Lời giải</button>
       </div>
     </section>
+
+    <!-- RIGHT DOCKED SOLUTION DRAWER (LaTeX Document Style) -->
+    <aside class="right-sol-drawer" id="right-sol-drawer">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
+        <span style="font-size:12.5px; font-weight:700; color:#1e3a8a;">📖 Lời giải chi tiết chuẩn tự luận (KaTeX)</span>
+        <button class="step-btn" onclick="toggleRightSolDrawer()" title="Thu gọn ngăn lời giải">✕</button>
+      </div>
+      <div class="solution-list" id="tab1-solutions"></div>
+      <div class="solution-list" id="tab2-solutions" style="display:none;"></div>
+      <div class="solution-list" id="tab3-solutions" style="display:none;"></div>
+    </aside>
   </main>
 
   <script>
@@ -1557,8 +1608,9 @@
     }
 
     function toggleGeoSolBox() {
-      const card = document.getElementById('tab2-sol-card');
-      if (card) card.style.display = state.geo.showGridAndSol ? 'block' : 'none';
+      const dr = document.getElementById('right-sol-drawer');
+      if (dr) dr.classList.toggle('collapsed', !state.geo.showGridAndSol);
+      resizeStage();
     }
 
     function drawDragHandle(ctx, p, label, color, ox, oy, isDark) {
@@ -2385,15 +2437,135 @@
       }
     }
 
+    function updateBreadcrumb() {
+      const el = document.getElementById('hdr-breadcrumb');
+      if (!el) return;
+      if (state.mainTab === 1) {
+        const btn = document.getElementById(`btn-m-${state.modelId}`);
+        const lbl = btn ? btn.querySelector('span')?.textContent?.replace(/\$[^$]*\$/g, '').trim() : state.modelId;
+        el.textContent = lbl || 'Thư viện Mô hình';
+      } else if (state.mainTab === 2) {
+        el.textContent = 'Bảng vẽ & Thí nghiệm 2D';
+      } else {
+        el.textContent = 'Trợ lý Giải đề AI';
+      }
+    }
+
+    function clickRail(section) {
+      const ws = document.querySelector('.workspace');
+      const curActive = document.querySelector('#activity-rail .rail-btn.active:not(#rail-sol)');
+      if (curActive && curActive.id === `rail-${section}` && !ws.classList.contains('focus-mode')) {
+        ws.classList.add('focus-mode');
+        curActive.classList.remove('active');
+      } else {
+        ws.classList.remove('focus-mode');
+        ['lib', 'params', 'aux'].forEach(k => {
+          const b = document.getElementById(`rail-${k}`);
+          if (b) b.classList.toggle('active', k === section);
+        });
+        if (section === 'aux' && state.mainTab === 1) switchMainTab(2);
+      }
+      resizeStage();
+      setTimeout(resizeStage, 240);
+    }
+
+    function toggleRightSolDrawer() {
+      const dr = document.getElementById('right-sol-drawer');
+      const rBtn = document.getElementById('rail-sol');
+      const dBtn = document.getElementById('btn-sol-drawer');
+      if (!dr) return;
+      const isCol = dr.classList.toggle('collapsed');
+      if (rBtn) rBtn.classList.toggle('active', !isCol);
+      if (dBtn) dBtn.classList.toggle('active-dock', !isCol);
+      resizeStage();
+      setTimeout(resizeStage, 240);
+    }
+
+    const SESSION_KEY = 'haohiep_toan9_sessions_v1';
+    function toggleSessionPopover() {
+      const pop = document.getElementById('session-popover');
+      if (!pop) return;
+      const open = pop.classList.toggle('open');
+      if (open) renderSavedSessions();
+    }
+
+    function getSavedSessions() {
+      try { return JSON.parse(localStorage.getItem(SESSION_KEY) || '[]'); } catch { return []; }
+    }
+
+    function saveCurrentSession() {
+      const inp = document.getElementById('session-name-input');
+      const name = (inp.value || '').trim() || `Tiết dạy ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+      const list = getSavedSessions();
+      list.unshift({
+        name,
+        savedAt: new Date().toLocaleDateString('vi-VN'),
+        mainTab: state.mainTab,
+        modelId: state.modelId,
+        step: state.step,
+        geo: {
+          template: state.geo.template, preset: state.geo.preset,
+          rtAngle: state.geo.rtAngle, triPts: state.geo.triPts, anyQuadPts: state.geo.anyQuadPts,
+          auxPts: state.geo.auxPts, extraLines: state.geo.extraLines,
+          showAlt: state.geo.showAlt, showMed: state.geo.showMed, showBis: state.geo.showBis, showCir: state.geo.showCir
+        }
+      });
+      localStorage.setItem(SESSION_KEY, JSON.stringify(list.slice(0, 12)));
+      inp.value = '';
+      renderSavedSessions();
+    }
+
+    function loadSavedSession(idx) {
+      const list = getSavedSessions();
+      const s = list[idx];
+      if (!s) return;
+      if (s.geo) Object.assign(state.geo, s.geo);
+      if (s.mainTab === 1) { switchMainTab(1); selectModel(s.modelId || 'a1'); setStep(s.step || 4); }
+      else if (s.mainTab === 2) { switchMainTab(2); selectGeoTemplate(state.geo.template); setGeoPreset(state.geo.preset); }
+      else { switchMainTab(s.mainTab || 1); }
+      toggleSessionPopover();
+    }
+
+    function deleteSavedSession(idx) {
+      const list = getSavedSessions();
+      list.splice(idx, 1);
+      localStorage.setItem(SESSION_KEY, JSON.stringify(list));
+      renderSavedSessions();
+    }
+
+    function renderSavedSessions() {
+      const box = document.getElementById('saved-sessions-list');
+      if (!box) return;
+      const list = getSavedSessions();
+      if (list.length === 0) {
+        box.innerHTML = '<div style="font-size:11.5px; color:#64748b;">Chưa có tiết dạy nào được lưu.</div>';
+        return;
+      }
+      box.innerHTML = list.map((s, i) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:5px; padding:5px 7px; border:1px solid #e2e8f0; border-radius:7px; background:#f8fafc; font-size:11.5px;">
+          <div style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <strong>${s.name}</strong> <span style="color:#64748b;">(${s.savedAt})</span>
+          </div>
+          <div style="display:flex; gap:3px; flex-shrink:0;">
+            <button class="step-btn" onclick="loadSavedSession(${i})">Mở</button>
+            <button class="step-btn" onclick="deleteSavedSession(${i})" style="color:#dc2626;">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
     function switchMainTab(tab) {
       stopAutoPlay();
       state.mainTab = tab;
       [1, 2, 3].forEach(i => {
         document.getElementById(`main-tab-${i}`).classList.toggle('active', tab === i);
         document.getElementById(`tab${i}-panel`).style.display = tab === i ? 'flex' : 'none';
+        const solEl = document.getElementById(`tab${i}-solutions`);
+        if (solEl) solEl.style.display = tab === i ? 'flex' : 'none';
       });
       const stepBar = document.getElementById('step-pres-bar');
       if (stepBar) stepBar.style.display = tab === 2 ? 'none' : 'flex';
+      updateBreadcrumb();
       rebuildScene();
       renderAllMath(document.querySelector('.left-panel'));
     }
@@ -2409,6 +2581,7 @@
         document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => { acc.open = (acc === parentAcc); });
       }
       buildTab1Controls();
+      updateBreadcrumb();
       setStep(4);
     }
 
