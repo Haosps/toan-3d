@@ -1368,6 +1368,134 @@
       ctx.restore();
     }
 
+    // 2.5D Realistic Illustration Helpers for Real-World Models
+    function drawBoat25D(ctx, x, y, angle, hullCol = '#ea580c', t = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      // V-shaped water wake
+      ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+      ctx.lineWidth = 1.8;
+      const wake = 16 + Math.sin(t * 6) * 3;
+      ctx.beginPath();
+      ctx.moveTo(-10, -4); ctx.lineTo(-28 - wake, -14);
+      ctx.moveTo(-10, 4); ctx.lineTo(-28 - wake, 14);
+      ctx.stroke();
+      // Boat hull
+      ctx.fillStyle = hullCol;
+      ctx.beginPath();
+      ctx.moveTo(22, 0);
+      ctx.quadraticCurveTo(10, -10, -16, -8);
+      ctx.lineTo(-18, 8);
+      ctx.quadraticCurveTo(10, 10, 22, 0);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+      // Cabin
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath(); ctx.roundRect(-8, -5, 13, 10, 3); ctx.fill();
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(0, -3.5, 4, 7);
+      ctx.restore();
+    }
+
+    function drawPlane25D(ctx, x, y, angle, t = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      // Contrail
+      const grad = ctx.createLinearGradient(-70, 0, -16, 0);
+      grad.addColorStop(0, 'rgba(255,255,255,0)');
+      grad.addColorStop(1, 'rgba(255,255,255,0.75)');
+      ctx.strokeStyle = grad; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(-70 - (t * 20) % 15, 0); ctx.lineTo(-16, 0); ctx.stroke();
+      // Fuselage
+      ctx.fillStyle = '#f8fafc'; ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(24, 0); ctx.quadraticCurveTo(14, -6, -18, -4);
+      ctx.lineTo(-22, -13); ctx.lineTo(-14, -13); ctx.lineTo(-8, -3);
+      ctx.lineTo(-18, 4); ctx.quadraticCurveTo(14, 6, 24, 0);
+      ctx.fill(); ctx.stroke();
+      // Wing
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath(); ctx.moveTo(4, 1); ctx.lineTo(-8, 13); ctx.lineTo(-13, 13); ctx.lineTo(-4, 1); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath(); ctx.arc(14, -1.5, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    function drawSubmarine25D(ctx, x, y, angle, t = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      // Headlight beam
+      const lg = ctx.createLinearGradient(20, 0, 95, 0);
+      lg.addColorStop(0, 'rgba(253, 224, 71, 0.45)');
+      lg.addColorStop(1, 'rgba(253, 224, 71, 0)');
+      ctx.fillStyle = lg;
+      ctx.beginPath(); ctx.moveTo(20, 0); ctx.lineTo(95, -20); ctx.lineTo(95, 20); ctx.closePath(); ctx.fill();
+      // Conning tower
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(-4, -13, 12, 7);
+      ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(2, -13); ctx.lineTo(2, -18); ctx.lineTo(6, -18); ctx.stroke();
+      // Hull
+      ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.ellipse(0, 0, 24, 9, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      // Portholes
+      ctx.fillStyle = '#38bdf8';
+      [-8, 0, 8].forEach(px => { ctx.beginPath(); ctx.arc(px, 0, 2.4, 0, Math.PI * 2); ctx.fill(); });
+      // Propeller
+      const pw = Math.abs(Math.cos(t * 18)) * 7 + 1;
+      ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(-26, -pw); ctx.lineTo(-26, pw); ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCar25D(ctx, x, y, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      // Headlight
+      const lg = ctx.createLinearGradient(18, -6, 60, -6);
+      lg.addColorStop(0, 'rgba(254,240,138,0.55)'); lg.addColorStop(1, 'rgba(254,240,138,0)');
+      ctx.fillStyle = lg; ctx.beginPath(); ctx.moveTo(18, -7); ctx.lineTo(60, -16); ctx.lineTo(60, 0); ctx.closePath(); ctx.fill();
+      // Body
+      ctx.fillStyle = '#2563eb';
+      ctx.beginPath(); ctx.roundRect(-18, -13, 36, 10, 3); ctx.fill();
+      ctx.fillStyle = '#60a5fa';
+      ctx.beginPath(); ctx.moveTo(-10, -13); ctx.lineTo(-5, -20); ctx.lineTo(7, -20); ctx.lineTo(12, -13); ctx.closePath(); ctx.fill();
+      // Wheels
+      ctx.fillStyle = '#0f172a';
+      [-10, 10].forEach(wx => {
+        ctx.beginPath(); ctx.arc(wx, -3, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(wx, -3, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0f172a';
+      });
+      ctx.restore();
+    }
+
+    function drawHotAirBalloon25D(ctx, x, y, t = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      // Ropes & basket
+      ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(-8, -4); ctx.lineTo(-5, 8); ctx.moveTo(8, -4); ctx.lineTo(5, 8); ctx.stroke();
+      ctx.fillStyle = '#92400e'; ctx.fillRect(-6, 8, 12, 9);
+      // Burner flame
+      ctx.fillStyle = Math.sin(t * 15) > 0 ? '#facc15' : '#f97316';
+      ctx.beginPath(); ctx.arc(0, 2, 3.2, 0, Math.PI * 2); ctx.fill();
+      // Balloon envelope
+      const g = ctx.createRadialGradient(-6, -28, 4, 0, -24, 24);
+      g.addColorStop(0, '#fde047'); g.addColorStop(0.5, '#f97316'); g.addColorStop(1, '#dc2626');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(0, -24, 22, Math.PI * 0.85, Math.PI * 0.15, false);
+      ctx.lineTo(7, -4); ctx.lineTo(-7, -4); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.ellipse(0, -22, 9, 20, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+
     // =========================================================================
     // 2. TAB 1: 24 MODELS (NHÓM 1, 2, 3, 4)
     // =========================================================================
@@ -1378,7 +1506,7 @@
       const eff = state.showAllSteps ? 4 : state.step;
       const id = state.modelId;
       const t = state.animTime;
-      const bgKind = ['c5','c8','d2','d7'].includes(id)
+      const bgKind = ['c5','d2'].includes(id)
         ? 'ocean'
         : (['c1','c2','c3','c4','c6','c7','d1','d3','d4','d5','d6','d8'].includes(id) ? 'sky' : 'grid');
       drawBackdrop(ctx, w, h, bgKind, t, isDark);
@@ -1571,28 +1699,34 @@
             `Diện tích: $S_{\\triangle ABC} = \\dfrac{1}{2} \\cdot ${ac} \\cdot ${bh.toFixed(2)} \\approx ${area.toFixed(2)}$ (đvdt).`
           ];
         } else if (id === 'c1') {
-          // Bài 3.1: Thang tựa tường gạch 3D (thang 3m, góc 65 độ)
+          // Bài 3.1: Thang tựa tường gạch 2.5D chi tiết
           const { len, deg } = state.c1, rad = (deg * Math.PI) / 180, reach = len * Math.sin(rad), foot = len * Math.cos(rad);
           const O = { x: w * 0.34, y: h * 0.74 }, sc = 220 / len, A = { x: O.x, y: O.y - reach * sc }, B = { x: O.x + foot * sc, y: O.y };
-          // Brick wall 2.5D
-          ctx.save(); ctx.fillStyle = '#b91c1c'; ctx.fillRect(O.x - 46, O.y - len * sc - 20, 46, len * sc + 20);
-          ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1.2;
-          for (let y = O.y - len * sc - 10; y < O.y; y += 14) {
-            ctx.beginPath(); ctx.moveTo(O.x - 46, y); ctx.lineTo(O.x, y); ctx.stroke();
+          const wallTop = O.y - len * sc - 26;
+          ctx.save();
+          // House wall & roof overhang
+          ctx.fillStyle = '#b91c1c'; ctx.fillRect(O.x - 72, wallTop, 72, O.y - wallTop);
+          ctx.strokeStyle = 'rgba(255,255,255,0.42)'; ctx.lineWidth = 1.1;
+          for (let y = wallTop + 12; y < O.y; y += 12) {
+            ctx.beginPath(); ctx.moveTo(O.x - 72, y); ctx.lineTo(O.x, y); ctx.stroke();
+            const off = ((Math.round(y / 12)) % 2) * 12;
+            for (let x = O.x - 72 + off; x < O.x; x += 24) { ctx.beginPath(); ctx.moveTo(x, y - 12); ctx.lineTo(x, y); ctx.stroke(); }
           }
+          ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.moveTo(O.x - 80, wallTop); ctx.lineTo(O.x + 8, wallTop); ctx.lineTo(O.x - 8, wallTop - 16); ctx.lineTo(O.x - 72, wallTop - 16); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#bae6fd'; ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 2; ctx.fillRect(O.x - 52, wallTop + 26, 26, 32); ctx.strokeRect(O.x - 52, wallTop + 26, 26, 32);
           ctx.restore();
-          drawSeg(ctx, { x: O.x, y: O.y }, { x: w * 0.78, y: O.y }, mutedCol, 3);
+          drawSeg(ctx, { x: O.x, y: O.y }, { x: w * 0.82, y: O.y }, '#15803d', 3.5);
           drawRightAngle(ctx, O, A, B, 12, '#16a34a');
           if (eff >= 2) {
-            // Draw ladder rungs
-            drawSeg(ctx, A, B, '#92400e', 5);
-            const steps = 8;
+            drawSeg(ctx, A, B, '#92400e', 6.5);
+            drawSeg(ctx, A, B, '#d97706', 3.5);
+            const steps = 10;
             for (let i = 1; i < steps; i++) {
               const p = i / steps, lx = A.x + (B.x - A.x) * p, ly = A.y + (B.y - A.y) * p;
-              drawSeg(ctx, { x: lx - 4, y: ly - 3 }, { x: lx + 4, y: ly + 3 }, '#fbbf24', 2);
+              drawSeg(ctx, { x: lx - 5, y: ly - 3 }, { x: lx + 5, y: ly + 3 }, '#fef08a', 2.2);
             }
           }
-          if (eff >= 3) drawAngleArc(ctx, B, O, A, 34, '#f59e0b', `${deg}°`);
+          if (eff >= 3) drawAngleArc(ctx, B, O, A, 36, '#f59e0b', `${deg}°`);
           drawPt(ctx, O, 'O', edgeCol, -18, 16, isDark); drawPt(ctx, A, 'A', '#ea580c', 8, 4, isDark); drawPt(ctx, B, 'B', '#ea580c', 8, 16, isDark);
           stepDesc = ['Bước 1/4: Tường gạch thẳng đứng $OA \\perp$ mặt đất $OB$.', `Bước 2/4: Thang dài $AB = ${len}\\text{ m}$ tựa vào tường.`, `Bước 3/4: Góc tạo bởi thang và mặt đất $\\widehat{ABO} = ${deg}^\\circ$.`, `Bước 4/4: Độ cao $OA = ${len}\\sin ${deg}^\\circ \\approx ${reach.toFixed(2)}\\text{ m}$.`];
           solSteps = [
@@ -1602,16 +1736,24 @@
             `Khoảng cách chân thang tới tường: $OB = AB \\cdot \\cos ${deg}^\\circ \\approx ${foot.toFixed(2)}\\text{ m}$.`
           ];
         } else if (id === 'c2') {
-          // Bài 3.2: Đo cây/tháp bên kia sông (AC=15m, góc nâng 50 độ)
+          // Bài 3.2: Đo cây/tháp bên kia sông với người đo + giác kế & gợn sóng
           const { dist, alpha } = state.c2, rad = (alpha * Math.PI) / 180, height = dist * Math.tan(rad);
-          const gy = h * 0.72, A = { x: w * 0.70, y: gy }, C = { x: w * 0.24, y: gy }, B = { x: A.x, y: Math.max(h * 0.16, gy - 200) };
-          // River & green banks
+          const gy = h * 0.72, A = { x: w * 0.72, y: gy }, C = { x: w * 0.22, y: gy }, B = { x: A.x, y: Math.max(h * 0.16, gy - 205) };
           ctx.save();
-          ctx.fillStyle = '#86efac'; ctx.fillRect(0, gy, w * 0.38, h - gy); ctx.fillRect(w * 0.62, gy, w * 0.38, h - gy);
-          ctx.fillStyle = '#38bdf8'; ctx.fillRect(w * 0.38, gy, w * 0.24, h - gy);
-          // Tree silhouette at A
-          ctx.fillStyle = '#78350f'; ctx.fillRect(A.x - 6, B.y + 45, 12, gy - (B.y + 45));
-          ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(A.x, B.y + 30, 34, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#4ade80'; ctx.fillRect(0, gy, w * 0.36, h - gy); ctx.fillRect(w * 0.64, gy, w * 0.36, h - gy);
+          ctx.fillStyle = '#0ea5e9'; ctx.fillRect(w * 0.36, gy, w * 0.28, h - gy);
+          ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.6;
+          for (let i = 0; i < 3; i++) {
+            const wy = gy + 18 + i * 20, wx = w * 0.40 + Math.sin(t * 2 + i) * 10;
+            ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx + 42, wy); ctx.stroke();
+          }
+          // Detailed multi-crown tree at A
+          ctx.fillStyle = '#78350f'; ctx.fillRect(A.x - 7, B.y + 52, 14, gy - (B.y + 52));
+          ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(A.x, B.y + 38, 32, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#22c55e'; ctx.beginPath(); ctx.arc(A.x - 16, B.y + 44, 22, 0, Math.PI * 2); ctx.arc(A.x + 16, B.y + 44, 22, 0, Math.PI * 2); ctx.fill();
+          // Surveyor at C
+          ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.arc(C.x - 14, gy - 34, 6, 0, Math.PI * 2); ctx.moveTo(C.x - 14, gy - 28); ctx.lineTo(C.x - 14, gy - 12); ctx.moveTo(C.x - 14, gy - 12); ctx.lineTo(C.x - 20, gy); ctx.moveTo(C.x - 14, gy - 12); ctx.lineTo(C.x - 8, gy); ctx.stroke();
           ctx.restore();
           drawSeg(ctx, C, A, '#1e3a8a', 2.6); drawSeg(ctx, A, B, '#dc2626', 2.4, true); drawRightAngle(ctx, A, C, B, 12, '#16a34a');
           if (eff >= 2) drawSeg(ctx, C, B, '#ea580c', 2.4, true);
@@ -1625,15 +1767,24 @@
             `Thay số: $AB = ${dist} \\cdot \\tan ${alpha}^\\circ \\approx ${height.toFixed(2)}\\text{ m}$.`
           ];
         } else if (id === 'c3') {
-          // Bài 3.3: Landmark 81 đổ bóng nắng (góc tia nắng 63 độ, bóng AB)
+          // Bài 3.3: Tháp Landmark 81 đổ bóng nắng chi tiết
           const { shadow, alpha } = state.c3, rad = (alpha * Math.PI) / 180, height = shadow * Math.tan(rad);
-          const A = { x: w * 0.30, y: h * 0.74 }, H = { x: A.x, y: h * 0.16 }, B = { x: w * 0.76, y: A.y };
-          // Sun & Landmark 81 silhouette
-          ctx.save(); ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(w * 0.16, h * 0.16, 18, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = 'rgba(37,99,235,0.22)'; ctx.fillRect(A.x - 14, H.y + 30, 28, A.y - (H.y + 30));
-          ctx.fillStyle = 'rgba(37,99,235,0.35)'; ctx.fillRect(A.x - 6, H.y, 12, A.y - H.y); ctx.restore();
-          drawSeg(ctx, A, H, edgeCol, 3); drawRightAngle(ctx, A, H, B, 12, '#16a34a');
-          if (eff >= 2) drawSeg(ctx, A, B, '#475569', 4.5);
+          const A = { x: w * 0.30, y: h * 0.74 }, H = { x: A.x, y: h * 0.14 }, B = { x: w * 0.76, y: A.y };
+          ctx.save();
+          // Glowing sun + rays
+          const sunX = w * 0.15, sunY = h * 0.15;
+          const sg = ctx.createRadialGradient(sunX, sunY, 6, sunX, sunY, 34);
+          sg.addColorStop(0, '#fef08a'); sg.addColorStop(0.5, '#fbbf24'); sg.addColorStop(1, 'rgba(251,191,36,0)');
+          ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sunX, sunY, 34, 0, Math.PI * 2); ctx.fill();
+          // Landmark 81 tiered glass silhouette
+          const th = A.y - H.y;
+          ctx.fillStyle = '#1e40af'; ctx.fillRect(A.x - 18, A.y - th * 0.45, 36, th * 0.45);
+          ctx.fillStyle = '#2563eb'; ctx.fillRect(A.x - 12, A.y - th * 0.72, 24, th * 0.72);
+          ctx.fillStyle = '#38bdf8'; ctx.fillRect(A.x - 6, A.y - th * 0.90, 12, th * 0.90);
+          ctx.strokeStyle = '#93c5fd'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(A.x, H.y); ctx.lineTo(A.x, A.y - th * 0.90); ctx.stroke();
+          ctx.restore();
+          drawSeg(ctx, A, H, edgeCol, 2.4); drawRightAngle(ctx, A, H, B, 12, '#16a34a');
+          if (eff >= 2) drawSeg(ctx, A, B, '#334155', 5.5);
           if (eff >= 3) { drawSeg(ctx, H, B, '#f59e0b', 2.4, true); drawAngleArc(ctx, B, A, H, 38, '#f59e0b', `${alpha}°`); }
           drawPt(ctx, H, 'H', edgeCol, -16, 0, isDark); drawPt(ctx, A, 'A', edgeCol, -16, 16, isDark); drawPt(ctx, B, 'B', '#f59e0b', 8, 16, isDark);
           stepDesc = ['Bước 1/4: Tháp Landmark 81 thẳng đứng $AH \\perp$ mặt đất.', `Bước 2/4: Bóng nắng dài $AB = ${shadow}\\text{ m}$.`, `Bước 3/4: Tia nắng tạo với mặt đất góc $\\widehat{ABH} = ${alpha}^\\circ$.`, `Bước 4/4: Chiều cao tháp $AH = ${shadow}\\tan ${alpha}^\\circ \\approx ${height.toFixed(1)}\\text{ m}$.`];
@@ -1644,17 +1795,21 @@
             `Thay số: $AH = ${shadow} \\cdot \\tan ${alpha}^\\circ \\approx ${height.toFixed(2)}\\text{ m}$.`
           ];
         } else if (id === 'c4') {
-          // Bài 3.4: Máy bay cất cánh góc 22 độ, L = 2500m
+          // Bài 3.4: Máy bay cất cánh/hạ cánh với đường băng thực tế
           const { mode, alpha, dist } = state.c4, rad = (alpha * Math.PI) / 180, dh = dist * Math.sin(rad);
           const isTakeoff = mode === 'takeoff', y0 = h * 0.72;
           const A = { x: w * 0.20, y: isTakeoff ? y0 : y0 - 200 }, dx = Math.min(w * 0.56, 360), dy = dx * Math.tan(rad);
           const B = { x: A.x + dx, y: isTakeoff ? y0 - dy : y0 }, H = { x: B.x, y: isTakeoff ? y0 : A.y };
-          drawSeg(ctx, { x: w * 0.12, y: y0 }, { x: w * 0.86, y: y0 }, mutedCol, 2.5);
+          // Asphalt runway + dashed center
+          ctx.save();
+          ctx.fillStyle = '#334155'; ctx.fillRect(w * 0.08, y0 - 4, w * 0.84, 14);
+          ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 2; ctx.setLineDash([14, 10]);
+          ctx.beginPath(); ctx.moveTo(w * 0.10, y0 + 3); ctx.lineTo(w * 0.90, y0 + 3); ctx.stroke();
+          ctx.restore();
           if (eff >= 2) drawSeg(ctx, A, B, '#ea580c', 3);
           if (eff >= 3) { drawSeg(ctx, B, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, B, 12, '#dc2626'); drawAngleArc(ctx, A, H, B, 38, '#f59e0b', `${alpha}°`); }
           const prog = (t * 0.34) % 1, vx = A.x + (B.x - A.x) * prog, vy = A.y + (B.y - A.y) * prog;
-          ctx.save(); ctx.translate(vx, vy); ctx.rotate(Math.atan2(B.y - A.y, B.x - A.x));
-          ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(-12, -7); ctx.lineTo(-7, 0); ctx.lineTo(-12, 7); ctx.closePath(); ctx.fill(); ctx.restore();
+          drawPlane25D(ctx, vx, vy, Math.atan2(B.y - A.y, B.x - A.x), t);
           drawPt(ctx, A, 'A', edgeCol, -14, 16, isDark); drawPt(ctx, B, 'B', '#ea580c', 8, -6, isDark);
           if (eff >= 3) drawPt(ctx, H, 'H', '#dc2626', 8, 16, isDark);
           updateTelemetryHUD(isTakeoff ? 'Máy bay cất cánh' : 'Máy bay hạ cánh', [['Quãng đường s(t)', `${(dist * prog).toFixed(1)} m`], ['Độ cao h(t)', `${(dh * (isTakeoff ? prog : 1 - prog)).toFixed(1)} m`], ['Góc nghiêng α', `${alpha}°`]]);
@@ -1666,17 +1821,16 @@
             `Thay số: $BH = ${dist} \\cdot \\sin ${alpha}^\\circ \\approx ${dh.toFixed(2)}\\text{ m}$.`
           ];
         } else if (id === 'c5') {
-          // Bài 3.5: Tàu ngầm lặn sâu góc 18 độ
+          // Bài 3.5: Tàu ngầm vàng lặn sâu đại dương
           const { alpha, dist } = state.c5, rad = (alpha * Math.PI) / 180, depth = dist * Math.sin(rad);
           const y0 = h * 0.54, A = { x: w * 0.20, y: y0 }, dx = Math.min(w * 0.54, 340), dy = dx * Math.tan(rad);
           const B = { x: A.x + dx, y: y0 + dy }, H = { x: B.x, y: y0 };
           if (eff >= 2) drawSeg(ctx, A, B, '#f59e0b', 3);
           if (eff >= 3) { drawSeg(ctx, B, H, '#ef4444', 2.2, true); drawRightAngle(ctx, H, A, B, 12, '#ef4444'); drawAngleArc(ctx, A, H, B, 38, '#f59e0b', `${alpha}°`); }
           const prog = (t * 0.30) % 1, sx = A.x + (B.x - A.x) * prog, sy = A.y + (B.y - A.y) * prog;
-          ctx.save(); ctx.translate(sx, sy); ctx.rotate(Math.atan2(B.y - A.y, B.x - A.x));
-          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.ellipse(0, 0, 16, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-          ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.5)';
-          for (let i = 0; i < 4; i++) { const by = sy - ((t * 40 + i * 18) % 60); if (by > y0) { ctx.beginPath(); ctx.arc(sx - 8 + i * 5, by, 2.5, 0, Math.PI * 2); ctx.fill(); } }
+          drawSubmarine25D(ctx, sx, sy, Math.atan2(B.y - A.y, B.x - A.x), t);
+          ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.65)';
+          for (let i = 0; i < 6; i++) { const by = sy - ((t * 48 + i * 16) % 72); if (by > y0) { ctx.beginPath(); ctx.arc(sx - 14 + i * 5, by, 2 + (i % 2), 0, Math.PI * 2); ctx.fill(); } }
           ctx.restore();
           drawPt(ctx, A, 'A', '#f8fafc', -14, -10, true); drawPt(ctx, B, 'B', '#f59e0b', 8, 6, true);
           if (eff >= 3) drawPt(ctx, H, 'H', '#ef4444', 8, -10, true);
@@ -1689,15 +1843,21 @@
             `Thay số: $BH = ${dist} \\cdot \\sin ${alpha}^\\circ \\approx ${depth.toFixed(2)}\\text{ m}$.`
           ];
         } else if (id === 'c6') {
-          // Bài 3.6: Ô tô leo dốc cầu vượt L = 120m, h = 15m -> tính alpha và i%
+          // Bài 3.6: Ô tô leo dốc cầu vượt
           const { L, h: ch } = state.c6, sinA = Math.min(0.95, ch / L), rad = Math.asin(sinA), deg = (rad * 180) / Math.PI, pct = Math.tan(rad) * 100;
           const B = { x: w * 0.20, y: h * 0.74 }, C = { x: w * 0.80, y: h * 0.74 }, A = { x: C.x, y: B.y - Math.max(60, (C.x - B.x) * Math.tan(Math.max(rad, 0.16))) };
-          drawSeg(ctx, B, C, mutedCol, 2.2); drawSeg(ctx, A, C, '#dc2626', 2.2, true); drawRightAngle(ctx, C, B, A, 12, '#16a34a');
-          if (eff >= 2) drawSeg(ctx, B, A, '#ea580c', 3.6);
+          // Bridge pillars & road deck
+          ctx.save();
+          ctx.fillStyle = 'rgba(148,163,184,0.35)';
+          ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#64748b';
+          [0.35, 0.65, 0.95].forEach(r => { const px = B.x + (C.x - B.x) * r, py = B.y + (A.y - B.y) * r; ctx.fillRect(px - 5, py, 10, B.y - py); });
+          ctx.restore();
+          drawSeg(ctx, B, C, mutedCol, 2.4); drawSeg(ctx, A, C, '#dc2626', 2.2, true); drawRightAngle(ctx, C, B, A, 12, '#16a34a');
+          if (eff >= 2) drawSeg(ctx, B, A, '#334155', 7);
           if (eff >= 3) drawAngleArc(ctx, B, C, A, 44, '#f59e0b', `${deg.toFixed(1)}°`);
           const prog = (t * 0.28) % 1, cx = B.x + (A.x - B.x) * prog, cy = B.y + (A.y - B.y) * prog;
-          ctx.save(); ctx.translate(cx, cy); ctx.rotate(Math.atan2(A.y - B.y, A.x - B.x));
-          ctx.fillStyle = '#2563eb'; ctx.fillRect(-14, -12, 28, 12); ctx.restore();
+          drawCar25D(ctx, cx, cy, Math.atan2(A.y - B.y, A.x - B.x));
           drawPt(ctx, A, 'A', edgeCol, 8, -4, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', edgeCol, 8, 16, isDark);
           updateTelemetryHUD('Ô tô leo dốc', [['Quãng đường s(t)', `${(L * prog).toFixed(1)} m`], ['Độ cao h(t)', `${(ch * prog).toFixed(1)} m`], ['Độ dốc i', `${pct.toFixed(1)}% (${deg.toFixed(1)}°)`]]);
           stepDesc = [`Bước 1/4: Mặt dốc $AB = ${L}\\text{ m}$, chiều cao $AC = ${ch}\\text{ m}$.`, `Bước 2/4: Xét $\\triangle ABC$ vuông tại $C$.`, `Bước 3/4: $\\sin\\alpha = \\frac{${ch}}{${L}} \\Rightarrow \\alpha \\approx ${deg.toFixed(2)}^\\circ$.`, `Bước 4/4: Độ dốc $i = \\tan\\alpha \\approx ${pct.toFixed(1)}\\%$.`];
@@ -1708,16 +1868,27 @@
             `Độ dốc của đường: $i = \\tan\\alpha \\cdot 100\\% \\approx ${pct.toFixed(1)}\\%$.`
           ];
         } else if (id === 'c7') {
+          // Bài 3.7: Cáp treo vượt núi với cabin 2.5D
           const { L, alpha } = state.c7, rad = (alpha * Math.PI) / 180, dh = L * Math.sin(rad);
           const A = { x: w * 0.20, y: h * 0.72 }, B = { x: w * 0.78, y: h * 0.72 - Math.min(220, w * 0.58 * Math.tan(rad)) }, H = { x: B.x, y: A.y };
-          ctx.save(); ctx.fillStyle = isDark ? 'rgba(51,65,85,0.6)' : 'rgba(16,185,129,0.22)';
-          ctx.beginPath(); ctx.moveTo(w * 0.08, h * 0.74); ctx.lineTo(A.x, A.y - 8); ctx.lineTo(w * 0.36, h * 0.74); ctx.fill();
-          ctx.beginPath(); ctx.moveTo(w * 0.55, h * 0.74); ctx.lineTo(B.x, B.y); ctx.lineTo(w * 0.92, h * 0.74); ctx.fill(); ctx.restore();
+          ctx.save();
+          ctx.fillStyle = isDark ? 'rgba(51,65,85,0.75)' : '#10b981';
+          ctx.beginPath(); ctx.moveTo(w * 0.05, h * 0.74); ctx.lineTo(A.x, A.y - 6); ctx.lineTo(w * 0.42, h * 0.74); ctx.fill();
+          ctx.fillStyle = isDark ? 'rgba(30,41,59,0.85)' : '#059669';
+          ctx.beginPath(); ctx.moveTo(w * 0.46, h * 0.74); ctx.lineTo(B.x, B.y - 4); ctx.lineTo(w * 0.95, h * 0.74); ctx.fill();
+          // Cable towers
+          ctx.strokeStyle = '#475569'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(A.x, A.y - 14); ctx.moveTo(B.x, B.y); ctx.lineTo(B.x, B.y - 14); ctx.stroke();
+          ctx.restore();
           drawSeg(ctx, A, H, mutedCol, 2, true);
-          if (eff >= 2) drawSeg(ctx, A, B, '#ea580c', 3);
+          if (eff >= 2) drawSeg(ctx, A, B, '#1e293b', 2.8);
           if (eff >= 3) { drawSeg(ctx, B, H, '#dc2626', 2.2, true); drawRightAngle(ctx, H, A, B, 12, '#dc2626'); drawAngleArc(ctx, A, H, B, 40, '#f59e0b', `${alpha}°`); }
           const prog = (Math.sin(t * 0.9 - Math.PI / 2) + 1) / 2, cab = { x: A.x + (B.x - A.x) * prog, y: A.y + (B.y - A.y) * prog };
-          ctx.save(); ctx.fillStyle = '#0284c7'; ctx.fillRect(cab.x - 13, cab.y + 4, 26, 15); ctx.restore();
+          ctx.save(); ctx.translate(cab.x, cab.y); ctx.rotate(Math.sin(t * 2.5) * 0.05);
+          ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 10); ctx.stroke();
+          ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.roundRect(-15, 10, 30, 18, 5); ctx.fill();
+          ctx.fillStyle = '#bae6fd'; ctx.fillRect(-10, 13, 8, 8); ctx.fillRect(2, 13, 8, 8);
+          ctx.restore();
           drawPt(ctx, A, 'A', edgeCol, -14, 16, isDark); drawPt(ctx, B, 'B', edgeCol, 8, -6, isDark); drawPt(ctx, H, 'H', '#dc2626', 8, 16, isDark);
           updateTelemetryHUD('Cáp treo vượt núi', [['Quãng đường s(t)', `${(L * prog).toFixed(1)} m`], ['Chênh lệch h(t)', `${(dh * prog).toFixed(1)} m`], ['Góc cáp α', `${alpha}°`]]);
           stepDesc = ['Bước 1/4: Ga đi $A$ và ga đến $B$.', `Bước 2/4: Dây cáp $AB = ${L}\\text{ m}$, góc $${alpha}^\\circ$.`, 'Bước 3/4: Kẻ $BH \\perp AH$.', `Bước 4/4: $\\Delta h = ${L}\\sin ${alpha}^\\circ \\approx ${dh.toFixed(1)}\\text{ m}$.`];
@@ -1728,17 +1899,36 @@
             `Thay số: $BH = ${L} \\cdot \\sin ${alpha}^\\circ \\approx ${dh.toFixed(2)}\\text{ m}$.`
           ];
         } else if (id === 'c8') {
+          // Bài 3.8: Thuyền vượt sông (Top-Down River View — Không bị bờ sông lơ lửng trên trời!)
           const { width, alpha } = state.c8, rad = (alpha * Math.PI) / 180, ac = width / Math.cos(rad), bc = width * Math.tan(rad);
-          const yTop = h * 0.28, yBot = h * 0.72, A = { x: w * 0.34, y: yBot }, B = { x: A.x, y: yTop }, C = { x: A.x + (yBot - yTop) * Math.tan(rad), y: yTop };
-          drawSeg(ctx, { x: w * 0.1, y: yTop }, { x: w * 0.9, y: yTop }, '#16a34a', 3);
-          drawSeg(ctx, { x: w * 0.1, y: yBot }, { x: w * 0.9, y: yBot }, '#16a34a', 3);
-          drawSeg(ctx, A, B, edgeCol, 2.2, true); drawRightAngle(ctx, B, A, C, 12, '#16a34a');
-          if (eff >= 2) drawSeg(ctx, A, C, '#ea580c', 3);
-          if (eff >= 3) { drawSeg(ctx, B, C, '#2563eb', 2.4); drawAngleArc(ctx, A, C, B, 38, '#f59e0b', `${alpha}°`); }
+          const yTop = h * 0.25, yBot = h * 0.75, A = { x: w * 0.34, y: yBot }, B = { x: A.x, y: yTop }, C = { x: A.x + (yBot - yTop) * Math.tan(rad), y: yTop };
+          ctx.save();
+          // Lush green top & bottom banks
+          ctx.fillStyle = isDark ? '#064e3b' : '#bbf7d0'; ctx.fillRect(0, 0, w, yTop); ctx.fillRect(0, yBot, w, h - yBot);
+          // Deep flowing river water
+          const rg = ctx.createLinearGradient(0, yTop, 0, yBot);
+          rg.addColorStop(0, '#0284c7'); rg.addColorStop(0.5, '#0ea5e9'); rg.addColorStop(1, '#0284c7');
+          ctx.fillStyle = rg; ctx.fillRect(0, yTop, w, yBot - yTop);
+          // Animated water current arrows & ripples flowing right
+          ctx.strokeStyle = 'rgba(255,255,255,0.42)'; ctx.lineWidth = 1.8;
+          for (let row = 0; row < 4; row++) {
+            const ry = yTop + (yBot - yTop) * (0.18 + row * 0.21);
+            for (let k = 0; k < 5; k++) {
+              const rx = ((k * 180 + t * 75 + row * 40) % (w + 80)) - 40;
+              ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx + 36, ry); ctx.lineTo(rx + 29, ry - 4); ctx.moveTo(rx + 36, ry); ctx.lineTo(rx + 29, ry + 4); ctx.stroke();
+            }
+          }
+          // Wooden docks at A and C
+          ctx.fillStyle = '#92400e'; ctx.fillRect(A.x - 14, yBot - 4, 28, 18); ctx.fillRect(C.x - 14, yTop - 14, 28, 18);
+          ctx.restore();
+          drawSeg(ctx, { x: 0, y: yTop }, { x: w, y: yTop }, '#15803d', 3.5);
+          drawSeg(ctx, { x: 0, y: yBot }, { x: w, y: yBot }, '#15803d', 3.5);
+          drawSeg(ctx, A, B, '#f8fafc', 2.2, true); drawRightAngle(ctx, B, A, C, 12, '#fde047');
+          if (eff >= 2) drawSeg(ctx, A, C, '#fb923c', 3);
+          if (eff >= 3) { drawSeg(ctx, B, C, '#fde047', 2.4); drawAngleArc(ctx, A, C, B, 38, '#fde047', `${alpha}°`); }
           const prog = (t * 0.35) % 1, bx = A.x + (C.x - A.x) * prog, by = A.y + (C.y - A.y) * prog;
-          ctx.save(); ctx.translate(bx, by); ctx.rotate(Math.atan2(C.y - A.y, C.x - A.x));
-          ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-10, -7); ctx.lineTo(-10, 7); ctx.closePath(); ctx.fill(); ctx.restore();
-          drawPt(ctx, A, 'A', '#f8fafc', -16, 16, true); drawPt(ctx, B, 'B', '#f8fafc', -16, -8, true); drawPt(ctx, C, 'C', '#f59e0b', 8, -8, true);
+          drawBoat25D(ctx, bx, by, Math.atan2(C.y - A.y, C.x - A.x), '#ea580c', t);
+          drawPt(ctx, A, 'A', '#0f172a', -16, 18, false); drawPt(ctx, B, 'B', '#0f172a', -16, -8, false); drawPt(ctx, C, 'C', '#ea580c', 10, -8, false);
           updateTelemetryHUD('Thuyền vượt sông', [['Bề rộng AB', `${width} m`], ['Quãng đường AC', `${ac.toFixed(1)} m`], ['Trôi dạt BC', `${bc.toFixed(1)} m`]]);
           stepDesc = [`Bước 1/4: Bề rộng sông $AB = ${width}\\text{ m}$.`, `Bước 2/4: Dòng nước đẩy lệch góc $\\alpha = ${alpha}^\\circ$.`, 'Bước 3/4: $\\triangle ABC$ vuông tại $B$.', `Bước 4/4: $AC = \\frac{${width}}{\\cos ${alpha}^\\circ} \\approx ${ac.toFixed(1)}\\text{ m}$.`];
           solSteps = [
@@ -1753,7 +1943,7 @@
           const bob = Math.sin(t * 2) * 8, gy = h * 0.74, H = side === 'same' ? { x: w * 0.72, y: gy } : { x: w * 0.5, y: gy };
           const sc = Math.min(240 / (hVal * Math.max(cotA, cotB)), 200 / Math.max(hVal, 10));
           const K = { x: H.x, y: gy - hVal * sc + bob }, A = { x: H.x - hVal * cotA * sc, y: gy }, B = side === 'same' ? { x: H.x - hVal * cotB * sc, y: gy } : { x: H.x + hVal * cotB * sc, y: gy };
-          ctx.save(); ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(K.x, K.y - 18, 20, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+          drawHotAirBalloon25D(ctx, K.x, K.y, t);
           if (eff >= 2) drawSeg(ctx, A, B, '#16a34a', 3);
           if (eff >= 3) { drawSeg(ctx, K, H, '#dc2626', 2, true); drawRightAngle(ctx, H, A, K, 12, '#dc2626'); drawSeg(ctx, A, K, '#ea580c', 2, true); drawSeg(ctx, B, K, '#2563eb', 2, true); drawAngleArc(ctx, A, H, K, 28, '#ea580c', `${alpha}°`); drawAngleArc(ctx, B, H, K, 28, '#2563eb', `${beta}°`); }
           drawPt(ctx, A, 'A', '#ea580c', -10, 18, isDark); drawPt(ctx, B, 'B', '#2563eb', -4, 18, isDark); drawPt(ctx, H, 'H', '#dc2626', 6, 18, isDark);
@@ -1768,11 +1958,19 @@
         } else if (id === 'd2') {
           const { H: cH, alpha, beta } = state.d2, d1 = cH / Math.tan((alpha * Math.PI) / 180), d2 = cH / Math.tan((beta * Math.PI) / 180), mn = d1 - d2;
           const sy = h * 0.62, B = { x: w * 0.20, y: sy }, S = { x: B.x, y: sy - 165 }, sc = Math.min(280 / d1, 165 / cH), M = { x: B.x + d1 * sc, y: sy }, N = { x: B.x + d2 * sc, y: sy };
-          ctx.save(); ctx.fillStyle = '#f8fafc'; ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2; ctx.fillRect(B.x - 10, S.y, 20, sy - S.y); ctx.strokeRect(B.x - 10, S.y, 20, sy - S.y); ctx.restore();
+          // Striped Lighthouse + rotating light cone
+          ctx.save();
+          const prog = (Math.sin(t * 0.9 - Math.PI / 2) + 1) / 2, shipX = M.x + (N.x - M.x) * prog;
+          const lg = ctx.createLinearGradient(S.x, S.y, shipX, sy);
+          lg.addColorStop(0, 'rgba(253,224,71,0.42)'); lg.addColorStop(1, 'rgba(253,224,71,0.03)');
+          ctx.fillStyle = lg; ctx.beginPath(); ctx.moveTo(S.x, S.y); ctx.lineTo(shipX - 24, sy); ctx.lineTo(shipX + 24, sy); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#f8fafc'; ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2; ctx.fillRect(B.x - 12, S.y, 24, sy - S.y); ctx.strokeRect(B.x - 12, S.y, 24, sy - S.y);
+          ctx.fillStyle = '#dc2626'; for (let yy = S.y + 18; yy < sy - 10; yy += 36) ctx.fillRect(B.x - 12, yy, 24, 14);
+          ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(S.x, S.y, 8, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
           if (eff >= 2) { drawSeg(ctx, S, { x: w * 0.85, y: S.y }, mutedCol, 1.8, true); drawSeg(ctx, S, M, '#f59e0b', 2, true); drawSeg(ctx, S, N, '#ea580c', 2, true); }
           if (eff >= 3) { drawRightAngle(ctx, B, S, M, 12, '#16a34a'); drawAngleArc(ctx, M, B, S, 32, '#f59e0b', `${alpha}°`); drawAngleArc(ctx, N, B, S, 28, '#ea580c', `${beta}°`); }
-          const prog = (Math.sin(t * 0.9 - Math.PI / 2) + 1) / 2, shipX = M.x + (N.x - M.x) * prog;
-          ctx.save(); ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.moveTo(shipX - 16, sy); ctx.lineTo(shipX + 16, sy); ctx.lineTo(shipX + 10, sy + 10); ctx.lineTo(shipX - 10, sy + 10); ctx.closePath(); ctx.fill(); ctx.restore();
+          drawBoat25D(ctx, shipX, sy, Math.PI, '#f97316', t);
           drawPt(ctx, S, 'S', edgeCol, -16, -6, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, M, 'M', '#f59e0b', 4, 18, isDark); drawPt(ctx, N, 'N', '#ea580c', -4, 18, isDark);
           updateTelemetryHUD('Hải đăng & Tàu biển', [['Khoảng cách', `${(d1 - mn * prog).toFixed(1)} m`], ['Quãng đường MN', `${mn.toFixed(1)} m`]]);
           stepDesc = [`Bước 1/4: Hải đăng cao $SB = ${cH}\\text{ m}$.`, `Bước 2/4: Tàu tiến từ $M$ (${alpha}°) đến $N$ (${beta}°).`, 'Bước 3/4: So le trong góc hạ.', `Bước 4/4: $MN = H(\\cot ${alpha}^\\circ - \\cot ${beta}^\\circ) \\approx ${mn.toFixed(1)}\\text{ m}$.`];
@@ -1787,7 +1985,12 @@
           const h1 = dist * Math.tan(rB), h2 = dist * Math.tan(rA), totalH = h1 + h2;
           const gy = h * 0.74, x1 = w * 0.24, x2 = w * 0.74, sc = (x2 - x1) / dist;
           const E = { x: x1, y: gy - h1 * sc }, B = { x: x2, y: gy }, H = { x: x2, y: E.y }, S = { x: x2, y: E.y - h2 * sc };
-          ctx.save(); ctx.fillStyle = 'rgba(100,116,139,0.22)'; ctx.fillRect(x1 - 24, E.y, 24, gy - E.y); ctx.fillStyle = 'rgba(59,130,246,0.16)'; ctx.fillRect(x2 - 14, S.y, 28, gy - S.y); ctx.restore();
+          ctx.save();
+          ctx.fillStyle = '#475569'; ctx.fillRect(x1 - 34, E.y - 10, 34, gy - E.y + 10);
+          ctx.fillStyle = '#bae6fd'; for (let wy = E.y + 8; wy < gy - 12; wy += 24) ctx.fillRect(x1 - 24, wy, 14, 12);
+          ctx.fillStyle = '#1e40af'; ctx.fillRect(x2 - 16, S.y, 32, gy - S.y);
+          ctx.fillStyle = '#93c5fd'; for (let wy = S.y + 12; wy < gy - 14; wy += 22) ctx.fillRect(x2 - 9, wy, 18, 10);
+          ctx.restore();
           drawSeg(ctx, E, H, mutedCol, 2, true);
           if (eff >= 2) { drawSeg(ctx, E, S, '#ea580c', 2.4, true); drawSeg(ctx, E, B, '#2563eb', 2.4, true); }
           if (eff >= 3) { drawRightAngle(ctx, H, E, S, 12, '#dc2626'); drawAngleArc(ctx, E, H, S, 36, '#ea580c', `${alpha}°`); drawAngleArc(ctx, E, B, H, 36, '#2563eb', `${beta}°`); }
@@ -1803,9 +2006,10 @@
           const { L, alpha, h0 } = state.d4, rad = (alpha * Math.PI) / 180, reach = L * Math.cos(rad), lift = L * Math.sin(rad);
           const gy = h * 0.74, O = { x: w * 0.28, y: gy }, P = { x: O.x, y: gy - 120 }, sc = 210 / L, T = { x: P.x + reach * sc, y: P.y - lift * sc }, H = { x: T.x, y: P.y };
           const bob = Math.sin(t * 2.2) * 7;
-          drawSeg(ctx, O, P, '#eab308', 9); drawSeg(ctx, P, T, '#f59e0b', 5);
+          drawSeg(ctx, O, P, '#eab308', 10); drawSeg(ctx, P, T, '#f59e0b', 5.5);
+          ctx.save(); ctx.fillStyle = '#0f172a'; ctx.fillRect(P.x - 10, P.y - 12, 20, 14); ctx.restore();
           drawSeg(ctx, T, { x: T.x, y: T.y + 42 + bob }, '#475569', 2);
-          ctx.save(); ctx.fillStyle = '#ea580c'; ctx.fillRect(T.x - 12, T.y + 42 + bob, 24, 16); ctx.restore();
+          ctx.save(); ctx.fillStyle = '#ea580c'; ctx.beginPath(); ctx.roundRect(T.x - 15, T.y + 42 + bob, 30, 18, 3); ctx.fill(); ctx.restore();
           if (eff >= 2) { drawSeg(ctx, P, H, mutedCol, 2, true); drawSeg(ctx, T, H, '#dc2626', 2, true); drawRightAngle(ctx, H, P, T, 11, '#dc2626'); }
           if (eff >= 3) drawAngleArc(ctx, P, H, T, 34, '#f59e0b', `${alpha}°`);
           drawPt(ctx, P, 'P', edgeCol, -16, 4, isDark); drawPt(ctx, T, 'T', '#ea580c', 8, -6, isDark); drawPt(ctx, H, 'H', '#dc2626', 8, 16, isDark);
@@ -1820,10 +2024,12 @@
         } else if (id === 'd5') {
           const { h: fh, alpha } = state.d5, rad = (alpha * Math.PI) / 180, halfL = fh * Math.tan(rad), fullL = 2 * halfL;
           const gy = h * 0.74, H = { x: w * 0.5, y: gy }, F = { x: w * 0.5 + Math.sin(t * 1.4) * 6, y: gy - 190 }, halfPx = 190 * Math.tan(rad), A = { x: H.x - halfPx, y: gy }, B = { x: H.x + halfPx, y: gy };
-          if (eff >= 2) { ctx.save(); ctx.fillStyle = 'rgba(14,165,233,0.16)'; ctx.beginPath(); ctx.moveTo(F.x, F.y); ctx.lineTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.closePath(); ctx.fill(); ctx.restore(); drawSeg(ctx, F, A, '#0284c7', 2.2); drawSeg(ctx, F, B, '#0284c7', 2.2); drawSeg(ctx, A, B, '#ea580c', 3.4); }
+          if (eff >= 2) { ctx.save(); ctx.fillStyle = 'rgba(14,165,233,0.18)'; ctx.beginPath(); ctx.moveTo(F.x, F.y); ctx.lineTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.closePath(); ctx.fill(); ctx.restore(); drawSeg(ctx, F, A, '#0284c7', 2.2); drawSeg(ctx, F, B, '#0284c7', 2.2); drawSeg(ctx, A, B, '#ea580c', 3.4); }
           if (eff >= 3) { drawSeg(ctx, F, H, '#dc2626', 2, true); drawRightAngle(ctx, H, F, B, 12, '#dc2626'); drawAngleArc(ctx, F, H, B, 36, '#f59e0b', `${alpha}°`); }
-          ctx.save(); ctx.fillStyle = '#0f172a'; ctx.fillRect(F.x - 16, F.y - 4, 32, 8); const rw = 12 * Math.abs(Math.cos(t * 14)); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
-          ctx.beginPath(); ctx.moveTo(F.x - 16 - rw, F.y - 6); ctx.lineTo(F.x - 16 + rw, F.y - 6); ctx.moveTo(F.x + 16 - rw, F.y - 6); ctx.lineTo(F.x + 16 + rw, F.y - 6); ctx.stroke(); ctx.restore();
+          ctx.save(); ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.roundRect(F.x - 18, F.y - 5, 36, 10, 4); ctx.fill();
+          ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(F.x, F.y + 4, 4, 0, Math.PI * 2); ctx.fill();
+          const rw = 13 * Math.abs(Math.cos(t * 16)); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.moveTo(F.x - 18 - rw, F.y - 7); ctx.lineTo(F.x - 18 + rw, F.y - 7); ctx.moveTo(F.x + 18 - rw, F.y - 7); ctx.lineTo(F.x + 18 + rw, F.y - 7); ctx.stroke(); ctx.restore();
           drawPt(ctx, F, 'F', edgeCol, 12, -10, isDark); drawPt(ctx, H, 'H', '#dc2626', -4, 18, isDark); drawPt(ctx, A, 'A', '#ea580c', -12, 18, isDark); drawPt(ctx, B, 'B', '#ea580c', 4, 18, isDark);
           updateTelemetryHUD('Flycam khảo sát', [['Độ cao h', `${fh} m`], ['Góc mở 2α', `${2 * alpha}°`], ['Bề rộng quét L', `${fullL.toFixed(1)} m`]]);
           stepDesc = [`Bước 1/4: Flycam bay cao $FH = ${fh}\\text{ m}$.`, `Bước 2/4: Góc mở $2\\alpha = ${2 * alpha}^\\circ$.`, 'Bước 3/4: $\\triangle FHB$ vuông tại $H$.', `Bước 4/4: $AB = 2h\\tan ${alpha}^\\circ \\approx ${fullL.toFixed(1)}\\text{ m}$.`];
@@ -1839,9 +2045,21 @@
           const shadow = (dWalk * hPerson) / (hLamp - hPerson);
           const gy = h * 0.74, A = { x: w * 0.18, y: gy }, sc = 32;
           const S = { x: A.x, y: gy - hLamp * sc }, C = { x: A.x + dWalk * sc, y: gy }, D = { x: C.x, y: gy - hPerson * sc }, B = { x: C.x + shadow * sc, y: gy };
-          drawSeg(ctx, A, S, '#475569', 4); ctx.save(); ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(S.x, S.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-          drawSeg(ctx, C, D, '#2563eb', 4);
-          if (eff >= 2) drawSeg(ctx, C, B, '#0f172a', 4);
+          // Warm streetlamp cone + animated walking person
+          ctx.save();
+          const lg = ctx.createRadialGradient(S.x, S.y, 4, S.x, S.y, hLamp * sc * 1.15);
+          lg.addColorStop(0, 'rgba(253,224,71,0.45)'); lg.addColorStop(1, 'rgba(253,224,71,0)');
+          ctx.fillStyle = lg; ctx.beginPath(); ctx.moveTo(S.x, S.y); ctx.lineTo(A.x - 40, gy); ctx.lineTo(B.x + 20, gy); ctx.closePath(); ctx.fill();
+          ctx.restore();
+          drawSeg(ctx, A, S, '#475569', 5); ctx.save(); ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(S.x, S.y, 9, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+          // Animated walking silhouette
+          ctx.save();
+          const ph = D.y + (gy - D.y) * 0.15, legSwing = Math.sin(t * 5) * 7;
+          ctx.strokeStyle = '#1d4ed8'; ctx.fillStyle = '#1d4ed8'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.arc(C.x, D.y + 6, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(C.x, D.y + 12); ctx.lineTo(C.x, gy - 18); ctx.moveTo(C.x, gy - 18); ctx.lineTo(C.x - legSwing, gy); ctx.moveTo(C.x, gy - 18); ctx.lineTo(C.x + legSwing, gy); ctx.stroke();
+          ctx.restore();
+          if (eff >= 2) drawSeg(ctx, C, B, '#0f172a', 5);
           if (eff >= 3) drawSeg(ctx, S, B, '#f59e0b', 2.2, true);
           drawPt(ctx, S, 'S', '#f59e0b', -16, 4, isDark); drawPt(ctx, A, 'A', edgeCol, -14, 16, isDark); drawPt(ctx, C, 'C', '#2563eb', -4, 18, isDark); drawPt(ctx, D, 'D', '#2563eb', 6, -4, isDark); drawPt(ctx, B, 'B', '#dc2626', 6, 16, isDark);
           updateTelemetryHUD('Bóng người dưới đèn', [['Khoảng cách AC', `${dWalk.toFixed(2)} m`], ['Độ dài bóng CB', `${shadow.toFixed(2)} m`], ['Đèn / Người', `${hLamp}m / ${hPerson}m`]]);
@@ -1853,16 +2071,25 @@
             `Suy ra $4\\cdot CB = CB + AC \\Rightarrow CB = \\dfrac{AC}{3} \\approx ${shadow.toFixed(2)}\\text{ m}$ (tại $AC = ${dWalk.toFixed(1)}\\text{ m}$).`
           ];
         } else if (id === 'd7') {
+          // Bài 4.7: Hai tàu rời cảng O (Top-down sea view with 2 detailed ships)
           const { v1, v2, alpha, hours } = state.d7, rad = (alpha * Math.PI) / 180;
           const d1 = v1 * hours, d2 = v2 * hours, distAB = Math.sqrt(d1 * d1 + d2 * d2 - 2 * d1 * d2 * Math.cos(rad));
           const prog = (t * 0.25) % 1;
-          const O = { x: w * 0.24, y: h * 0.68 }, A = { x: O.x + 240, y: O.y - 160 }, B = { x: O.x + 300, y: O.y + 10 }, H = { x: A.x, y: B.y - 8 };
+          const O = { x: w * 0.22, y: h * 0.64 }, A = { x: O.x + 250, y: O.y - 170 }, B = { x: O.x + 310, y: O.y + 15 }, H = { x: A.x, y: B.y - 12 };
           const curA = { x: O.x + (A.x - O.x) * prog, y: O.y + (A.y - O.y) * prog }, curB = { x: O.x + (B.x - O.x) * prog, y: O.y + (B.y - O.y) * prog };
-          drawSeg(ctx, O, A, '#38bdf8', 2.4); drawSeg(ctx, O, B, '#f59e0b', 2.4);
-          if (eff >= 2) drawSeg(ctx, curA, curB, '#ef4444', 2.4, true);
-          if (eff >= 3) { drawAngleArc(ctx, O, B, A, 42, '#f59e0b', `${alpha}°`); drawSeg(ctx, A, H, '#16a34a', 1.8, true); }
-          drawPt(ctx, O, 'O', '#f8fafc', -16, 4, true); drawPt(ctx, curA, 'Tàu 1', '#38bdf8', 6, -8, true); drawPt(ctx, curB, 'Tàu 2', '#f59e0b', 6, 16, true);
-          if (eff >= 3) drawPt(ctx, H, 'H', '#16a34a', 2, 18, true);
+          ctx.save();
+          const sg = ctx.createLinearGradient(0, 0, w, h);
+          sg.addColorStop(0, '#0c4a6e'); sg.addColorStop(1, '#0369a1');
+          ctx.fillStyle = sg; ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = '#92400e'; ctx.fillRect(O.x - 45, O.y - 16, 48, 32);
+          ctx.restore();
+          drawSeg(ctx, O, A, '#7dd3fc', 2.2, true); drawSeg(ctx, O, B, '#fde047', 2.2, true);
+          if (eff >= 2) drawSeg(ctx, curA, curB, '#ef4444', 2.6, true);
+          if (eff >= 3) { drawAngleArc(ctx, O, B, A, 42, '#fde047', `${alpha}°`); drawSeg(ctx, A, H, '#4ade80', 1.8, true); }
+          drawBoat25D(ctx, curA.x, curA.y, Math.atan2(A.y - O.y, A.x - O.x), '#0284c7', t);
+          drawBoat25D(ctx, curB.x, curB.y, Math.atan2(B.y - O.y, B.x - O.x), '#ea580c', t + 1);
+          drawPt(ctx, O, 'O', '#f8fafc', -16, 4, true); drawPt(ctx, curA, 'Tàu 1', '#7dd3fc', 6, -14, true); drawPt(ctx, curB, 'Tàu 2', '#fde047', 6, 20, true);
+          if (eff >= 3) drawPt(ctx, H, 'H', '#4ade80', 2, 18, true);
           updateTelemetryHUD('Hai tàu rời cảng', [['Thời gian t', `${(hours * prog).toFixed(2)} h`], ['Khoảng cách AB', `${(distAB * prog).toFixed(1)} km`], ['Góc tách α', `${alpha}°`]]);
           stepDesc = ['Bước 1/4: Hai tàu xuất phát từ cảng $O$.', `Bước 2/4: Sau ${hours}h, $OA = ${d1}\\text{ km},\\; OB = ${d2}\\text{ km}$.`, `Bước 3/4: Hạ $AH \\perp OB$, giải $\\triangle OAH$.`, `Bước 4/4: Pytago $\\triangle AHB \\Rightarrow AB \\approx ${distAB.toFixed(1)}\\text{ km}$.`];
           const oh = d1 * Math.cos(rad), ahVal = d1 * Math.sin(rad), hb = d2 - oh;
@@ -1879,8 +2106,83 @@
           const hRemain = (totalH * totalH - baseDist * baseDist) / (2 * totalH);
           const lenBroken = totalH - hRemain;
           const B = { x: w * 0.34, y: h * 0.74 }, sc = 36, A = { x: B.x, y: B.y - hRemain * sc }, C = { x: B.x + baseDist * sc, y: B.y };
-          drawSeg(ctx, B, A, '#78350f', 7); drawRightAngle(ctx, B, A, C, 12, '#16a34a');
-          if (eff >= 2) drawSeg(ctx, A, C, '#15803d', 5);
+          // Bão gió & mưa xiên 60fps
+          ctx.save();
+          ctx.strokeStyle = isDark ? 'rgba(148,163,184,0.28)' : 'rgba(59,130,246,0.25)';
+          ctx.lineWidth = 1.5;
+          for (let r = 0; r < 26; r++) {
+            const rx = ((r * 83 + t * 240) % (w + 120)) - 60;
+            const ry = ((r * 59 + t * 420) % (B.y + 20));
+            ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 14, ry + 26); ctx.stroke();
+          }
+          // Luồng gió thổi ngang qua ngọn cây
+          ctx.strokeStyle = isDark ? 'rgba(203,213,225,0.22)' : 'rgba(100,116,139,0.2)';
+          ctx.lineWidth = 2;
+          for (let g = 0; g < 4; g++) {
+            const gy = h * 0.24 + g * 44;
+            const gx = ((t * 190 + g * 180) % (w + 160)) - 120;
+            ctx.beginPath();
+            ctx.moveTo(gx, gy);
+            ctx.quadraticCurveTo(gx + 55, gy - 8 * Math.sin(t * 4 + g), gx + 110, gy);
+            ctx.stroke();
+          }
+          // Nền đất & thảm cỏ xanh
+          const groundG = ctx.createLinearGradient(0, B.y, 0, h);
+          groundG.addColorStop(0, isDark ? '#14532d' : '#22c55e');
+          groundG.addColorStop(0.18, isDark ? '#3f2e21' : '#78350f');
+          groundG.addColorStop(1, isDark ? '#1c1917' : '#451a03');
+          ctx.fillStyle = groundG;
+          ctx.fillRect(0, B.y, w, h - B.y);
+          ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 2.5;
+          for (let gx = 20; gx < w; gx += 18) {
+            const sway = Math.sin(t * 5 + gx * 0.1) * 3;
+            ctx.beginPath(); ctx.moveTo(gx, B.y + 2); ctx.lineTo(gx + sway - 2, B.y - 8); ctx.stroke();
+          }
+          // Rễ & gốc thân cây đứng B -> A (2.5D)
+          const trunkG = ctx.createLinearGradient(B.x - 10, B.y, B.x + 10, B.y);
+          trunkG.addColorStop(0, '#451a03'); trunkG.addColorStop(0.45, '#92400e'); trunkG.addColorStop(1, '#78350f');
+          ctx.fillStyle = trunkG;
+          ctx.beginPath();
+          ctx.moveTo(B.x - 18, B.y + 2);
+          ctx.quadraticCurveTo(B.x - 9, B.y - 14, B.x - 8, A.y + 2);
+          ctx.lineTo(B.x + 8, A.y - 4);
+          ctx.quadraticCurveTo(B.x + 9, B.y - 14, B.x + 18, B.y + 2);
+          ctx.closePath(); ctx.fill();
+          // Vết gãy dằm gỗ ở A
+          ctx.fillStyle = '#fde68a';
+          ctx.beginPath();
+          ctx.moveTo(A.x - 8, A.y + 2); ctx.lineTo(A.x - 3, A.y - 9); ctx.lineTo(A.x + 2, A.y + 1);
+          ctx.lineTo(A.x + 6, A.y - 7); ctx.lineTo(A.x + 8, A.y + 2); ctx.closePath(); ctx.fill();
+          // Phần thân cây gãy A -> C + tán lá rậm chạm đất
+          if (eff >= 2) {
+            const ang = Math.atan2(C.y - A.y, C.x - A.x);
+            const lenAC = Math.hypot(C.x - A.x, C.y - A.y);
+            ctx.save();
+            ctx.translate(A.x, A.y); ctx.rotate(ang);
+            const brG = ctx.createLinearGradient(0, -7, 0, 7);
+            brG.addColorStop(0, '#92400e'); brG.addColorStop(0.5, '#78350f'); brG.addColorStop(1, '#451a03');
+            ctx.fillStyle = brG;
+            ctx.beginPath();
+            ctx.moveTo(0, -7); ctx.lineTo(lenAC - 14, -4); ctx.lineTo(lenAC - 14, 4); ctx.lineTo(0, 7);
+            ctx.closePath(); ctx.fill();
+            // Tán lá cây ở ngọn C rung nhẹ theo gió
+            const leafSway = Math.sin(t * 4.5) * 2.5;
+            const clusters = [
+              { dx: lenAC - 34, dy: -16, r: 22, c: '#15803d' },
+              { dx: lenAC - 14, dy: -18 + leafSway, r: 26, c: '#16a34a' },
+              { dx: lenAC + 8, dy: -10 + leafSway, r: 21, c: '#22c55e' },
+              { dx: lenAC - 22, dy: -4, r: 19, c: '#166534' },
+              { dx: lenAC - 2, dy: -6 + leafSway * 0.7, r: 20, c: '#4ade80' }
+            ];
+            clusters.forEach(cl => {
+              ctx.fillStyle = cl.c;
+              ctx.beginPath(); ctx.arc(cl.dx, cl.dy, cl.r, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.restore();
+          }
+          ctx.restore();
+          drawSeg(ctx, B, A, '#92400e', 3.5); drawRightAngle(ctx, B, A, C, 12, '#16a34a');
+          if (eff >= 2) drawSeg(ctx, A, C, '#15803d', 3);
           if (eff >= 3) drawSeg(ctx, B, C, mutedCol, 2.2, true);
           drawPt(ctx, A, 'A', edgeCol, -16, -6, isDark); drawPt(ctx, B, 'B', edgeCol, -16, 16, isDark); drawPt(ctx, C, 'C', '#16a34a', 8, 16, isDark);
           stepDesc = [`Bước 1/4: Cây cao $H = ${totalH}\\text{ m}$ gãy tại $A$.`, `Bước 2/4: Ngọn chạm đất tại $C$ cách gốc $BC = ${baseDist.toFixed(1)}\\text{ m}$.`, `Bước 3/4: Đặt $AB = x \\Rightarrow AC = ${totalH} - x$.`, `Bước 4/4: Pytago $\\Rightarrow AB = ${hRemain.toFixed(2)}\\text{ m}$.`];
