@@ -3,112 +3,156 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thư viện Mô phỏng Toán học Trực quan</title>
+  <title>CƠ SỞ BDVH HÀO HIỆP — Thư Viện Mô Phỏng Toán Học Trực Quan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #1e3a8a 0%, #0f172a 55%, #020617 100%);
       color: #f8fafc;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 28px 20px;
+      position: relative;
+      overflow-x: hidden;
     }
-    .container {
-      max-width: 860px;
-      width: 100%;
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
     }
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
+    .container { max-width: 960px; width: 100%; position: relative; z-index: 1; }
+    .brand-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7dd3fc; font-size: 12px; font-weight: 700; letter-spacing: 0.03em;
+      margin-bottom: 14px;
     }
+    .header { text-align: center; margin-bottom: 30px; }
     .header h1 {
-      font-size: 28px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      letter-spacing: 0.02em;
+      font-size: clamp(24px, 4vw, 34px); font-weight: 800; line-height: 1.22;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff 0%, #bae6fd 65%, #fde68a 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .header p {
-      color: #cbd5e1;
-      font-size: 15px;
+    .header p { color: #cbd5e1; font-size: 14.5px; max-width: 640px; margin: 0 auto 16px; line-height: 1.55; }
+    .stats-row {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
+    }
+    .stat-chip {
+      font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
       gap: 20px;
     }
     .card {
       background: rgba(255, 255, 255, 0.97);
       color: #0f172a;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 24px;
       text-decoration: none;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.34);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
     .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      transform: translateY(-5px);
+      box-shadow: 0 22px 48px rgba(37, 99, 235, 0.35);
     }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .badge {
-      display: inline-block;
-      align-self: flex-start;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #eff6ff;
-      color: #1d4ed8;
+      display: inline-block; font-size: 11.5px; font-weight: 700;
+      padding: 4px 10px; border-radius: 999px;
+      background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
     }
-    .badge.orange {
-      background: #fff7ed;
-      color: #c2410c;
-    }
-    .card h2 {
-      font-size: 19px;
-      font-weight: 800;
-      line-height: 1.3;
-    }
-    .card p {
-      font-size: 14px;
-      color: #475569;
-      line-height: 1.5;
-      flex: 1;
+    .badge.orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .card-icon { font-size: 28px; }
+    .card h2 { font-size: 19px; font-weight: 800; line-height: 1.3; color: #0f172a; }
+    .card p { font-size: 13.5px; color: #475569; line-height: 1.55; flex: 1; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tag {
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px;
+      background: #f1f5f9; color: #334155;
     }
     .cta {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2563eb;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      margin-top: 4px; padding-top: 12px; border-top: 1px solid #e2e8f0;
+      font-size: 13.5px; font-weight: 700; color: #2563eb;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-note {
+      text-align: center; margin-top: 24px; font-size: 12px; color: #94a3b8;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🧭 Thư viện Mô phỏng Toán học Trực quan</h1>
-      <p>Chọn ứng dụng bên dưới để mở trực tiếp trên trình duyệt hoặc điện thoại</p>
+      <div class="brand-pill">🎓 CƠ SỞ BỒI DƯỠNG VĂN HÓA HÀO HIỆP • ThS. PHẠM NGỌC HÀO</div>
+      <h1>Thư Viện Mô Phỏng Toán Học Trực Quan</h1>
+      <p>Hệ thống giảng dạy &amp; tự học tương tác 2D/3D theo chuẩn Chương trình GDPT mới, tích hợp AI đọc đề và lời giải tự luận KaTeX từng bước.</p>
+      <div class="stats-row">
+        <span class="stat-chip">🧊 33+ Mô hình 3D xoay 360°</span>
+        <span class="stat-chip">📐 24 Mô hình Toán 9 (60fps)</span>
+        <span class="stat-chip">📸 Nhận ảnh đề bài AI &amp; OCR</span>
+        <span class="stat-chip">✍️ Lời giải KaTeX 4 bước</span>
+      </div>
     </div>
+
     <div class="grid">
       <a class="card" href="./hinh-khong-gian-11.html">
-        <span class="badge orange">Toán 11 &amp; 12 • 3D Three.js</span>
-        <h2>🧊 Hình Học Không Gian 3D &amp; Hình Phẳng 2D</h2>
-        <p>Kho mô hình HK1, HK2 &amp; Khối tròn xoay Toán 12, Xưởng tự dựng hình AI (14+ khối, đo khoảng cách/góc, trải phẳng), Bảng Hình học phẳng 2D và lời giải KaTeX.</p>
-        <span class="cta">Mở ứng dụng 3D →</span>
+        <div class="card-top">
+          <span class="badge orange">Toán 11 &amp; 12 • 3D Three.js</span>
+          <span class="card-icon">🧊</span>
+        </div>
+        <h2>Hình Học Không Gian 3D &amp; Thiết Diện</h2>
+        <p>Kho mô hình HK1, HK2 &amp; Khối tròn xoay, Xưởng AI dựng hình tự động, chế độ X-Ray, cắt thiết diện, trải phẳng (Net) và bảng vẽ 2D tương tác.</p>
+        <div class="card-tags">
+          <span class="tag">Xoay 360°</span>
+          <span class="tag">X-Ray</span>
+          <span class="tag">Trải phẳng Net</span>
+          <span class="tag">Bút vẽ trình chiếu</span>
+        </div>
+        <div class="cta"><span>Mở Không Gian 3D</span><span>→</span></div>
       </a>
+
       <a class="card" href="./he-thuc-luong-9.html">
-        <span class="badge">Toán 9 • Hệ Thức Lượng &amp; 60fps</span>
-        <h2>📐 Hệ Thức Lượng &amp; Toán Thực Tế 9</h2>
-        <p>24 mô hình trực quan 2.5D chuyển động 60fps, Xưởng vẽ hình học phẳng kéo thả &amp; Trợ lý Giải đề AI (nhận ảnh Ctrl+V / OCR / Gemini Vision) với lời giải KaTeX 4 bước.</p>
-        <span class="cta">Mở Toán 9 Trực quan →</span>
+        <div class="card-top">
+          <span class="badge">Toán 9 • Hệ Thức Lượng &amp; 60fps</span>
+          <span class="card-icon">📐</span>
+        </div>
+        <h2>Hệ Thức Lượng &amp; Toán Thực Tế 9</h2>
+        <p>24 mô hình trực quan 2.5D chuyển động 60fps (đổi số liệu trực tiếp), Xưởng vẽ hình phẳng 10 mẫu kéo thả &amp; Trợ lý giải đề từ ảnh chụp (Ctrl+V).</p>
+        <div class="card-tags">
+          <span class="tag">Đổi số trực tiếp</span>
+          <span class="tag">Zoom &amp; Pan</span>
+          <span class="tag">OCR / AI Vision</span>
+          <span class="tag">Xuất PNG 2x HD</span>
+        </div>
+        <div class="cta"><span>Mở Toán 9 Trực Quan</span><span>→</span></div>
       </a>
+    </div>
+
+    <div class="footer-note">
+      © Cơ sở Bồi dưỡng Văn hóa Hào Hiệp — ThS. Phạm Ngọc Hào • Hoạt động mượt mà trên Máy tính, Bảng tương tác &amp; Điện thoại
     </div>
   </div>
 </body>

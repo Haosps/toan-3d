@@ -53,85 +53,91 @@
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
     header {
-      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+      background: #0F172A;
       color: #fff;
-      padding: 6px 16px;
-      min-height: 50px;
+      padding: 0 14px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      flex-shrink: 0;
-      z-index: 20;
-      border-bottom: 1.5px solid rgba(245, 158, 11, 0.45);
-      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.24);
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
       gap: 10px;
-    }
-
-    .brand-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(245, 158, 11, 0.22));
-      border: 1px solid rgba(245, 158, 11, 0.55);
-      display: grid;
-      place-items: center;
       flex-shrink: 0;
+      z-index: 25;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.25);
     }
 
-    .brand h1 { font-size: 13.5px; font-weight: 700; letter-spacing: 0.02em; color: #f8fafc; line-height: 1.2; }
-    .brand p { font-size: 10.5px; color: #bae6fd; font-weight: 500; margin-top: 1px; }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+    .brand { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .brand-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(245, 158, 11, 0.25));
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .proj-breadcrumb {
+      font-size: 12px; font-weight: 600; color: #e2e8f0;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .proj-breadcrumb span.sep { color: #64748b; }
+    .proj-breadcrumb strong { color: #fff; font-weight: 700; }
+    .status-pill {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+      background: rgba(34, 197, 94, 0.16); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35);
+      white-space: nowrap; flex-shrink: 0;
     }
 
+    .header-right { display: flex; align-items: center; gap: 6px; position: relative; }
     .theme-pill {
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
       color: #f8fafc;
-      padding: 5px 11px;
-      border-radius: 999px;
+      padding: 4px 10px;
+      border-radius: 8px;
       font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      transition: all 0.2s;
+      gap: 4px;
+      text-decoration: none;
+      transition: all 0.15s;
+      white-space: nowrap;
     }
-    .theme-pill:hover {
-      background: rgba(14, 165, 233, 0.28);
-      border-color: #38bdf8;
-    }
+    .theme-pill:hover { background: rgba(56, 189, 248, 0.22); border-color: #38bdf8; }
 
-    /* 2-Column Layout: 30% Left / 70% Right */
-    .workspace {
-      display: flex;
-      flex: 1;
-      min-height: 0;
+    .session-popover {
+      position: absolute; top: 46px; right: 0; width: 300px;
+      background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1;
+      border-radius: 10px; padding: 10px; box-shadow: 0 14px 32px rgba(15, 23, 42, 0.22);
+      z-index: 40; display: none; flex-direction: column; gap: 7px;
     }
+    .session-popover.open { display: flex; }
+
+    /* 3-Zone Workspace Shell (Activity Rail 46px + Collapsible Sidebar 320px + 3D Stage) */
+    .workspace { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+    .activity-rail {
+      width: 46px; flex-shrink: 0; background: #f8fafc; border-right: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 6px; z-index: 15;
+    }
+    .rail-btn {
+      width: 34px; height: 34px; border-radius: 8px; border: 1px solid transparent;
+      background: transparent; font-size: 16px; cursor: pointer; display: grid; place-items: center;
+      color: #475569; transition: all 0.15s;
+    }
+    .rail-btn:hover { background: #e2e8f0; color: #0f172a; }
+    .rail-btn.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
 
     .left-panel {
-      width: 30%;
-      min-width: 330px;
+      width: 320px;
+      min-width: 310px;
       background: var(--panel-bg);
       border-right: 1px solid var(--border);
       overflow-y: auto;
-      padding: 14px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+      gap: 8px;
+      transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
     }
 
     .right-stage {
@@ -890,16 +896,18 @@
   <header>
     <div class="brand">
       <div class="brand-icon" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#F59E0B" stroke-width="1.8" fill="rgba(14,165,233,0.18)"/>
           <path d="M12 22V12M12 12L21 7M12 12L3 7" stroke="#38BDF8" stroke-width="1.6"/>
           <circle cx="12" cy="12" r="2" fill="#F59E0B"/>
         </svg>
       </div>
-      <div>
-        <h1>CƠ SỞ BỒI DƯỠNG VĂN HÓA HÀO HIỆP</h1>
-        <p>Hình học Không gian 3D • ThS. Phạm Ngọc Hào</p>
+      <div class="proj-breadcrumb">
+        <span>Hào Hiệp</span><span class="sep">/</span>
+        <span>Hình Không Gian 3D</span><span class="sep">/</span>
+        <strong id="hdr-breadcrumb">VD 1: Giao tuyến 2 mặt phẳng</strong>
       </div>
+      <span class="status-pill">● Sẵn sàng</span>
     </div>
     <div class="main-tabs" role="tablist">
       <button class="main-tab active" id="main-tab-1" onclick="switchMainTab(1)">📚 Kho chuyên đề</button>
@@ -907,17 +915,33 @@
       <button class="main-tab" id="main-tab-3" onclick="switchMainTab(3)">📐 Hình phẳng 2D</button>
     </div>
     <div class="header-right">
+      <a class="theme-pill" href="./he-thuc-luong-9.html" title="Chuyển sang dự án Toán 9 (2D)">📐 Toán 9 (2D) ↗</a>
+      <button class="theme-pill" onclick="toggleSessionPopover()" title="Lưu / Mở nhanh tiết dạy">💾 Lưu tiết dạy</button>
       <button class="theme-pill" id="btn-theme" onclick="toggleTheme()" title="Đổi nền Sáng / Tối (Studio 3D)">
         <span>🌙 Studio 3D</span>
       </button>
       <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Chế độ Toàn màn hình (Phím F)">
-        <span>⛶ Toàn màn hình</span>
+        <span>⛶ Toàn màn hình (F)</span>
       </button>
+      <div class="session-popover" id="session-popover">
+        <div style="font-size:12px; font-weight:700; color:#1e3a8a;">💾 Quản lý Tiết dạy 3D</div>
+        <div style="display:flex; gap:5px;">
+          <input type="text" id="session-name-input" placeholder="Tên tiết dạy (VD: Tiết 3 - Thiết diện)..." style="flex:1; padding:5px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:11.5px; font-family:inherit;" />
+          <button class="step-btn active-tool" onclick="saveCurrentSession()">Lưu</button>
+        </div>
+        <div id="session-list" style="display:flex; flex-direction:column; gap:5px; max-height:190px; overflow-y:auto;"></div>
+      </div>
     </div>
   </header>
 
   <main class="workspace">
-    <!-- Left 30%: Catalog, Controls, KaTeX Solutions -->
+    <!-- 46px Activity Rail -->
+    <nav class="activity-rail" id="activity-rail">
+      <button class="rail-btn active" id="rail-lib" onclick="clickRail('lib')" title="Kho chuyên đề 3D">📚</button>
+      <button class="rail-btn" id="rail-ctrl" onclick="clickRail('ctrl')" title="Bảng thông số & Xưởng AI">🎛️</button>
+      <button class="rail-btn" id="rail-sol" onclick="clickRail('sol')" title="Mở/Đóng Lời giải KaTeX">📖</button>
+    </nav>
+    <!-- Left Sidebar -->
     <aside class="left-panel">
       <div id="tab1-panel" style="display:flex; flex-direction:column; gap:12px;">
       <section class="card">
@@ -4586,18 +4610,21 @@
       state[model].sub = sub;
       buildDynamicControls();
       rebuildScene();
+      if (typeof updateBreadcrumb === 'function') updateBreadcrumb();
     }
 
     function toggleD1Answer() {
       state.showAnswer = !state.showAnswer;
       buildDynamicControls();
       rebuildScene();
+      if (typeof updateBreadcrumb === 'function') updateBreadcrumb();
     }
 
     function setVD1Q(q) {
       state.vd1.subQ = q;
       buildDynamicControls();
       rebuildScene();
+      if (typeof updateBreadcrumb === 'function') updateBreadcrumb();
     }
 
     function renderKaTeXInBox(box) {
@@ -4755,6 +4782,7 @@
       state.m31.pair = pair;
       buildDynamicControls();
       rebuildScene();
+      if (typeof updateBreadcrumb === 'function') updateBreadcrumb();
     }
 
     function getMaxStep() {
@@ -4826,6 +4854,7 @@
       setStep(maxS);
       buildDynamicControls();
       rebuildScene();
+      if (typeof updateBreadcrumb === 'function') updateBreadcrumb();
     }
 
     function toggleXRay() {
@@ -4997,6 +5026,7 @@
       if (stage2d) stage2d.style.display = tab === 3 ? 'block' : 'none';
       if (bar2d) bar2d.style.display = 'none';
       if (extBtn) extBtn.classList.remove('active-dock');
+      if (typeof updateBreadcrumb === 'function') updateBreadcrumb();
 
       if (tab === 2) renderWorkshopUI();
       if (tab === 3) updateStepPresentationBar(4);
@@ -7174,6 +7204,88 @@
       resizeDrawOverlay();
       if (state.mainTab === 3) buildPlane2DScene();
       else if (state.plane2d && state.plane2d.activeOverlay) renderExtracted2D();
+    }
+
+    function updateBreadcrumb() {
+      const bc = document.getElementById('hdr-breadcrumb');
+      if (!bc) return;
+      if (state.mainTab === 2) bc.textContent = 'Xưởng AI 3D';
+      else if (state.mainTab === 3) bc.textContent = 'Hình phẳng 2D';
+      else {
+        const btn = document.getElementById(`btn-m-${(state.modelId || '').replace('.', '')}`);
+        const lbl = btn ? btn.querySelector('span')?.textContent?.replace(/\$[^$]*\$/g, '').trim() : state.modelId;
+        bc.textContent = lbl || 'Kho chuyên đề 3D';
+      }
+    }
+
+    function clickRail(section) {
+      document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`rail-${section}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      if (section === 'sol') {
+        if (typeof toggleProofDrawer === 'function') toggleProofDrawer();
+        return;
+      }
+      const ws = document.querySelector('.workspace');
+      if (ws && ws.classList.contains('focus-mode')) toggleFocusMode();
+      if (section === 'ctrl') switchMainTab(2);
+      else switchMainTab(1);
+    }
+
+    const SESSION_KEY_3D = 'haohiep_toan11_sessions_v1';
+    function toggleSessionPopover() {
+      const pop = document.getElementById('session-popover');
+      if (!pop) return;
+      pop.classList.toggle('open');
+      if (pop.classList.contains('open')) renderSavedSessions();
+    }
+    function getSavedSessions() {
+      try { return JSON.parse(localStorage.getItem(SESSION_KEY_3D) || '[]'); } catch (e) { return []; }
+    }
+    function saveCurrentSession() {
+      const inp = document.getElementById('session-name-input');
+      const name = (inp?.value || '').trim() || `Tiết 3D (${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })})`;
+      const list = getSavedSessions();
+      list.unshift({ name, tab: state.mainTab, modelId: state.modelId, step: state.step, lightTheme: state.lightTheme, ts: Date.now() });
+      localStorage.setItem(SESSION_KEY_3D, JSON.stringify(list.slice(0, 12)));
+      if (inp) inp.value = '';
+      renderSavedSessions();
+    }
+    function loadSavedSession(idx) {
+      const item = getSavedSessions()[idx];
+      if (!item) return;
+      if (typeof item.lightTheme === 'boolean' && item.lightTheme !== state.lightTheme) toggleTheme();
+      switchMainTab(item.tab || 1);
+      if (item.tab === 1 && item.modelId) selectModel(item.modelId);
+      if (item.step) setStep(item.step);
+      toggleSessionPopover();
+    }
+    function deleteSavedSession(idx) {
+      const list = getSavedSessions();
+      list.splice(idx, 1);
+      localStorage.setItem(SESSION_KEY_3D, JSON.stringify(list));
+      renderSavedSessions();
+    }
+    function renderSavedSessions() {
+      const box = document.getElementById('session-list');
+      if (!box) return;
+      const list = getSavedSessions();
+      if (!list.length) {
+        box.innerHTML = '<div style="font-size:11px; color:#64748b; text-align:center; padding:6px;">Chưa có tiết dạy nào được lưu.</div>';
+        return;
+      }
+      box.innerHTML = list.map((it, i) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; padding:5px 7px; border:1px solid #e2e8f0; border-radius:7px; background:#f8fafc;">
+          <div style="min-width:0;">
+            <div style="font-size:11.5px; font-weight:700; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.name}</div>
+            <div style="font-size:10px; color:#64748b;">Tab ${it.tab} • ${it.modelId || ''}</div>
+          </div>
+          <div style="display:flex; gap:4px; flex-shrink:0;">
+            <button class="step-btn" onclick="loadSavedSession(${i})">Mở</button>
+            <button class="step-btn" onclick="deleteSavedSession(${i})" style="color:#dc2626;">✕</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     function toggleFocusMode() {
