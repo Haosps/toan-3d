@@ -113,43 +113,41 @@
     }
     .session-popover.open { display: flex; }
 
-    /* 3-Zone Workspace Shell (Activity Rail 52px + Collapsible Sidebar 320px + Stage + Right Solution Drawer) */
+    /* Clean Resizable 2/3-Zone Workspace Shell */
     .workspace { display: flex; flex: 1; min-height: 0; overflow: hidden; }
-
-    .activity-rail {
-      width: 46px; flex-shrink: 0; background: #f8fafc; border-right: 1px solid #e2e8f0;
-      display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 6px; z-index: 15;
+    .resizer {
+      width: 5px; flex-shrink: 0; background: transparent; cursor: col-resize;
+      transition: background 0.15s; z-index: 14; position: relative;
     }
-    .rail-btn {
-      width: 34px; height: 34px; border-radius: 8px; border: 1px solid transparent;
-      background: transparent; font-size: 16px; cursor: pointer; display: grid; place-items: center;
-      color: #475569; transition: all 0.15s;
+    .resizer:hover, .resizer.active { background: #3b82f6; }
+    .cust-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      font-size: 11.5px; font-weight: 600; color: #1e293b;
     }
-    .rail-btn:hover { background: #e2e8f0; color: #0f172a; }
-    .rail-btn.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
 
     .left-panel {
-      width: 300px; min-width: 300px;
+      width: 310px; min-width: 240px; max-width: 480px;
       background: var(--panel-bg); border-right: 1px solid var(--border);
       overflow-y: auto; padding: 8px;
-      display: flex; flex-direction: column; gap: 6px;
-      transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
+      display: flex; flex-direction: column; gap: 7px;
+      transition: width 0.18s ease, min-width 0.18s ease, padding 0.18s ease, opacity 0.16s ease;
     }
     .right-stage {
       flex: 1; height: calc(100vh - 48px); min-height: 480px; min-width: 0;
       position: relative; background: #ffffff; overflow: hidden;
     }
-    .workspace.focus-mode .left-panel {
+    .workspace.focus-mode .left-panel,
+    .workspace.focus-mode #resizer-left {
       width: 0 !important; min-width: 0 !important; padding: 0 !important;
       border-right: none !important; overflow: hidden !important; opacity: 0; pointer-events: none;
     }
     .right-sol-drawer {
-      width: 365px; flex-shrink: 0; background: #ffffff; border-left: 1px solid #e2e8f0;
+      width: 340px; min-width: 260px; max-width: 500px; flex-shrink: 0; background: #ffffff; border-left: 1px solid #e2e8f0;
       overflow-y: auto; padding: 11px; display: flex; flex-direction: column; gap: 8px;
-      transition: width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
+      transition: width 0.18s ease, min-width 0.18s ease, padding 0.18s ease, opacity 0.16s ease;
     }
     .right-sol-drawer.collapsed {
-      width: 0 !important; padding: 0 !important; border-left: none !important;
+      width: 0 !important; min-width: 0 !important; padding: 0 !important; border-left: none !important;
       overflow: hidden !important; opacity: 0; pointer-events: none;
     }
 
@@ -488,10 +486,30 @@
     </div>
 
     <div class="header-right">
-      <a class="theme-pill" href="./hinh-khong-gian-11.html" title="Chuyển sang dự án Hình Không Gian 3D">🧊 Toán 11-12 ↗</a>
-      <button class="theme-pill" onclick="toggleSessionPopover()">💾 Lưu tiết dạy</button>
+      <a class="theme-pill" href="./hinh-khong-gian-11.html" title="Chuyển sang dự án Hình Không Gian 3D">🧊 3D ↗</a>
+      <button class="theme-pill" onclick="toggleCustomizePopover()" title="Tùy chỉnh bố cục & hiển thị theo ý muốn">⚙️ Tùy chỉnh</button>
+      <button class="theme-pill" onclick="toggleSessionPopover()">💾 Lưu</button>
       <button class="theme-pill" id="btn-theme" onclick="toggleTheme()">🌙 Tối</button>
-      <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Phím tắt: F">⛶ Toàn màn hình (F)</button>
+      <button class="theme-pill" id="btn-hdr-focus" onclick="toggleFocusMode()" title="Phím tắt: F">⛶ Rộng (F)</button>
+
+      <div class="session-popover" id="customize-popover" style="width:280px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; font-weight:700; color:#1e3a8a;">⚙️ Tùy chỉnh giao diện</span>
+          <button class="step-btn" onclick="resetUIPrefs()">↺ Mặc định</button>
+        </div>
+        <label class="cust-row"><span>Hiện Bảng điều khiển trái</span><input type="checkbox" id="cust-left-panel" checked onchange="onUIPrefChange()" /></label>
+        <label class="cust-row"><span>Hiện Ngăn Lời giải phải</span><input type="checkbox" id="cust-right-sol" onchange="onUIPrefChange()" /></label>
+        <label class="cust-row"><span>Hiện Thanh điều khiển nổi</span><input type="checkbox" id="cust-dock" checked onchange="onUIPrefChange()" /></label>
+        <label class="cust-row"><span>Hiện Bước giảng trên hình</span><input type="checkbox" id="cust-hud" checked onchange="onUIPrefChange()" /></label>
+        <div class="cust-row" style="flex-direction:column; align-items:stretch; gap:2px;">
+          <div style="display:flex; justify-content:space-between;"><span>Độ rộng bảng trái</span><span id="cust-left-w-lbl">310px</span></div>
+          <input type="range" id="cust-left-w" min="250" max="440" value="310" oninput="onUIPrefChange()" />
+        </div>
+        <div class="cust-row" style="flex-direction:column; align-items:stretch; gap:2px;">
+          <div style="display:flex; justify-content:space-between;"><span>Độ rộng ngăn lời giải</span><span id="cust-right-w-lbl">340px</span></div>
+          <input type="range" id="cust-right-w" min="260" max="480" value="340" oninput="onUIPrefChange()" />
+        </div>
+      </div>
 
       <div class="session-popover" id="session-popover">
         <div style="font-size:12px; font-weight:700; color:#1e3a8a; display:flex; justify-content:space-between; align-items:center;">
@@ -508,22 +526,16 @@
   </header>
 
   <main class="workspace">
-    <!-- 52px Activity Rail -->
-    <nav class="activity-rail" id="activity-rail" aria-label="Công cụ nhanh">
-      <button class="rail-btn active" id="rail-lib" onclick="clickRail('lib')" title="Danh mục bài / Khung hình">📚</button>
-      <button class="rail-btn" id="rail-params" onclick="clickRail('params')" title="Thông số / Bật tắt đường phụ">🎛️</button>
-      <button class="rail-btn" id="rail-aux" onclick="clickRail('aux')" title="Chấm điểm phụ / Nhập đề AI">📍</button>
-      <button class="rail-btn active" id="rail-sol" onclick="toggleRightSolDrawer()" title="Mở / Đóng Ngăn Lời giải chi tiết">📖</button>
-    </nav>
-
-    <aside class="left-panel">
+    <aside class="left-panel" id="left-panel">
       <!-- TAB 1: KHO 24 MÔ HÌNH (4 NHÓM ACCORDION) -->
       <div id="tab1-panel" style="display:flex; flex-direction:column; gap:8px;">
-        <section class="card">
-          <div class="card-title">
-            <span>📚 Danh mục 24 Mô hình Toán 9</span>
-            <span style="font-size:11px; color:var(--primary);">60fps • KaTeX</span>
-          </div>
+        <section class="card" style="padding:7px 9px;">
+          <details open id="tab1-catalog-details">
+            <summary class="card-title" style="cursor:pointer; margin-bottom:0; list-style:none;">
+              <span>📚 Danh mục 24 Mô hình ▾</span>
+              <span style="font-size:10.5px; color:var(--primary);">60fps • KaTeX</span>
+            </summary>
+            <div style="margin-top:7px;">
 
           <details class="acc-group" open>
             <summary class="acc-summary" style="border-left:3px solid #2563eb;">Nhóm 1: Hệ thức cạnh &amp; đường cao (4 bài)</summary>
@@ -578,6 +590,8 @@
                 <button class="model-btn" id="btn-m-d7" onclick="selectModel('d7')"><span>Bài 4.7: Hai tàu rời cảng $O$ tạo góc $60^\circ$</span><span class="m-badge mb-real">60fps</span></button>
                 <button class="model-btn" id="btn-m-d8" onclick="selectModel('d8')"><span>Bài 4.8: Cây cao $9\text{ m}$ gãy chạm đất cách $3\text{ m}$</span><span class="m-badge mb-real">Thực tế</span></button>
               </div>
+            </div>
+          </details>
             </div>
           </details>
         </section>
@@ -730,6 +744,8 @@
       </div>
     </aside>
 
+    <div class="resizer" id="resizer-left" title="Kéo để chỉnh độ rộng bảng trái"></div>
+
     <!-- RIGHT STAGE -->
     <section class="right-stage" id="right-stage">
       <canvas id="mainCanvas"></canvas>
@@ -739,7 +755,6 @@
 
       <div class="stage-toolbar">
         <div style="display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap;">
-          <button class="hud-btn" id="btn-focus-mode" onclick="toggleFocusMode()">◀ Thu gọn bảng bên</button>
           <div class="hud-info" id="hud-step-desc"></div>
         </div>
         <div id="pen-palette" style="display:none; align-items:center; gap:5px; flex-wrap:wrap; background:rgba(255,255,255,0.96); color:#0f172a; padding:6px 10px; border-radius:11px; border:1px solid #cbd5e1; box-shadow:0 6px 20px rgba(15,23,42,0.16); pointer-events:auto;">
@@ -765,44 +780,40 @@
         </div>
       </div>
 
-      <!-- Unified Draggable Floating Toolbar -->
+      <!-- Compact 1-Row Draggable Floating Toolbar -->
       <div class="stage-dock-wrap" id="stage-floating-toolbar">
         <div class="dock-drag-handle" id="dock-drag-handle" title="Kéo để di chuyển thanh công cụ (Nhấp đúp để căn giữa lại)">⋮⋮</div>
-        <div class="dock-rows">
-          <div class="dock-row" id="step-pres-bar">
+        <div class="dock-row" style="position:relative; flex-wrap:nowrap;">
+          <div id="step-pres-bar" style="display:flex; align-items:center; gap:4px;">
             <div class="step-dots">
               <button class="step-pill" id="sp-1" onclick="setStep(1)">B1</button>
               <button class="step-pill" id="sp-2" onclick="setStep(2)">B2</button>
               <button class="step-pill" id="sp-3" onclick="setStep(3)">B3</button>
               <button class="step-pill active" id="sp-4" onclick="setStep(4)">B4</button>
             </div>
+            <button class="dock-btn" onclick="stepPrev()" title="Bước trước (Mũi tên Trái)">◀</button>
+            <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()" title="Tự động chạy">▶</button>
+            <button class="dock-btn" onclick="stepNext()" title="Bước tiếp (Mũi tên Phải)">▶|</button>
             <span class="dock-sep"></span>
-            <button class="dock-btn" onclick="stepPrev()" title="Mũi tên Trái">◀ Trước</button>
-            <button class="dock-btn" id="btn-stage-play" onclick="toggleAutoPlay()">▶ Tự động</button>
-            <button class="dock-btn" onclick="stepNext()" title="Mũi tên Phải">Tiếp ▶</button>
-            <span class="dock-sep"></span>
-            <button class="dock-btn" id="btn-show-all" onclick="toggleShowAllSteps()">⚡ Hiện đủ</button>
-            <button class="dock-btn active-dock" id="btn-anim-toggle" onclick="toggleMotionAnim()">⏸ Dừng/Chạy</button>
           </div>
-          <div class="dock-row" style="position:relative;">
-            <div class="export-png-popover" id="export-png-popover">
-              <button class="export-png-opt" onclick="doExportExamPNG('white')">📄 Nền trắng tinh khôi (2x HD • Word/LaTeX)</button>
-              <button class="export-png-opt" onclick="doExportExamPNG('transparent')">💎 Nền trong suốt (2x HD • Slide)</button>
-            </div>
-            <button class="dock-btn" id="btn-reset-view" onclick="resetCanvasView()" title="Đưa hình vẽ về đúng tỉ lệ chuẩn (100%)">🎯 100%</button>
-            <span class="dock-sep"></span>
-            <button class="dock-btn" id="btn-pen" onclick="togglePenMode()">✏️ Bút vẽ (B)</button>
-            <span class="dock-sep"></span>
-            <button class="dock-btn" onclick="toggleExportPNGMenu()">📷 Xuất PNG ▾</button>
-            <span class="dock-sep"></span>
-            <button class="dock-btn active-dock" id="btn-sol-drawer" onclick="toggleRightSolDrawer()">📖 Lời giải</button>
+          <button class="dock-btn" id="btn-pen" onclick="togglePenMode()" title="Bút vẽ (B)">✏️ Bút</button>
+          <button class="dock-btn" id="btn-sol-drawer" onclick="toggleRightSolDrawer()" title="Mở / Đóng Ngăn Lời giải">📖 Lời giải</button>
+          <button class="dock-btn" onclick="toggleStageMoreMenu()" title="Thêm tiện ích (Zoom, Xuất PNG, Chuyển động)">⋯ Thêm ▾</button>
+          <div class="export-png-popover" id="export-png-popover" style="left:auto; right:0; transform:none; bottom:46px;">
+            <button class="export-png-opt" id="btn-reset-view" onclick="resetCanvasView()">🎯 Căn giữa (100%)</button>
+            <button class="export-png-opt" id="btn-show-all" onclick="toggleShowAllSteps()">⚡ Hiện đủ cả 4 bước</button>
+            <button class="export-png-opt" id="btn-anim-toggle" onclick="toggleMotionAnim()">⏸ Dừng chuyển động</button>
+            <button class="export-png-opt" onclick="doExportExamPNG('white')">📄 Xuất PNG nền trắng (2x HD)</button>
+            <button class="export-png-opt" onclick="doExportExamPNG('transparent')">💎 Xuất PNG trong suốt (2x HD)</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- RIGHT DOCKED SOLUTION DRAWER (LaTeX Document Style) -->
-    <aside class="right-sol-drawer" id="right-sol-drawer">
+    <div class="resizer" id="resizer-right" title="Kéo để chỉnh độ rộng ngăn lời giải"></div>
+
+    <!-- RIGHT DOCKED SOLUTION DRAWER (Collapsed by default for spacious Canvas) -->
+    <aside class="right-sol-drawer collapsed" id="right-sol-drawer">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
         <span style="font-size:12.5px; font-weight:700; color:#1e3a8a;">📖 Lời giải chi tiết chuẩn tự luận (KaTeX)</span>
         <button class="step-btn" onclick="toggleRightSolDrawer()" title="Thu gọn ngăn lời giải">✕</button>
@@ -3524,34 +3535,126 @@
       }
     }
 
-    function clickRail(section) {
-      const ws = document.querySelector('.workspace');
-      const curActive = document.querySelector('#activity-rail .rail-btn.active:not(#rail-sol)');
-      if (curActive && curActive.id === `rail-${section}` && !ws.classList.contains('focus-mode')) {
-        ws.classList.add('focus-mode');
-        curActive.classList.remove('active');
-      } else {
-        ws.classList.remove('focus-mode');
-        ['lib', 'params', 'aux'].forEach(k => {
-          const b = document.getElementById(`rail-${k}`);
-          if (b) b.classList.toggle('active', k === section);
-        });
-        if (section === 'aux' && state.mainTab === 1) switchMainTab(2);
-      }
-      resizeStage();
-      setTimeout(resizeStage, 240);
-    }
-
     function toggleRightSolDrawer() {
       const dr = document.getElementById('right-sol-drawer');
-      const rBtn = document.getElementById('rail-sol');
       const dBtn = document.getElementById('btn-sol-drawer');
+      const custCb = document.getElementById('cust-right-sol');
       if (!dr) return;
       const isCol = dr.classList.toggle('collapsed');
-      if (rBtn) rBtn.classList.toggle('active', !isCol);
       if (dBtn) dBtn.classList.toggle('active-dock', !isCol);
+      if (custCb) custCb.checked = !isCol;
+      saveUIPrefsFromDOM();
       resizeStage();
-      setTimeout(resizeStage, 240);
+      setTimeout(resizeStage, 220);
+    }
+
+    function toggleStageMoreMenu() {
+      const pop = document.getElementById('export-png-popover');
+      if (pop) pop.classList.toggle('open');
+    }
+
+    const UI_PREFS_KEY = 'haohiep_toan9_uiprefs_v1';
+    function toggleCustomizePopover() {
+      const pop = document.getElementById('customize-popover');
+      const ses = document.getElementById('session-popover');
+      if (ses) ses.classList.remove('open');
+      if (pop) pop.classList.toggle('open');
+    }
+
+    function applyUIPrefs(p) {
+      const ws = document.querySelector('.workspace');
+      const lp = document.getElementById('left-panel');
+      const dr = document.getElementById('right-sol-drawer');
+      const dock = document.getElementById('stage-floating-toolbar');
+      const hud = document.getElementById('hud-step-desc');
+      const dBtn = document.getElementById('btn-sol-drawer');
+      if (ws) ws.classList.toggle('focus-mode', !p.showLeft);
+      if (dr) dr.classList.toggle('collapsed', !p.showRight);
+      if (dBtn) dBtn.classList.toggle('active-dock', !!p.showRight);
+      if (dock) dock.style.display = p.showDock ? 'flex' : 'none';
+      if (hud) hud.style.display = p.showHud ? 'block' : 'none';
+      if (lp && p.leftW) lp.style.width = `${p.leftW}px`;
+      if (dr && p.rightW && p.showRight) dr.style.width = `${p.rightW}px`;
+      const elL = document.getElementById('cust-left-panel'); if (elL) elL.checked = !!p.showLeft;
+      const elR = document.getElementById('cust-right-sol'); if (elR) elR.checked = !!p.showRight;
+      const elD = document.getElementById('cust-dock'); if (elD) elD.checked = !!p.showDock;
+      const elH = document.getElementById('cust-hud'); if (elH) elH.checked = !!p.showHud;
+      const elLW = document.getElementById('cust-left-w'); if (elLW) elLW.value = p.leftW || 310;
+      const elRW = document.getElementById('cust-right-w'); if (elRW) elRW.value = p.rightW || 340;
+      const lblL = document.getElementById('cust-left-w-lbl'); if (lblL) lblL.textContent = `${p.leftW || 310}px`;
+      const lblR = document.getElementById('cust-right-w-lbl'); if (lblR) lblR.textContent = `${p.rightW || 340}px`;
+      const hdrFocus = document.getElementById('btn-hdr-focus');
+      if (hdrFocus) hdrFocus.textContent = p.showLeft ? '⛶ Rộng (F)' : '◧ Hiện bảng (F)';
+      resizeStage();
+      setTimeout(resizeStage, 200);
+    }
+
+    function saveUIPrefsFromDOM() {
+      const prefs = {
+        showLeft: document.getElementById('cust-left-panel')?.checked ?? true,
+        showRight: document.getElementById('cust-right-sol')?.checked ?? false,
+        showDock: document.getElementById('cust-dock')?.checked ?? true,
+        showHud: document.getElementById('cust-hud')?.checked ?? true,
+        leftW: +(document.getElementById('cust-left-w')?.value || 310),
+        rightW: +(document.getElementById('cust-right-w')?.value || 340)
+      };
+      try { localStorage.setItem(UI_PREFS_KEY, JSON.stringify(prefs)); } catch (_) {}
+      return prefs;
+    }
+
+    function onUIPrefChange() {
+      const prefs = saveUIPrefsFromDOM();
+      applyUIPrefs(prefs);
+    }
+
+    function resetUIPrefs() {
+      const def = { showLeft: true, showRight: false, showDock: true, showHud: true, leftW: 310, rightW: 340 };
+      try { localStorage.setItem(UI_PREFS_KEY, JSON.stringify(def)); } catch (_) {}
+      applyUIPrefs(def);
+    }
+
+    function loadUIPrefs() {
+      try {
+        const raw = localStorage.getItem(UI_PREFS_KEY);
+        if (raw) applyUIPrefs({ showLeft: true, showRight: false, showDock: true, showHud: true, leftW: 310, rightW: 340, ...JSON.parse(raw) });
+        else applyUIPrefs({ showLeft: true, showRight: false, showDock: true, showHud: true, leftW: 310, rightW: 340 });
+      } catch (_) {}
+    }
+
+    function setupResizers() {
+      const bindResizer = (resId, targetId, isLeft) => {
+        const res = document.getElementById(resId), target = document.getElementById(targetId);
+        if (!res || !target) return;
+        let dragging = false, startX = 0, startW = 0;
+        res.addEventListener('pointerdown', e => {
+          dragging = true; startX = e.clientX; startW = target.getBoundingClientRect().width;
+          res.classList.add('active');
+          target.style.transition = 'none';
+          try { res.setPointerCapture(e.pointerId); } catch (_) {}
+        });
+        res.addEventListener('pointermove', e => {
+          if (!dragging) return;
+          const dx = e.clientX - startX;
+          const nextW = Math.max(250, Math.min(480, isLeft ? startW + dx : startW - dx));
+          target.style.width = `${Math.round(nextW)}px`;
+          const slider = document.getElementById(isLeft ? 'cust-left-w' : 'cust-right-w');
+          const lbl = document.getElementById(isLeft ? 'cust-left-w-lbl' : 'cust-right-w-lbl');
+          if (slider) slider.value = Math.round(nextW);
+          if (lbl) lbl.textContent = `${Math.round(nextW)}px`;
+          resizeStage();
+        });
+        const end = e => {
+          if (!dragging) return;
+          dragging = false; res.classList.remove('active');
+          target.style.transition = '';
+          try { res.releasePointerCapture(e.pointerId); } catch (_) {}
+          saveUIPrefsFromDOM();
+        };
+        res.addEventListener('pointerup', end);
+        res.addEventListener('pointercancel', end);
+      };
+      bindResizer('resizer-left', 'left-panel', true);
+      bindResizer('resizer-right', 'right-sol-drawer', false);
     }
 
     const SESSION_KEY = 'haohiep_toan9_sessions_v1';
@@ -3698,11 +3801,13 @@
 
     function toggleFocusMode() {
       const ws = document.querySelector('.workspace'), isFocus = ws.classList.toggle('focus-mode');
-      const txt = isFocus ? '▶ Mở bảng điều khiển' : '◀ Thu gọn bảng bên';
-      document.getElementById('btn-focus-mode').textContent = txt;
-      document.getElementById('btn-hdr-focus').textContent = txt;
+      const hdrFocus = document.getElementById('btn-hdr-focus');
+      if (hdrFocus) hdrFocus.textContent = isFocus ? '◧ Hiện bảng (F)' : '⛶ Rộng (F)';
+      const custL = document.getElementById('cust-left-panel');
+      if (custL) custL.checked = !isFocus;
+      saveUIPrefsFromDOM();
       resizeStage();
-      setTimeout(resizeStage, 270);
+      setTimeout(resizeStage, 220);
     }
 
     function resizeStage() { resizeCanvas(); rebuildScene(); }
@@ -4002,6 +4107,8 @@
         resizeCanvas();
         setupAIImageHandlers();
         setupDraggableToolbar();
+        setupResizers();
+        loadUIPrefs();
         selectModel('a1');
         renderAllMath(document.body);
         if (!_rafStarted) {
