@@ -947,7 +947,7 @@
       <section class="card">
         <div class="card-title">
           <span>📚 Danh mục mô hình</span>
-          <span style="font-size:11px; color:var(--primary);">33 mô hình</span>
+          <span style="font-size:11px; color:var(--primary);">45 mô hình</span>
         </div>
         <input type="text" id="model-search" class="search-input" placeholder="🔍 Tìm nhanh bài toán (VD: Menelaus, hình thang, câu 2)..." oninput="filterModels(this.value)" />
 
@@ -1046,6 +1046,20 @@
               <button class="model-btn" id="btn-m-k12_4" onclick="selectModel('k12_4')"><span>Bài 12.4: Mặt cầu ngoại tiếp Chóp đều</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-k12_5" onclick="selectModel('k12_5')"><span>Bài 12.5: Mặt cầu ngoại tiếp $(SAB) \perp$ đáy</span><span>▸</span></button>
               <button class="model-btn" id="btn-m-k12_6" onclick="selectModel('k12_6')"><span>Bài 12.6: Mặt cầu Lăng trụ $ABC.A'B'C'$</span><span>▸</span></button>
+            </div>
+          </div>
+        </details>
+
+        <details class="acc-group" id="acc-adv" style="margin-bottom:0;">
+          <summary class="acc-summary" style="border-left:3px solid #f59e0b;">Chuyên đề Nâng cao &amp; Tọa độ Oxyz (6 mô hình hay)</summary>
+          <div class="acc-body">
+            <div class="model-list">
+              <button class="model-btn" id="btn-m-adv_1" onclick="selectModel('adv_1')"><span>Bài NC.1: Tứ diện vuông $O.ABC$ ($OH \perp (ABC)$)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-adv_2" onclick="selectModel('adv_2')"><span>Bài NC.2: Góc 2 mặt phẳng $(SBC)$ &amp; $(ABCD)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-adv_3" onclick="selectModel('adv_3')"><span>Bài NC.3: Khoảng cách $d(A, (SBD))$ (Chóp vuông)</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-adv_4" onclick="selectModel('adv_4')"><span>Bài NC.4: Thiết diện Lục giác đều Hình lập phương</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-adv_5" onclick="selectModel('adv_5')"><span>Bài NC.5: Oxyz — Mặt cầu $(S)$ cắt mặt phẳng $(P)$</span><span>▸</span></button>
+              <button class="model-btn" id="btn-m-adv_6" onclick="selectModel('adv_6')"><span>Bài NC.6: Khối Chóp Cụt Tứ Giác Đều</span><span>▸</span></button>
             </div>
           </div>
         </details>
@@ -1463,6 +1477,7 @@
       hk2_1: { rightAt: 'B' },
       hk2_2: { mode: 'dihedral' },
       hk2_6: { mode: 'cube' },
+      adv_4: { mode: 'hex' },
       showAnswer: false,
       m11: { tM: 0.45, tN: 0.42, tP: 0.45 },
       m12: { tM: 0.45 },
@@ -3793,6 +3808,299 @@
       };
     }
 
+    function buildModelAdv1() {
+      // Tứ diện vuông O.ABC: OA, OB, OC đôi một vuông góc
+      const O = new THREE.Vector3(-1.2, 0, -1.0);
+      const A = new THREE.Vector3(-1.2, 2.7, -1.0);
+      const B = new THREE.Vector3(-1.2, 0, 2.1);
+      const C = new THREE.Vector3(2.2, 0, -1.0);
+      const centroid = new THREE.Vector3(-0.05, 0.7, 0.05);
+      const tc = getThemeColors(), faceOp = state.xray ? 0.14 : 0.56, eff = state.showAllSteps ? 4 : state.step;
+
+      const fOBC = makeFaceData([O, B, C], centroid), fOAB = makeFaceData([O, A, B], centroid);
+      const fOAC = makeFaceData([O, A, C], centroid), fABC = makeFaceData([A, B, C], centroid);
+      [[O,B,C],[O,A,B],[O,A,C],[A,B,C]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(O, B, fOBC, fOAB, tc.edge); addDynamicEdge(O, C, fOBC, fOAC, tc.edge); addDynamicEdge(B, C, fOBC, fABC, tc.edge);
+      addDynamicEdge(O, A, fOAB, fOAC, tc.edge); addDynamicEdge(A, B, fOAB, fABC, tc.edge); addDynamicEdge(A, C, fOAC, fABC, tc.edge);
+      [['O', O], ['A', A], ['B', B], ['C', C]].forEach(([l, p]) => { addPoint(p, tc.edge, 0.056); addLabel(l, p, centroid); });
+      addRightAngleMarker(O, A, B, 0.28, tc.green);
+      addRightAngleMarker(O, A, C, 0.28, tc.green);
+      addRightAngleMarker(O, B, C, 0.28, tc.green);
+
+      // Foot M of O on BC and foot H of O on AM
+      const bcDir = C.clone().sub(B), tM = O.clone().sub(B).dot(bcDir) / bcDir.lengthSq();
+      const M = B.clone().add(bcDir.multiplyScalar(tM));
+      const amDir = M.clone().sub(A), tH = O.clone().sub(A).dot(amDir) / amDir.lengthSq();
+      const H = A.clone().add(amDir.multiplyScalar(tH));
+
+      if (eff >= 2) {
+        addLine(O, M, tc.aux, true, 0.018); addLine(A, M, tc.aux, true, 0.018);
+        addPoint(M, tc.green, 0.055); addLabel('M', M, centroid, '#15803d');
+        addRightAngleMarker(M, O, C, 0.22, tc.green);
+      }
+      if (eff >= 3) {
+        addLine(O, H, 0xef4444, false, 0.032);
+        addPoint(H, 0xef4444, 0.068); addLabel('H', H, centroid, '#dc2626');
+        addRightAngleMarker(H, O, M, 0.22, 0xef4444);
+      }
+      return {
+        stepDesc: [
+          'Bước 1/4: Tứ diện vuông O.ABC có OA, OB, OC đôi một vuông góc tại O.',
+          'Bước 2/4: Kẻ OM ⊥ BC (M ∈ BC) và nối AM.',
+          'Bước 3/4: Kẻ OH ⊥ AM (H ∈ AM) ⇒ OH ⊥ (ABC), H là trực tâm ΔABC.',
+          'Bước 4/4: Hệ thức vàng: 1/OH² = 1/OA² + 1/OB² + 1/OC² và V = (1/6)·OA·OB·OC.'
+        ],
+        solutions: [
+          `OM \\perp BC, \\; OA \\perp (OBC) \\Rightarrow BC \\perp (OAM) \\Rightarrow BC \\perp OH`,
+          `OH \\perp AM \\text{ và } OH \\perp BC \\Rightarrow OH \\perp (ABC) \\; (H \\text{ là trực tâm } \\Delta ABC)`,
+          `\\frac{1}{OH^2} = \\frac{1}{OA^2} + \\frac{1}{OM^2} = \\frac{1}{OA^2} + \\frac{1}{OB^2} + \\frac{1}{OC^2}`
+        ]
+      };
+    }
+
+    function buildModelAdv2() {
+      // Góc giữa 2 mặt phẳng (SBC) & (ABCD) trong chóp tứ giác đều S.ABCD
+      const s = 1.6, h = 2.6;
+      const A = new THREE.Vector3(-s, 0, -s), B = new THREE.Vector3(-s, 0, s);
+      const C = new THREE.Vector3(s, 0, s), D = new THREE.Vector3(s, 0, -s);
+      const O = new THREE.Vector3(0, 0, 0), S = new THREE.Vector3(0, h, 0);
+      const M = B.clone().add(C).multiplyScalar(0.5);
+      const centroid = new THREE.Vector3(0, h * 0.35, 0);
+      const tc = getThemeColors(), faceOp = state.xray ? 0.14 : 0.56, eff = state.showAllSteps ? 4 : state.step;
+
+      const fBot = makeFaceData([A,B,C,D], centroid), fSAB = makeFaceData([S,A,B], centroid);
+      const fSBC = makeFaceData([S,B,C], centroid), fSCD = makeFaceData([S,C,D], centroid), fSDA = makeFaceData([S,D,A], centroid);
+      [[A,B,C,D],[S,A,B],[S,B,C],[S,C,D],[S,D,A]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(A, B, fBot, fSAB, tc.edge); addDynamicEdge(B, C, fBot, fSBC, tc.edge);
+      addDynamicEdge(C, D, fBot, fSCD, tc.edge); addDynamicEdge(D, A, fBot, fSDA, tc.edge);
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge); addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge); addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      [['S', S], ['A', A], ['B', B], ['C', C], ['D', D]].forEach(([l, p]) => { addPoint(p, tc.edge, 0.056); addLabel(l, p, centroid); });
+
+      if (eff >= 2) {
+        addLine(A, C, tc.aux, true, 0.015); addLine(B, D, tc.aux, true, 0.015);
+        addLine(S, O, tc.green, true, 0.022);
+        addPoint(O, tc.green, 0.056); addLabel('O', O, centroid, '#15803d');
+        addPoint(M, 0xf97316, 0.056); addLabel('M', M, centroid, '#ea580c');
+        addLine(O, M, 0x2563eb, true, 0.024);
+      }
+      if (eff >= 3) {
+        addLine(S, M, 0xf97316, false, 0.03);
+        addRightAngleMarker(M, O, C, 0.22, 0x2563eb);
+        addRightAngleMarker(O, S, M, 0.22, tc.green);
+      }
+      if (eff >= 4) {
+        addSectionPolygon([S, O, M], 0xf97316);
+      }
+      return {
+        stepDesc: [
+          'Bước 1/4: Chóp tứ giác đều S.ABCD có tâm đáy O = AC ∩ BD, SO ⊥ (ABCD).',
+          'Bước 2/4: Gọi M là trung điểm BC ⇒ OM ⊥ BC và OM = a/2.',
+          'Bước 3/4: Do ΔSBC cân tại S ⇒ SM ⊥ BC ⇒ Góc phẳng nhị diện là ∠SMO.',
+          'Bước 4/4: Xét ΔSOM vuông tại O: tan(∠SMO) = SO / OM.'
+        ],
+        solutions: [
+          `(SBC) \\cap (ABCD) = BC`,
+          `OM \\perp BC, \\; SM \\perp BC \\Rightarrow \\widehat{((SBC),(ABCD))} = \\widehat{SMO}`,
+          `\\tan\\widehat{SMO} = \\frac{SO}{OM} = \\frac{2\\cdot SO}{a}`
+        ]
+      };
+    }
+
+    function buildModelAdv3() {
+      // Khoảng cách từ A đến (SBD) trong chóp S.ABCD (SA ⊥ đáy vuông)
+      const s = 2.4, h = 2.8;
+      const A = new THREE.Vector3(-1.2, 0, -1.2), B = new THREE.Vector3(-1.2, 0, 1.2);
+      const C = new THREE.Vector3(1.2, 0, 1.2), D = new THREE.Vector3(1.2, 0, -1.2);
+      const S = new THREE.Vector3(-1.2, h, -1.2), O = new THREE.Vector3(0, 0, 0);
+      const soDir = O.clone().sub(S), tK = A.clone().sub(S).dot(soDir) / soDir.lengthSq();
+      const K = S.clone().add(soDir.multiplyScalar(tK));
+      const centroid = new THREE.Vector3(0, h * 0.35, 0);
+      const tc = getThemeColors(), faceOp = state.xray ? 0.14 : 0.56, eff = state.showAllSteps ? 4 : state.step;
+
+      const fBot = makeFaceData([A,B,C,D], centroid), fSAB = makeFaceData([S,A,B], centroid);
+      const fSBC = makeFaceData([S,B,C], centroid), fSCD = makeFaceData([S,C,D], centroid), fSDA = makeFaceData([S,D,A], centroid);
+      [[A,B,C,D],[S,A,B],[S,B,C],[S,C,D],[S,D,A]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(A, B, fBot, fSAB, tc.edge); addDynamicEdge(B, C, fBot, fSBC, tc.edge);
+      addDynamicEdge(C, D, fBot, fSCD, tc.edge); addDynamicEdge(D, A, fBot, fSDA, tc.edge);
+      addDynamicEdge(S, A, fSAB, fSDA, tc.edge); addDynamicEdge(S, B, fSAB, fSBC, tc.edge);
+      addDynamicEdge(S, C, fSBC, fSCD, tc.edge); addDynamicEdge(S, D, fSCD, fSDA, tc.edge);
+      [['S', S], ['A', A], ['B', B], ['C', C], ['D', D]].forEach(([l, p]) => { addPoint(p, tc.edge, 0.056); addLabel(l, p, centroid); });
+      addRightAngleMarker(A, S, B, 0.25, tc.green);
+
+      if (eff >= 2) {
+        addLine(B, D, 0x2563eb, false, 0.024); addLine(A, O, tc.aux, true, 0.018);
+        addPoint(O, 0x2563eb, 0.056); addLabel('O', O, centroid, '#2563eb');
+        addRightAngleMarker(O, A, B, 0.22, 0x2563eb);
+      }
+      if (eff >= 3) {
+        addLine(S, O, 0xf97316, true, 0.022);
+        addSectionPolygon([S, B, D], 0x38bdf8);
+      }
+      if (eff >= 4) {
+        addLine(A, K, 0xef4444, false, 0.036);
+        addPoint(K, 0xef4444, 0.068); addLabel('K', K, centroid, '#dc2626');
+        addRightAngleMarker(K, A, S, 0.22, 0xef4444);
+      }
+      return {
+        stepDesc: [
+          'Bước 1/4: Chóp S.ABCD có SA ⊥ (ABCD), đáy ABCD là hình vuông.',
+          'Bước 2/4: Gọi O = AC ∩ BD ⇒ AO ⊥ BD.',
+          'Bước 3/4: Kẻ AK ⊥ SO (K ∈ SO) trong mặt phẳng (SAO).',
+          'Bước 4/4: AK ⊥ (SBD) ⇒ d(A, (SBD)) = AK với 1/AK² = 1/SA² + 1/AO².'
+        ],
+        solutions: [
+          `BD \\perp AO, \\; BD \\perp SA \\Rightarrow BD \\perp (SAO) \\Rightarrow BD \\perp AK`,
+          `AK \\perp SO \\text{ và } AK \\perp BD \\Rightarrow AK \\perp (SBD) \\Rightarrow d(A,(SBD)) = AK`,
+          `\\frac{1}{AK^2} = \\frac{1}{SA^2} + \\frac{1}{AO^2} = \\frac{1}{SA^2} + \\frac{2}{a^2}`
+        ]
+      };
+    }
+
+    function buildModelAdv4() {
+      // Thiết diện Hình lập phương: Lục giác đều hoặc Tam giác MNP
+      const s = 2.6, h = s / 2;
+      const A = new THREE.Vector3(-h, 0, h), B = new THREE.Vector3(h, 0, h), C = new THREE.Vector3(h, 0, -h), D = new THREE.Vector3(-h, 0, -h);
+      const Ap = new THREE.Vector3(-h, s, h), Bp = new THREE.Vector3(h, s, h), Cp = new THREE.Vector3(h, s, -h), Dp = new THREE.Vector3(-h, s, -h);
+      const centroid = new THREE.Vector3(0, h, 0), tc = getThemeColors(), faceOp = state.xray ? 0.12 : 0.48, eff = state.showAllSteps ? 4 : state.step;
+
+      const fBot = makeFaceData([A,B,C,D], centroid), fTop = makeFaceData([Ap,Bp,Cp,Dp], centroid);
+      const fFront = makeFaceData([A,B,Bp,Ap], centroid), fRight = makeFaceData([B,C,Cp,Bp], centroid);
+      const fBack = makeFaceData([C,D,Dp,Cp], centroid), fLeft = makeFaceData([D,A,Ap,Dp], centroid);
+      [[A,B,C,D],[Ap,Bp,Cp,Dp],[A,B,Bp,Ap],[B,C,Cp,Bp],[C,D,Dp,Cp],[D,A,Ap,Dp]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(A, B, fBot, fFront, tc.edge); addDynamicEdge(B, C, fBot, fRight, tc.edge);
+      addDynamicEdge(C, D, fBot, fBack, tc.edge); addDynamicEdge(D, A, fBot, fLeft, tc.edge);
+      addDynamicEdge(Ap, Bp, fTop, fFront, tc.edge); addDynamicEdge(Bp, Cp, fTop, fRight, tc.edge);
+      addDynamicEdge(Cp, Dp, fTop, fBack, tc.edge); addDynamicEdge(Dp, Ap, fTop, fLeft, tc.edge);
+      addDynamicEdge(A, Ap, fFront, fLeft, tc.edge); addDynamicEdge(B, Bp, fFront, fRight, tc.edge);
+      addDynamicEdge(C, Cp, fRight, fBack, tc.edge); addDynamicEdge(D, Dp, fBack, fLeft, tc.edge);
+      [['A',A],['B',B],['C',C],['D',D],["A'",Ap],["B'",Bp],["C'",Cp],["D'",Dp]].forEach(([l, p]) => { addPoint(p, tc.edge, 0.05); addLabel(l, p, centroid); });
+
+      if (state.adv_4.mode === 'hex') {
+        const M = A.clone().add(B).multiplyScalar(0.5);
+        const N = B.clone().add(C).multiplyScalar(0.5);
+        const P = C.clone().add(Cp).multiplyScalar(0.5);
+        const Q = Cp.clone().add(Dp).multiplyScalar(0.5);
+        const R = Dp.clone().add(Ap).multiplyScalar(0.5);
+        const S = Ap.clone().add(A).multiplyScalar(0.5);
+        if (eff >= 2) { [['M', M], ['N', N], ['P', P]].forEach(([l, p]) => { addPoint(p, 0xf97316, 0.062); addLabel(l, p, centroid, '#ea580c'); }); }
+        if (eff >= 3) { [['Q', Q], ['R', R], ['S', S]].forEach(([l, p]) => { addPoint(p, 0xf97316, 0.062); addLabel(l, p, centroid, '#ea580c'); }); }
+        if (eff >= 4) { addSectionPolygon([M, N, P, Q, R, S], 0xf97316); }
+        return {
+          stepDesc: [
+            "Bước 1/4: Hình lập phương ABCD.A'B'C'D' cạnh a.",
+            'Bước 2/4: Chọn 3 trung điểm M ∈ AB, N ∈ BC, P ∈ CC\'.',
+            'Bước 3/4: Kẻ các đoạn song song tìm thêm trung điểm Q ∈ C\'D\', R ∈ D\'A\', S ∈ AA\'.',
+            'Bước 4/4: Thiết diện MNPQRS là Lục giác đều cạnh a√2/2, diện tích S = (3√3/4)a².'
+          ],
+          solutions: [
+            `MN = NP = PQ = QR = RS = SM = \\frac{a\\sqrt{2}}{2}`,
+            `\\text{Mỗi góc của lục giác đều bằng } 120^\\circ`,
+            `S_{\\text{thiết diện}} = 6 \\cdot \\left(\\frac{a\\sqrt{2}}{2}\\right)^2 \\frac{\\sqrt{3}}{4} = \\frac{3\\sqrt{3}}{4}a^2`
+          ]
+        };
+      } else {
+        const M = A.clone().add(B).multiplyScalar(0.5);
+        const N = A.clone().add(D).multiplyScalar(0.5);
+        const P = A.clone().add(Ap).multiplyScalar(0.5);
+        if (eff >= 2) { [['M', M], ['N', N], ['P', P]].forEach(([l, p]) => { addPoint(p, 0xf97316, 0.062); addLabel(l, p, centroid, '#ea580c'); }); }
+        if (eff >= 3) { addSectionPolygon([M, N, P], 0xf97316); }
+        return {
+          stepDesc: [
+            "Bước 1/4: Hình lập phương ABCD.A'B'C'D' cạnh a.",
+            'Bước 2/4: Lấy trung điểm M ∈ AB, N ∈ AD, P ∈ AA\'.',
+            'Bước 3/4: Nối M, N, P tạo thiết diện tam giác đều ΔMNP.',
+            'Bước 4/4: Cạnh ΔMNP bằng a√2/2 ⇒ S = (a²√3)/8.'
+          ],
+          solutions: [
+            `MN = NP = PM = \\frac{a\\sqrt{2}}{2} \\Rightarrow \\Delta MNP \\text{ đều}`,
+            `S_{\\Delta MNP} = \\left(\\frac{a\\sqrt{2}}{2}\\right)^2 \\frac{\\sqrt{3}}{4} = \\frac{a^2\\sqrt{3}}{8}`
+          ]
+        };
+      }
+    }
+
+    function buildModelAdv5() {
+      // Oxyz: Mặt cầu (I; R) cắt mặt phẳng (P) theo đường tròn (H; r)
+      const I = new THREE.Vector3(0, 1.8, 0), R = 1.65, d = 0.85, r = Math.sqrt(R * R - d * d);
+      const H = new THREE.Vector3(0, 1.8 - d, 0), M = new THREE.Vector3(r, 1.8 - d, 0);
+      const centroid = new THREE.Vector3(0, 1.5, 0), tc = getThemeColors(), eff = state.showAllSteps ? 4 : state.step;
+
+      addGlassSphere(I, R, 0x38bdf8, 0.24);
+      addPoint(I, 0xdc2626, 0.072); addLabel('I', I, centroid, '#dc2626');
+      if (eff >= 2) {
+        const p1 = new THREE.Vector3(-2.3, H.y, -2.3), p2 = new THREE.Vector3(2.3, H.y, -2.3);
+        const p3 = new THREE.Vector3(2.3, H.y, 2.3), p4 = new THREE.Vector3(-2.3, H.y, 2.3);
+        addFace([p1, p2, p3, p4], 0x2563eb, 0.16);
+        addLine(I, H, 0x16a34a, true, 0.026);
+        addPoint(H, 0x16a34a, 0.064); addLabel('H', H, centroid, '#15803d');
+      }
+      if (eff >= 3) {
+        addCircle3D(H, r, 0xf97316, new THREE.Vector3(0, 1, 0), 0.026, false);
+        addPoint(M, 0xf97316, 0.062); addLabel('M', M, centroid, '#ea580c');
+      }
+      if (eff >= 4) {
+        addLine(I, M, 0xef4444, false, 0.028);
+        addLine(H, M, 0xf97316, false, 0.028);
+        addRightAngleMarker(H, I, M, 0.22, 0x16a34a);
+      }
+      return {
+        stepDesc: [
+          'Bước 1/4: Mặt cầu (S) tâm I bán kính R.',
+          'Bước 2/4: Mặt phẳng (P) cắt (S), hạ IH ⊥ (P) với d = d(I, (P)) = IH < R.',
+          'Bước 3/4: Giao tuyến là đường tròn (C) tâm H bán kính r.',
+          'Bước 4/4: Xét ΔIHM vuông tại H: r = √(R² - d²).'
+        ],
+        solutions: [
+          `d = d(I,(P)) = IH < R \\Rightarrow (P) \\text{ cắt } (S) \\text{ theo đường tròn tâm } H`,
+          `\\Delta IHM \\text{ vuông tại } H \\Rightarrow R^2 = d^2 + r^2`,
+          `\\Rightarrow r = \\sqrt{R^2 - d^2}`
+        ]
+      };
+    }
+
+    function buildModelAdv6() {
+      // Khối chóp cụt tứ giác đều ABCD.A'B'C'D'
+      const a = 1.65, b = 0.95, h = 2.3;
+      const A = new THREE.Vector3(-a, 0, a), B = new THREE.Vector3(a, 0, a), C = new THREE.Vector3(a, 0, -a), D = new THREE.Vector3(-a, 0, -a);
+      const Ap = new THREE.Vector3(-b, h, b), Bp = new THREE.Vector3(b, h, b), Cp = new THREE.Vector3(b, h, -b), Dp = new THREE.Vector3(-b, h, -b);
+      const O = new THREE.Vector3(0, 0, 0), Op = new THREE.Vector3(0, h, 0);
+      const centroid = new THREE.Vector3(0, h / 2, 0), tc = getThemeColors(), faceOp = state.xray ? 0.14 : 0.56, eff = state.showAllSteps ? 4 : state.step;
+
+      const fBot = makeFaceData([A,B,C,D], centroid), fTop = makeFaceData([Ap,Bp,Cp,Dp], centroid);
+      const fFront = makeFaceData([A,B,Bp,Ap], centroid), fRight = makeFaceData([B,C,Cp,Bp], centroid);
+      const fBack = makeFaceData([C,D,Dp,Cp], centroid), fLeft = makeFaceData([D,A,Ap,Dp], centroid);
+      [[A,B,C,D],[Ap,Bp,Cp,Dp],[A,B,Bp,Ap],[B,C,Cp,Bp],[C,D,Dp,Cp],[D,A,Ap,Dp]].forEach(f => addFace(f, tc.face, faceOp));
+      addDynamicEdge(A, B, fBot, fFront, tc.edge); addDynamicEdge(B, C, fBot, fRight, tc.edge);
+      addDynamicEdge(C, D, fBot, fBack, tc.edge); addDynamicEdge(D, A, fBot, fLeft, tc.edge);
+      addDynamicEdge(Ap, Bp, fTop, fFront, tc.edge); addDynamicEdge(Bp, Cp, fTop, fRight, tc.edge);
+      addDynamicEdge(Cp, Dp, fTop, fBack, tc.edge); addDynamicEdge(Dp, Ap, fTop, fLeft, tc.edge);
+      addDynamicEdge(A, Ap, fFront, fLeft, tc.edge); addDynamicEdge(B, Bp, fFront, fRight, tc.edge);
+      addDynamicEdge(C, Cp, fRight, fBack, tc.edge); addDynamicEdge(D, Dp, fBack, fLeft, tc.edge);
+      [['A',A],['B',B],['C',C],['D',D],["A'",Ap],["B'",Bp],["C'",Cp],["D'",Dp]].forEach(([l, p]) => { addPoint(p, tc.edge, 0.052); addLabel(l, p, centroid); });
+
+      if (eff >= 2) {
+        addLine(O, Op, 0x16a34a, true, 0.025);
+        addPoint(O, 0x16a34a, 0.056); addLabel('O', O, centroid, '#15803d');
+        addPoint(Op, 0x16a34a, 0.056); addLabel("O'", Op, centroid, '#15803d');
+      }
+      if (eff >= 3) {
+        addSectionPolygon([A, B, Bp, Ap], 0xf97316);
+      }
+      return {
+        stepDesc: [
+          "Bước 1/4: Khối chóp cụt tứ giác đều ABCD.A'B'C'D' (đáy lớn S₁ = a², đáy nhỏ S₂ = b²).",
+          "Bước 2/4: Trục OO' vuông góc hai đáy, chiều cao h = OO'.",
+          "Bước 3/4: Mỗi mặt bên là hình thang cân bằng nhau.",
+          'Bước 4/4: Thể tích chóp cụt: V = (h/3)·(S₁ + S₂ + √(S₁·S₂)).'
+        ],
+        solutions: [
+          `S_1 = a^2, \\; S_2 = b^2, \\; h = OO'`,
+          `V = \\frac{h}{3}\\left(S_1 + S_2 + \\sqrt{S_1 S_2}\\right) = \\frac{h}{3}(a^2 + ab + b^2)`
+        ]
+      };
+    }
+
     function buildModel11() {
       const A = new THREE.Vector3(0, 3.2, 0.2);
       const B = new THREE.Vector3(-2.3, 0, 1.7);
@@ -4490,6 +4798,12 @@
       else if (state.modelId === 'k12_4') info = buildModelK12_4();
       else if (state.modelId === 'k12_5') info = buildModelK12_5();
       else if (state.modelId === 'k12_6') info = buildModelK12_6();
+      else if (state.modelId === 'adv_1') info = buildModelAdv1();
+      else if (state.modelId === 'adv_2') info = buildModelAdv2();
+      else if (state.modelId === 'adv_3') info = buildModelAdv3();
+      else if (state.modelId === 'adv_4') info = buildModelAdv4();
+      else if (state.modelId === 'adv_5') info = buildModelAdv5();
+      else if (state.modelId === 'adv_6') info = buildModelAdv6();
       else if (state.modelId === '1.1') info = buildModel11();
       else if (state.modelId === '1.2') info = buildModel12();
       else if (state.modelId === '1.3') info = buildModel13();
@@ -4673,6 +4987,14 @@
           <div class="sub-tabs" style="margin:0;">
             <button class="sub-tab ${state.k12_1.secType === 'axial' ? 'active' : ''}" onclick="state.k12_1.secType='axial'; buildDynamicControls(); rebuildScene();">Thiết diện qua trục (ΔSAB)</button>
             <button class="sub-tab ${state.k12_1.secType === 'vertex' ? 'active' : ''}" onclick="state.k12_1.secType='vertex'; buildDynamicControls(); rebuildScene();">Qua đỉnh (ΔSMN)</button>
+          </div>
+        `;
+      } else if (state.modelId === 'adv_4') {
+        box.innerHTML = `
+          <div style="font-size:12px; color:#334155; margin-bottom:6px;">Chọn mặt phẳng cắt hình lập phương:</div>
+          <div class="sub-tabs" style="margin:0;">
+            <button class="sub-tab ${state.adv_4.mode === 'hex' ? 'active' : ''}" onclick="state.adv_4.mode='hex'; buildDynamicControls(); rebuildScene();">Lục giác đều (MNPQRS)</button>
+            <button class="sub-tab ${state.adv_4.mode === 'tri' ? 'active' : ''}" onclick="state.adv_4.mode='tri'; buildDynamicControls(); rebuildScene();">Tam giác đều (MNP)</button>
           </div>
         `;
       } else if (state.modelId === 'hk2_1') {
