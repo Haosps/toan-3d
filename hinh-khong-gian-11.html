@@ -1505,6 +1505,8 @@
       hk2_1: { rightAt: 'B' },
       hk2_2: { mode: 'dihedral' },
       hk2_6: { mode: 'cube' },
+      hk2ExIdx: 0,
+      hk2ExShowSol: true,
       adv_4: { mode: 'hex' },
       showAnswer: false,
       m11: { tM: 0.45, tN: 0.42, tP: 0.45 },
@@ -4986,6 +4988,234 @@
       });
     }
 
+    const HK2_EXAMPLES = {
+      hk2_1: [
+        {
+          level: 'Ví dụ 1 • Cơ bản',
+          prompt: 'Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$, $\\triangle ABC$ vuông tại $B$. Chứng minh $BC \\perp (SAB)$ và $\\triangle SBC$ vuông tại $B$.',
+          hint: 'Tìm 2 đường thẳng cắt nhau trong $(SAB)$ cùng vuông góc với $BC$.',
+          steps: [
+            'Ta có $BC \\perp AB$ (vì $\\triangle ABC$ vuông tại $B$) và $BC \\perp SA$ (vì $SA \\perp (ABC)$).',
+            'Mà $AB, SA \\subset (SAB)$ cắt nhau tại $A \\Rightarrow BC \\perp (SAB)$.',
+            'Suy ra $BC \\perp SB$, tức $\\triangle SBC$ vuông tại $B$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 2 • Tính góc',
+          prompt: 'Cho chóp $S.ABC$ có $SA \\perp (ABC)$, $SA = a\\sqrt{3}$, $\\triangle ABC$ vuông tại $B$ với $AB = a, BC = a\\sqrt{2}$. Tính góc giữa $SC$ và $(ABC)$.',
+          hint: 'Hình chiếu vuông góc của $SC$ lên $(ABC)$ là $AC$.',
+          steps: [
+            'Tính $AC = \\sqrt{AB^2 + BC^2} = \\sqrt{a^2 + 2a^2} = a\\sqrt{3}$.',
+            'Vì $SA \\perp (ABC)$ nên $\\widehat{(SC, (ABC))} = \\widehat{SCA}$.',
+            'Xét $\\triangle SAC$ vuông tại $A$: $\\tan\\widehat{SCA} = \\frac{SA}{AC} = \\frac{a\\sqrt{3}}{a\\sqrt{3}} = 1 \\Rightarrow \\widehat{SCA} = 45^\\circ$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 3 • Vận dụng',
+          prompt: 'Cho chóp $S.ABC$ có $SA \\perp (ABC)$, $\\triangle ABC$ vuông tại $C$, $AB = 2a, BC = a$, góc giữa $SB$ và $(ABC)$ bằng $60^\\circ$. Tính $SA$ và góc giữa $SC$ và $(ABC)$.',
+          hint: 'Tính $SA$ từ $\\triangle SAB$ vuông tại $A$, tính $AC$ theo Pytago trong $\\triangle ABC$.',
+          steps: [
+            'Ta có $\\widehat{(SB,(ABC))} = \\widehat{SBA} = 60^\\circ \\Rightarrow SA = AB\\tan 60^\\circ = 2a\\sqrt{3}$.',
+            'Trong $\\triangle ABC$ vuông tại $C$: $AC = \\sqrt{AB^2 - BC^2} = \\sqrt{4a^2 - a^2} = a\\sqrt{3}$.',
+            'Vậy $\\tan\\widehat{SCA} = \\frac{SA}{AC} = \\frac{2a\\sqrt{3}}{a\\sqrt{3}} = 2 \\Rightarrow \\widehat{SCA} = \\arctan 2 \\approx 63{,}4^\\circ$.'
+          ]
+        }
+      ],
+      hk2_2: [
+        {
+          level: 'Ví dụ 1 • Nhị diện',
+          prompt: 'Cho chóp tứ giác đều $S.ABCD$ cạnh đáy $AB = a$, đường cao $SO = \\frac{a\\sqrt{3}}{2}$. Tính số đo góc phẳng nhị diện $[S, BC, A]$.',
+          hint: 'Gọi $M$ là trung điểm $BC$, góc nhị diện cần tìm là $\\widehat{SMO}$.',
+          steps: [
+            'Gọi $M$ là trung điểm $BC$. Ta có $OM \\perp BC$ ($OM = \\frac{a}{2}$) và $SM \\perp BC$ ($\\triangle SBC$ cân tại $S$).',
+            'Suy ra góc phẳng nhị diện $[S, BC, A] = \\widehat{SMO}$.',
+            'Trong $\\triangle SOM$ vuông tại $O$: $\\tan\\widehat{SMO} = \\frac{SO}{OM} = \\frac{a\\sqrt{3}/2}{a/2} = \\sqrt{3} \\Rightarrow \\widehat{SMO} = 60^\\circ$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 2 • Góc cạnh bên',
+          prompt: 'Cho chóp tứ giác đều $S.ABCD$ cạnh đáy $a$, cạnh bên $SB = a$. Tính góc giữa $SB$ và $(ABCD)$.',
+          hint: 'Hình chiếu của $SB$ lên $(ABCD)$ là $OB = \\frac{a\\sqrt{2}}{2}$.',
+          steps: [
+            'Vì $SO \\perp (ABCD)$ nên $\\widehat{(SB, (ABCD))} = \\widehat{SBO}$.',
+            'Nửa đường chéo hình vuông: $OB = \\frac{BD}{2} = \\frac{a\\sqrt{2}}{2}$.',
+            'Trong $\\triangle SOB$ vuông tại $O$: $\\cos\\widehat{SBO} = \\frac{OB}{SB} = \\frac{\\sqrt{2}}{2} \\Rightarrow \\widehat{SBO} = 45^\\circ$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 3 • Vận dụng',
+          prompt: 'Cho chóp tứ giác đều $S.ABCD$ cạnh đáy $2a$, góc phẳng nhị diện $[S, BC, A] = 60^\\circ$. Tính đường cao $SO$ và cạnh bên $SA$.',
+          hint: '$OM = a$, tính $SO = OM\\tan 60^\\circ$, rồi dùng Pytago trong $\\triangle SOA$.',
+          steps: [
+            'Với $M$ là trung điểm $BC$, ta có $OM = a$ và $\\widehat{SMO} = 60^\\circ \\Rightarrow SO = a\\tan 60^\\circ = a\\sqrt{3}$.',
+            'Ta có $OA = \\frac{2a\\sqrt{2}}{2} = a\\sqrt{2}$.',
+            'Suy ra $SA = \\sqrt{SO^2 + OA^2} = \\sqrt{3a^2 + 2a^2} = a\\sqrt{5}$.'
+          ]
+        }
+      ],
+      hk2_3: [
+        {
+          level: 'Ví dụ 1 • Đường cao',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình vuông cạnh $a$, $\\triangle SAB$ đều và $(SAB) \\perp (ABCD)$. Tính chiều cao của hình chóp.',
+          hint: 'Gọi $H$ là trung điểm $AB$, chứng minh $SH \\perp (ABCD)$.',
+          steps: [
+            'Gọi $H$ là trung điểm $AB$. Vì $\\triangle SAB$ đều cạnh $a$ nên $SH \\perp AB$ và $SH = \\frac{a\\sqrt{3}}{2}$.',
+            'Do $(SAB) \\perp (ABCD)$ theo giao tuyến $AB$ và $SH \\subset (SAB) \\Rightarrow SH \\perp (ABCD)$.',
+            'Vậy chiều cao hình chóp là $h = SH = \\frac{a\\sqrt{3}}{2}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 2 • Tính góc',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình vuông cạnh $a$, $\\triangle SAB$ vuông cân tại $S$ và $(SAB) \\perp (ABCD)$. Tính $\\tan$ góc giữa $SC$ và $(ABCD)$.',
+          hint: 'Trung điểm $H$ của $AB$ có $SH = \\frac{a}{2}$; tính $HC$ trong $\\triangle HBC$ vuông tại $B$.',
+          steps: [
+            'Gọi $H$ là trung điểm $AB \\Rightarrow SH \\perp (ABCD)$ và $SH = \\frac{AB}{2} = \\frac{a}{2}$.',
+            'Hình chiếu của $SC$ lên $(ABCD)$ là $HC$, với $HC = \\sqrt{HB^2 + BC^2} = \\sqrt{\\frac{a^2}{4} + a^2} = \\frac{a\\sqrt{5}}{2}$.',
+            'Vậy $\\tan\\widehat{SCH} = \\frac{SH}{HC} = \\frac{a/2}{a\\sqrt{5}/2} = \\frac{1}{\\sqrt{5}}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 3 • Vận dụng',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình chữ nhật $AB = 2a, BC = a$. Mặt bên $(SAB)$ cân tại $S$, $\\widehat{ASB} = 120^\\circ$ và $(SAB) \\perp (ABCD)$. Tính thể tích $V$.',
+          hint: 'Trong $\\triangle SHB$ vuông tại $H$ có $\\widehat{HSB} = 60^\\circ, HB = a$.',
+          steps: [
+            'Gọi $H$ là trung điểm $AB \\Rightarrow SH \\perp (ABCD)$, $HB = a$, $\\widehat{HSB} = 60^\\circ$.',
+            'Suy ra $SH = \\frac{HB}{\\tan 60^\\circ} = \\frac{a}{\\sqrt{3}}$. Diện tích đáy $S_{ABCD} = 2a \\cdot a = 2a^2$.',
+            'Thể tích $V = \\frac{1}{3} S_{ABCD} \\cdot SH = \\frac{1}{3} \\cdot 2a^2 \\cdot \\frac{a}{\\sqrt{3}} = \\frac{2a^3\\sqrt{3}}{9}$.'
+          ]
+        }
+      ],
+      hk2_4: [
+        {
+          level: 'Ví dụ 1 • Rút gọn 2 nét',
+          prompt: 'Cho chóp $S.ABC$ có $SA \\perp (ABC)$, $SA = a$, đáy $\\triangle ABC$ vuông tại $B$ với $AB = a, BC = 2a$. Tính $d(A, (SBC))$.',
+          hint: 'Vì $\\triangle ABC$ vuông tại $B$ nên $AB \\perp BC$ (chân đường vuông góc $M$ trùng $B$).',
+          steps: [
+            'Vì $BC \\perp AB$ và $BC \\perp SA \\Rightarrow BC \\perp (SAB)$.',
+            'Kẻ $AH \\perp SB$ tại $H \\Rightarrow AH \\perp (SBC) \\Rightarrow d(A,(SBC)) = AH$.',
+            'Trong $\\triangle SAB$ vuông tại $A$: $\\frac{1}{AH^2} = \\frac{1}{SA^2} + \\frac{1}{AB^2} = \\frac{2}{a^2} \\Rightarrow AH = \\frac{a\\sqrt{2}}{2}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 2 • Đủ 3 nét kẻ',
+          prompt: 'Cho chóp $S.ABC$ có $SA \\perp (ABC)$, $SA = a\\sqrt{3}$, đáy $\\triangle ABC$ đều cạnh $2a$. Tính $d(A, (SBC))$.',
+          hint: 'Nét 1: $M$ trung điểm $BC$ ($AM = a\\sqrt{3}$). Nét 2: Nối $SM$. Nét 3: Kẻ $AH \\perp SM$.',
+          steps: [
+            'Kẻ $AM \\perp BC$ ($M$ là trung điểm $BC$), ta có $AM = \\frac{2a\\sqrt{3}}{2} = a\\sqrt{3}$.',
+            'Nối $SM$, kẻ $AH \\perp SM$ tại $H \\Rightarrow AH \\perp (SBC)$.',
+            'Tính $\\frac{1}{AH^2} = \\frac{1}{SA^2} + \\frac{1}{AM^2} = \\frac{1}{3a^2} + \\frac{1}{3a^2} = \\frac{2}{3a^2} \\Rightarrow AH = \\frac{a\\sqrt{6}}{2}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 3 • Tứ diện vuông',
+          prompt: 'Cho tứ diện vuông $S.ABC$ có $SA, AB, AC$ đôi một vuông góc và $SA = a, AB = 2a, AC = 2a$. Tính $d(A, (SBC))$.',
+          hint: 'Áp dụng 3 nét kẻ tương đương công thức: $\\frac{1}{d^2} = \\frac{1}{SA^2} + \\frac{1}{AB^2} + \\frac{1}{AC^2}$.',
+          steps: [
+            'Kẻ $AM \\perp BC \\Rightarrow \\frac{1}{AM^2} = \\frac{1}{AB^2} + \\frac{1}{AC^2}$.',
+            'Kẻ $AH \\perp SM \\Rightarrow AH \\perp (SBC)$ và $\\frac{1}{AH^2} = \\frac{1}{SA^2} + \\frac{1}{AM^2}$.',
+            'Thay số: $\\frac{1}{AH^2} = \\frac{1}{a^2} + \\frac{1}{4a^2} + \\frac{1}{4a^2} = \\frac{3}{2a^2} \\Rightarrow d(A,(SBC)) = \\frac{a\\sqrt{6}}{3}$.'
+          ]
+        }
+      ],
+      hk2_5: [
+        {
+          level: 'Ví dụ 1 • Trung điểm',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình vuông tâm $O$ cạnh $a$, $SA \\perp (ABCD)$ và $SA = a\\sqrt{3}$. Tính $d(O, (SCD))$.',
+          hint: '$AC \\cap (SCD) = C$ và $O$ là trung điểm $AC \\Rightarrow d(O,(SCD)) = \\frac{1}{2} d(A,(SCD))$.',
+          steps: [
+            'Ta có $AC \\cap (SCD) = C$ và $O$ là trung điểm $AC \\Rightarrow d(O,(SCD)) = \\frac{1}{2} d(A,(SCD))$.',
+            'Kẻ $AK \\perp SD \\Rightarrow AK \\perp (SCD)$, với $AK = \\frac{SA \\cdot AD}{\\sqrt{SA^2 + AD^2}} = \\frac{a\\sqrt{3} \\cdot a}{2a} = \\frac{a\\sqrt{3}}{2}$.',
+            'Vậy $d(O, (SCD)) = \\frac{1}{2} AK = \\frac{a\\sqrt{3}}{4}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 2 • Đường song song',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình chữ nhật $AB = a, AD = 2a$, $SA \\perp (ABCD), SA = 2a$. Tính $d(B, (SCD))$.',
+          hint: '$AB \\parallel CD \\Rightarrow AB \\parallel (SCD) \\Rightarrow d(B,(SCD)) = d(A,(SCD))$.',
+          steps: [
+            'Vì $AB \\parallel CD \\subset (SCD)$ nên $AB \\parallel (SCD) \\Rightarrow d(B, (SCD)) = d(A, (SCD))$.',
+            'Kẻ $AK \\perp SD$ tại $K \\Rightarrow AK \\perp (SCD)$ (do $CD \\perp (SAD)$).',
+            'Tính $AK = \\frac{SA \\cdot AD}{\\sqrt{SA^2 + AD^2}} = \\frac{2a \\cdot 2a}{2a\\sqrt{2}} = a\\sqrt{2}$. Vậy $d(B,(SCD)) = a\\sqrt{2}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 3 • Chia tỉ số',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình vuông cạnh $a$, $SA \\perp (ABCD), SA = a$. Lấy $M \\in SC$ sao cho $SM = \\frac{1}{3}SC$. Tính $d(M,(ABCD))$ và $d(M,(SAD))$.',
+          hint: 'Dùng định lý Ta-lét so sánh tỉ số khoảng cách từ $M$ với $S$ hoặc $C$.',
+          steps: [
+            'Vì $MC = \\frac{2}{3}SC$ và $C \\in (ABCD)$ nên $d(M,(ABCD)) = \\frac{2}{3} d(S,(ABCD)) = \\frac{2}{3}SA = \\frac{2a}{3}$.',
+            'Vì $SM = \\frac{1}{3}SC$ và $S \\in (SAD)$ nên $d(M,(SAD)) = \\frac{1}{3} d(C,(SAD))$.',
+            'Mà $CD \\perp (SAD) \\Rightarrow d(C,(SAD)) = CD = a \\Rightarrow d(M,(SAD)) = \\frac{a}{3}$.'
+          ]
+        }
+      ],
+      hk2_6: [
+        {
+          level: 'Ví dụ 1 • Đoạn vuông góc chung',
+          prompt: 'Cho hình lập phương $ABCD.A\'B\'C\'D\'$ cạnh $a$. Tính khoảng cách giữa hai đường thẳng chéo nhau $AA\'$ và $BD$.',
+          hint: 'Gọi $O = AC \\cap BD$, chứng minh $AO$ là đoạn vuông góc chung của $AA\'$ và $BD$.',
+          steps: [
+            'Gọi $O = AC \\cap BD$. Vì $AA\' \\perp (ABCD) \\Rightarrow AA\' \\perp AO$ tại $A$.',
+            'Trong hình vuông $ABCD$: $AC \\perp BD \\Rightarrow AO \\perp BD$ tại $O$.',
+            'Vậy $AO$ là đoạn vuông góc chung $\\Rightarrow d(AA\', BD) = AO = \\frac{a\\sqrt{2}}{2}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 2 • Mặt phẳng song song',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình vuông cạnh $a$, $SA \\perp (ABCD), SA = a\\sqrt{2}$. Tính khoảng cách giữa $AD$ và $SB$.',
+          hint: '$AD \\parallel BC \\subset (SBC) \\Rightarrow d(AD, SB) = d(AD, (SBC)) = d(A, (SBC))$.',
+          steps: [
+            'Vì $AD \\parallel BC \\Rightarrow AD \\parallel (SBC) \\Rightarrow d(AD, SB) = d(A, (SBC))$.',
+            'Kẻ $AH \\perp SB$ tại $H \\Rightarrow AH \\perp (SBC)$ (do $BC \\perp (SAB)$).',
+            'Trong $\\triangle SAB$ vuông tại $A$: $AH = \\frac{SA \\cdot AB}{\\sqrt{SA^2 + AB^2}} = \\frac{a\\sqrt{2} \\cdot a}{a\\sqrt{3}} = \\frac{a\\sqrt{6}}{3}$.'
+          ]
+        },
+        {
+          level: 'Ví dụ 3 • Vận dụng',
+          prompt: 'Cho chóp $S.ABCD$ đáy hình vuông cạnh $a$, $SA \\perp (ABCD)$. Tính khoảng cách giữa $SA$ và $BD$.',
+          hint: 'Gọi $O$ là tâm hình vuông đáy, kiểm tra góc của $AO$ với $SA$ và $BD$.',
+          steps: [
+            'Gọi $O$ là tâm hình vuông $ABCD$. Ta có $SA \\perp (ABCD) \\Rightarrow SA \\perp AO$ tại $A$.',
+            'Đồng thời $BD \\perp AC \\Rightarrow BD \\perp AO$ tại $O$.',
+            'Do đó $AO$ là đoạn vuông góc chung của $SA$ và $BD$, nên $d(SA, BD) = AO = \\frac{a\\sqrt{2}}{2}$.'
+          ]
+        }
+      ]
+    };
+
+    function renderHK2ExamplesCard(modelId) {
+      const list = HK2_EXAMPLES[modelId];
+      if (!list || !list.length) return '';
+      const idx = Math.max(0, Math.min(state.hk2ExIdx || 0, list.length - 1));
+      const ex = list[idx];
+      const showSol = state.hk2ExShowSol !== false;
+      return `
+        <div class="slider-box" style="background:#f0f9ff; border-color:#bae6fd; margin-top:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:6px;">
+            <span style="font-size:11.5px; font-weight:800; color:#0369a1;">📘 3 Bài tập Ví dụ minh họa</span>
+            <span style="font-size:10.5px; font-weight:700; color:#0284c7; background:#e0f2fe; padding:2px 7px; border-radius:999px;">${ex.level}</span>
+          </div>
+          <div class="sub-tabs" style="margin:0 0 8px 0;">
+            ${list.map((_, i) => `<button class="sub-tab ${i === idx ? 'active' : ''}" onclick="state.hk2ExIdx=${i}; buildDynamicControls();">Ví dụ ${i + 1}</button>`).join('')}
+          </div>
+          <div style="font-size:12.5px; line-height:1.5; color:#0f172a; background:#ffffff; padding:8px 10px; border-radius:8px; border:1px solid #e0f2fe;">
+            <strong>Đề bài:</strong> ${ex.prompt}
+          </div>
+          <div style="font-size:11.5px; line-height:1.45; color:#b45309; background:#fffbeb; padding:6px 9px; border-radius:7px; border:1px solid #fde68a; margin-top:6px;">
+            💡 <strong>Gợi ý:</strong> ${ex.hint}
+          </div>
+          <button class="toggle-btn ${showSol ? 'on' : 'on-blue'}" style="width:100%; margin-top:7px;" onclick="state.hk2ExShowSol=!state.hk2ExShowSol; buildDynamicControls();">
+            ${showSol ? '🙈 Ẩn lời giải (để học sinh tự làm)' : '👁️ Hiện lời giải chi tiết'}
+          </button>
+          ${showSol ? `
+            <div style="margin-top:7px; padding:8px 10px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac; display:flex; flex-direction:column; gap:5px;">
+              ${ex.steps.map((st, k) => `<div style="font-size:12px; line-height:1.5; color:#14532d;"><span class="sol-badge" style="margin-right:5px;">B${k + 1}</span>${st}</div>`).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
     function buildDynamicControls() {
       const box = document.getElementById('dynamic-controls');
       if (state.modelId.startsWith('d1_') || state.modelId.startsWith('d2_') || state.modelId.startsWith('d3_')) {
@@ -5042,7 +5272,9 @@
             <button class="sub-tab ${state.hk2_1.rightAt === 'B' ? 'active' : ''}" onclick="state.hk2_1.rightAt='B'; buildDynamicControls(); rebuildScene();">Đáy vuông tại B</button>
             <button class="sub-tab ${state.hk2_1.rightAt === 'C' ? 'active' : ''}" onclick="state.hk2_1.rightAt='C'; buildDynamicControls(); rebuildScene();">Đáy vuông tại C</button>
           </div>
+          ${renderHK2ExamplesCard('hk2_1')}
         `;
+        renderAllMath(box);
       } else if (state.modelId === 'hk2_2') {
         box.innerHTML = `
           <div style="font-size:12px; color:#334155; margin-bottom:6px;">Chọn loại góc cần trực quan hóa:</div>
@@ -5050,7 +5282,12 @@
             <button class="sub-tab ${state.hk2_2.mode === 'dihedral' ? 'active' : ''}" onclick="state.hk2_2.mode='dihedral'; buildDynamicControls(); rebuildScene();">Nhị diện [S, BC, A]</button>
             <button class="sub-tab ${state.hk2_2.mode === 'edge' ? 'active' : ''}" onclick="state.hk2_2.mode='edge'; buildDynamicControls(); rebuildScene();">Góc (SB, (ABCD))</button>
           </div>
+          ${renderHK2ExamplesCard('hk2_2')}
         `;
+        renderAllMath(box);
+      } else if (state.modelId === 'hk2_3' || state.modelId === 'hk2_4' || state.modelId === 'hk2_5') {
+        box.innerHTML = renderHK2ExamplesCard(state.modelId);
+        renderAllMath(box);
       } else if (state.modelId === 'hk2_6') {
         box.innerHTML = `
           <div style="font-size:12px; color:#334155; margin-bottom:6px;">Chọn mô hình khoảng cách 2 đường chéo nhau:</div>
@@ -5058,7 +5295,9 @@
             <button class="sub-tab ${state.hk2_6.mode === 'cube' ? 'active' : ''}" onclick="state.hk2_6.mode='cube'; buildDynamicControls(); rebuildScene();">Lập phương: d(AA', BD)</button>
             <button class="sub-tab ${state.hk2_6.mode === 'pyr' ? 'active' : ''}" onclick="state.hk2_6.mode='pyr'; buildDynamicControls(); rebuildScene();">Chóp S.ABCD: d(AD, SB)</button>
           </div>
+          ${renderHK2ExamplesCard('hk2_6')}
         `;
+        renderAllMath(box);
       } else if (state.modelId === 'vd1') {
         box.innerHTML = `
           <div style="font-size:11.5px; font-weight:700; color:#475569; margin-bottom:6px;">Chọn câu hỏi giao tuyến:</div>
