@@ -1245,10 +1245,14 @@
       <!-- TAB 3: XƯỞNG HÌNH HỌC PHẲNG 2D (LỚP 9 & 10) -->
       <div id="tab3-panel" style="display:none; flex-direction:column; gap:8px;">
         <section class="card">
-          <div class="card-title"><span>1. Chọn hình phẳng chuẩn (2D)</span></div>
-          <select id="p2d-shape" class="aux-select" style="width:100%; padding:7px 8px; font-size:12.5px;" onchange="state.plane2d.shape=this.value; rebuildScene();">
-            <optgroup label="Tam giác &amp; Đường tròn">
-              <option value="tri_any">Tam giác thường ABC</option>
+          <div class="card-title">
+            <span>1. Chọn hình phẳng / Tự vẽ</span>
+            <button class="step-btn" onclick="reset2DShape()" title="Đặt lại vị trí đỉnh mặc định">↺ Đặt lại</button>
+          </div>
+          <select id="p2d-shape" class="aux-select" style="width:100%; padding:7px 8px; font-size:12.5px;" onchange="state.plane2d.shape=this.value; state.plane2d.selPt=null; rebuildScene();">
+            <optgroup label="Tự do &amp; Tam giác">
+              <option value="tri_any">Tam giác thường ABC (Kéo thả đỉnh)</option>
+              <option value="custom_blank">✏️ Tự vẽ hình từ đầu (Bảng trắng)</option>
               <option value="tri_right">Tam giác vuông ABC (tại A, đường cao AH)</option>
               <option value="tri_iso">Tam giác cân ABC (AB = AC)</option>
               <option value="tri_eq">Tam giác đều ABC</option>
@@ -1265,7 +1269,20 @@
         </section>
 
         <section class="card">
-          <div class="card-title"><span>2. Yếu tố dựng hình 2D</span></div>
+          <div class="card-title"><span>2. Tự vẽ &amp; Chỉnh điểm trực tiếp</span></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:6px;">
+            <button class="step-btn active-tool" id="p2d-t-move" onclick="set2DTool('move')">🖐 Kéo thả điểm</button>
+            <button class="step-btn" id="p2d-t-point" onclick="set2DTool('point')">📍 Chấm điểm</button>
+            <button class="step-btn" id="p2d-t-seg" onclick="set2DTool('seg')">📏 Nối đoạn</button>
+            <button class="step-btn" onclick="clear2DExtras()" style="color:#dc2626;">🗑️ Xóa nét thêm</button>
+          </div>
+          <label style="display:flex; align-items:center; gap:5px; font-size:11.5px; color:#475569; cursor:pointer;">
+            <input type="checkbox" id="p2d-dashed" onchange="state.plane2d.dashed=this.checked;" /> Nối bằng nét đứt • <em>Click đúp điểm để đổi tên</em>
+          </label>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span>3. Yếu tố dựng hình 2D</span></div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px; color:#334155;">
             <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-mid" checked onchange="state.plane2d.showMid=this.checked; rebuildScene();" /> Trung điểm</label>
             <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" id="p2d-alt" checked onchange="state.plane2d.showAlt=this.checked; rebuildScene();" /> Đường cao &amp; $H$</label>
@@ -1286,7 +1303,7 @@
     <section class="right-stage" id="right-stage">
       <div id="canvas3d"></div>
       <div id="plane2d-stage" style="display:none; position:absolute; inset:0; background:#ffffff; z-index:4;">
-        <canvas id="canvas2d" style="width:100%; height:100%; display:block;"></canvas>
+        <canvas id="canvas2d" style="width:100%; height:100%; display:block; touch-action:none;"></canvas>
         <div id="plane2d-bar" style="position:absolute; top:56px; left:14px; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,0.94); border:1px solid #cbd5e1; border-radius:9px; padding:5px 9px; box-shadow:0 4px 12px rgba(15,23,42,0.1); z-index:6; font-size:12px;">
           <span style="font-weight:700; color:#1e3a8a;">📐 Góc nhìn Phẳng 2D:</span>
           <button class="step-btn active-tool" id="btn-2d-base" onclick="set2DExtractSource('base')">Mặt đáy</button>
@@ -1535,7 +1552,17 @@
         showAlt: true,
         showCent: false,
         showCirc: false,
-        showInc: false
+        showInc: false,
+        tool: 'move',
+        dashed: false,
+        customPts: {},
+        auxPts: [],
+        extraSegs: [],
+        selPt: null,
+        dragTarget: null,
+        hoverPt: null,
+        lastPts: [],
+        lastLabels: []
       }
     };
 
@@ -7950,6 +7977,11 @@
           '\\widehat{A} + \\widehat{C} = 180^\\circ',
           'AC \\cdot BD = AB \\cdot CD + AD \\cdot BC \\; (\\text{Ptolemy})'
         ];
+      } else if (p2.shape === 'custom_blank') {
+        pts = [];
+        labels = [];
+        stepDesc = ['Bảng trắng tự do: Chọn 📍 Chấm điểm để đặt các đỉnh, rồi chọn 📏 Nối đoạn để tự vẽ hình theo ý muốn!'];
+        formulas = ['\\text{Dùng chuột / cảm ứng kéo thả bất kỳ điểm nào để biến đổi hình!}'];
       } else {
         // tri_any or circle_tri
         pts = [{ x: cx - R * 0.35, y: cy - R * 0.8 }, { x: cx - R * 0.95, y: cy + R * 0.65 }, { x: cx + R * 1.05, y: cy + R * 0.65 }];
@@ -7965,6 +7997,16 @@
           'S = \\sqrt{p(p-a)(p-b)(p-c)} = \\frac{abc}{4R} = pr'
         ];
       }
+
+      if (!isCircle && p2.shape !== 'custom_blank') {
+        if (!p2.customPts[p2.shape] || p2.customPts[p2.shape].length !== pts.length) {
+          p2.customPts[p2.shape] = pts.map(pt => ({ nx: pt.x / w, ny: pt.y / h }));
+        } else {
+          pts = p2.customPts[p2.shape].map(np => ({ x: np.nx * w, y: np.ny * h }));
+        }
+      }
+      p2.lastPts = pts;
+      p2.lastLabels = labels;
 
       if (isCircle) {
         const O = { x: cx - R * 0.45, y: cy };
@@ -8002,18 +8044,22 @@
       } else {
         // Polygon 2D
         ctx.save();
-        if (eff >= 4) {
-          ctx.fillStyle = 'rgba(59, 130, 246, 0.11)';
-          ctx.beginPath(); pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.fill();
-        }
-        ctx.strokeStyle = strokeMain; ctx.lineWidth = 2.4;
-        ctx.beginPath(); pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+        if (pts.length >= 2) {
+          if (eff >= 4 && pts.length >= 3) {
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.11)';
+            ctx.beginPath(); pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.fill();
+          }
+          ctx.strokeStyle = strokeMain; ctx.lineWidth = 2.4;
+          ctx.beginPath(); pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+          if (pts.length >= 3) ctx.closePath();
+          ctx.stroke();
 
-        const cent = pts.reduce((a, p) => ({ x: a.x + p.x / pts.length, y: a.y + p.y / pts.length }), { x: 0, y: 0 });
-        pts.forEach((p, i) => {
-          const dx = p.x - cent.x, dy = p.y - cent.y, d = Math.hypot(dx, dy) || 1;
-          draw2DPoint(ctx, p, labels[i], strokeMain, (dx / d) * 14 - 4, (dy / d) * 14 + 4, isDark);
-        });
+          const cent = pts.reduce((a, p) => ({ x: a.x + p.x / pts.length, y: a.y + p.y / pts.length }), { x: 0, y: 0 });
+          pts.forEach((p, i) => {
+            const dx = p.x - cent.x, dy = p.y - cent.y, d = Math.hypot(dx, dy) || 1;
+            draw2DPoint(ctx, p, labels[i], strokeMain, (dx / d) * 14 - 4, (dy / d) * 14 + 4, isDark);
+          });
+        }
 
         if (pts.length === 3) {
           const [A, B, C] = pts;
@@ -8070,6 +8116,40 @@
             draw2DPoint(ctx, { x: cx, y: cy }, 'O', '#0ea5e9', 6, -6, isDark);
           }
         }
+        ctx.restore();
+      }
+
+      // Draw user-added extra segments & aux points
+      const resolve2DRef = ref => {
+        if (!ref) return null;
+        if (ref.kind === 'base') return pts[ref.idx] || null;
+        const ap = p2.auxPts.find(a => a.id === ref.id);
+        return ap ? { x: ap.nx * w, y: ap.ny * h } : null;
+      };
+      p2.extraSegs.forEach(sg => {
+        const a = resolve2DRef(sg.p1), b = resolve2DRef(sg.p2);
+        if (!a || !b) return;
+        ctx.save();
+        ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2.2;
+        if (sg.dashed) ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.restore();
+      });
+      p2.auxPts.forEach(ap => {
+        const px = ap.nx * w, py = ap.ny * h;
+        draw2DPoint(ctx, { x: px, y: py }, ap.name, '#dc2626', 8, -8, isDark);
+      });
+      if (p2.selPt) {
+        const sp = resolve2DRef(p2.selPt);
+        if (sp) {
+          ctx.save(); ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.4;
+          ctx.beginPath(); ctx.arc(sp.x, sp.y, 11, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+        }
+      }
+      if (p2.hoverPt) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(37, 99, 235, 0.16)'; ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.arc(p2.hoverPt.x, p2.hoverPt.y, 13, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         ctx.restore();
       }
 
@@ -8178,6 +8258,128 @@
       });
     }
 
+    function set2DTool(t) {
+      state.plane2d.tool = t;
+      state.plane2d.selPt = null;
+      ['move', 'point', 'seg'].forEach(k => {
+        const b = document.getElementById(`p2d-t-${k}`);
+        if (b) b.classList.toggle('active-tool', k === t);
+      });
+      buildPlane2DScene();
+    }
+
+    function reset2DShape() {
+      delete state.plane2d.customPts[state.plane2d.shape];
+      state.plane2d.selPt = null;
+      buildPlane2DScene();
+    }
+
+    function clear2DExtras() {
+      state.plane2d.auxPts = [];
+      state.plane2d.extraSegs = [];
+      state.plane2d.selPt = null;
+      buildPlane2DScene();
+    }
+
+    function setup2DInteractiveHandlers() {
+      const c2d = document.getElementById('canvas2d');
+      if (!c2d) return;
+
+      const findHit2D = (x, y) => {
+        const r = c2d.getBoundingClientRect(), w = r.width || 900, h = r.height || 600;
+        const p2 = state.plane2d;
+        for (const ap of p2.auxPts) {
+          const ax = ap.nx * w, ay = ap.ny * h;
+          if (Math.hypot(ax - x, ay - y) < 18) return { kind: 'aux', id: ap.id, x: ax, y: ay };
+        }
+        for (let i = 0; i < (p2.lastPts || []).length; i++) {
+          const pt = p2.lastPts[i];
+          if (Math.hypot(pt.x - x, pt.y - y) < 20) return { kind: 'base', idx: i, x: pt.x, y: pt.y };
+        }
+        return null;
+      };
+
+      const next2DAuxName = () => {
+        const pool = ['M', 'N', 'P', 'Q', 'E', 'F', 'K', 'I', 'R', 'S', 'T'];
+        const used = new Set([...(state.plane2d.lastLabels || []), ...state.plane2d.auxPts.map(a => a.name)]);
+        return pool.find(c => !used.has(c)) || `P${state.plane2d.auxPts.length + 1}`;
+      };
+
+      c2d.addEventListener('pointerdown', e => {
+        if (state.mainTab !== 3 || state.pen.active) return;
+        const r = c2d.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        const p2 = state.plane2d;
+        if (p2.tool === 'move') {
+          const hit = findHit2D(x, y);
+          if (hit) {
+            p2.dragTarget = hit;
+            c2d.setPointerCapture(e.pointerId);
+          }
+        } else if (p2.tool === 'point') {
+          p2.auxPts.push({ id: 'p2_' + Date.now(), name: next2DAuxName(), nx: x / r.width, ny: y / r.height });
+          buildPlane2DScene();
+        } else if (p2.tool === 'seg') {
+          const hit = findHit2D(x, y);
+          if (!hit) return;
+          const ref = hit.kind === 'base' ? { kind: 'base', idx: hit.idx } : { kind: 'aux', id: hit.id };
+          if (!p2.selPt) { p2.selPt = ref; buildPlane2DScene(); }
+          else {
+            if (JSON.stringify(p2.selPt) !== JSON.stringify(ref)) {
+              p2.extraSegs.push({ p1: p2.selPt, p2: ref, dashed: p2.dashed });
+            }
+            p2.selPt = null;
+            buildPlane2DScene();
+          }
+        }
+      });
+
+      c2d.addEventListener('pointermove', e => {
+        if (state.mainTab !== 3 || state.pen.active) return;
+        const r = c2d.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        const p2 = state.plane2d;
+        if (p2.dragTarget) {
+          const nx = Math.max(0.05, Math.min(0.95, x / r.width));
+          const ny = Math.max(0.08, Math.min(0.92, y / r.height));
+          if (p2.dragTarget.kind === 'aux') {
+            const ap = p2.auxPts.find(a => a.id === p2.dragTarget.id);
+            if (ap) { ap.nx = nx; ap.ny = ny; }
+          } else if (p2.dragTarget.kind === 'base' && p2.customPts[p2.shape]) {
+            p2.customPts[p2.shape][p2.dragTarget.idx] = { nx, ny };
+          }
+          buildPlane2DScene();
+          return;
+        }
+        const hit = findHit2D(x, y);
+        const nextHover = hit ? { x: hit.x, y: hit.y } : null;
+        const changed = (!!nextHover !== !!p2.hoverPt) || (nextHover && p2.hoverPt && (nextHover.x !== p2.hoverPt.x || nextHover.y !== p2.hoverPt.y));
+        p2.hoverPt = nextHover;
+        c2d.style.cursor = nextHover ? 'grab' : (p2.tool === 'point' ? 'crosshair' : 'default');
+        if (changed) buildPlane2DScene();
+      });
+
+      const end2D = e => {
+        if (state.plane2d.dragTarget) {
+          state.plane2d.dragTarget = null;
+          try { c2d.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      };
+      c2d.addEventListener('pointerup', end2D);
+      c2d.addEventListener('pointercancel', end2D);
+
+      c2d.addEventListener('dblclick', e => {
+        if (state.mainTab !== 3 || state.pen.active) return;
+        const r = c2d.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        const hit = findHit2D(x, y);
+        if (hit && hit.kind === 'aux') {
+          const ap = state.plane2d.auxPts.find(a => a.id === hit.id);
+          if (ap) {
+            const nn = prompt('Nhập tên mới cho điểm:', ap.name);
+            if (nn && nn.trim()) { ap.name = nn.trim().slice(0, 4); buildPlane2DScene(); }
+          }
+        }
+      });
+    }
+
     window.addEventListener('load', () => {
       // Single-open Accordion behavior in Tab 1
       document.querySelectorAll('#tab1-panel .acc-group').forEach(acc => {
@@ -8206,6 +8408,7 @@
       });
       resizeDrawOverlay();
       setupDraggableToolbar();
+      setup2DInteractiveHandlers();
       selectModel('vd1');
       renderAllMath(document.body);
       animate();
